@@ -7,7 +7,7 @@ interface Classe{
   armature: string[];
   strumenti :string[];
   tiriSalvezza :string[];
-  abilita :string;
+  abilita :string[];
   linguaggi :string;
   armi :string[];
 
@@ -41,6 +41,7 @@ interface Sottorazza {
   armi?: string[];
   strumenti?: string[];
   armature?: string[];
+  abilita?: string[]
 }
 
 interface Background {
@@ -78,7 +79,10 @@ export const DND = {
       armi: ['semplici', 'da guerra'],
       strumenti: [],
       tiriSalvezza: ['forza', 'costituzione'],
-      abilita: 'Due a scelta tra Addestrare Animali, Atletica, Intimidire, Natura, Percezione e Sopravvivenza.',
+      abilita: [
+        'addestrare animali, atletica, intimidire, natura, percezione, sopravvivenza',
+        'addestrare animali, atletica, intimidire, natura, percezione, sopravvivenza',
+      ],
       linguaggi: '',
       equipaggiamento: '(a) un\'ascia bipenne o (b) una qualsiasi arma da guerra da mischia; * (a) due asce o (b) una qualsiasi arma semplice; * Una dotazione da esploratore e quattro giavellotti',
       privilegi: [
@@ -199,7 +203,7 @@ export const DND = {
       armi: ['semplici', 'spada lunga', 'spada corta', 'arco corto', 'balestra leggera'],
       strumenti: ['Tre strumenti musicali a scelta'],
       tiriSalvezza: ['destrezza', 'carisma'],
-      abilita: 'Tre a scelta tra Acrobazia, Artifizio, Atletica, Inganno, Intuizione, Investigazione, Natura, Percezione, Persuasione, Rappresentazione, Sopravvivenza.',
+      abilita: ['libero','libero','libero'],
       linguaggi: 'Due lingue aggiuntive',
       equipaggiamento: '(a) una spada corta o (b) una qualsiasi arma semplice; * un liuto o qualsiasi altro strumento musicale; * un\'armatura di cuoio; * una dotazione da esploratore',
       privilegi: [
@@ -340,7 +344,10 @@ export const DND = {
       armi: ['semplici'],
       strumenti: [],
       tiriSalvezza: ['saggezza', 'carisma'],
-      abilita: 'Due a scelta tra Storia, Intuizione, Medicina, Persuasione, Religione.',
+      abilita: [
+        'intuizione,medicina,persuasione,religione,storia',
+        'intuizione,medicina,persuasione,religione,storia',
+      ],
       linguaggi: 'Due lingue aggiuntive',
       equipaggiamento: '(a) una mazza o (b) un martello da guerra; * (a) un\'armatura di maglia o (b) un\'armatura di cuoio e uno scudo; * un simbolo sacro; * una dotazione da sacerdote',
       privilegi: [
@@ -459,7 +466,10 @@ export const DND = {
       armi: ['clava', 'pugnale', 'lancia', 'mazza', 'bastone', 'falce', 'frusta'],
       strumenti: ['Kit da erborista'],
       tiriSalvezza: ['intelligenza', 'saggezza'],
-      abilita: 'Due a scelta tra Arcano, Natura, Percezione, Medicina, Religione, Sopravvivenza.',
+      abilita: [
+        'addestrare animali,arcano,intuizione,medicina,natura,percezione,religione,sopravvivenza',
+        'addestrare animali,arcano,intuizione,medicina,natura,percezione,religione,sopravvivenza'
+      ],
       linguaggi: 'Druidico',
       equipaggiamento: '(a) una clava o (b) un pugnale; * un\'armatura di cuoio; * un scudo di legno; * una dotazione da esploratore',
       privilegi: [
@@ -576,14 +586,16 @@ export const DND = {
         }
       ]
     },
-    {
-      nome: "Guerriero",
+    { nome: "Guerriero",
       dadoVita: 10,
       armature: ['leggere', 'medie', 'pesanti e scudi'],
       armi: ['semplici', 'da guerra'],
       strumenti: [],
       tiriSalvezza: ['forza', 'costituzione'],
-      abilita: 'Due a scelta tra Acrobazia, Atletica, Intimidire, Percezione, Sopravvivenza.',
+      abilita: [
+        'acrobazia,addestrare animali,atletica,intimidire,intuizione,percezione,sopravvivenza,storia',
+        'acrobazia,addestrare animali,atletica,intimidire,intuizione,percezione,sopravvivenza,storia'
+      ],
       linguaggi: '',
       equipaggiamento: '(a) un\'armatura di maglia o (b) un\'armatura di cuoio e uno scudo; * (a) un martello da guerra e uno scudo o (b) due armi da guerra; * una dotazione da esploratore',
       privilegi: [
@@ -695,14 +707,265 @@ export const DND = {
         }
       ]
     },
-    {
-      nome: "Monaco",
+    { nome: "Ladro",
+      dadoVita: 8,
+      armature: ['leggere'],
+      armi: ['semplici', 'spada lunga', 'spada corta', 'arco corto', 'balestra leggera'],
+      strumenti: ['Kit da ladro', 'strumenti da ladro'],
+      tiriSalvezza: ['destrezza', 'intelligenza'],
+      abilita: [ // quattro a scelta tra...
+        'acrobazia, atletica, furtività,indagare, inganno, intimidire, intrattenere,intuizione,percezione,persuasione,rapidità di mano',
+        'acrobazia, atletica, furtività,indagare, inganno, intimidire, intrattenere,intuizione,percezione,persuasione,rapidità di mano',
+        'acrobazia, atletica, furtività,indagare, inganno, intimidire, intrattenere,intuizione,percezione,persuasione,rapidità di mano',
+        'acrobazia, atletica, furtività,indagare, inganno, intimidire, intrattenere,intuizione,percezione,persuasione,rapidità di mano'
+      ],
+      linguaggi: '',
+      equipaggiamento: '(a) una spada corta o (b) una qualsiasi arma semplice; * (a) un arco corto e 20 frecce o (b) una balestra leggera e 20 dardi; * una dotazione da ladro; * una dotazione da esploratore',
+      privilegi: [
+        {
+          level: 1,
+          privilege: "Attacco Furtivo",
+          description: "Una volta per turno, puoi infliggere danni extra a una creatura che colpisci con un attacco con arma con arma accurata. Puoi avvinare quando, dadi di vantaggio sul tiro per colpire a quando il bersaglio ha un avversario a 1,5m."
+        },
+        {
+          level: 1,
+          privilege: "Gergo Ladresco",
+          description: "Impari gergo e codici che criptano messaggi. Sali un altro ladro più comprendi. Ci vuole il quadrupolo del tempo per trasmetterli. Inoltre, comprendi una serie di segni e simboli segreti per messaggi semplici e brevi (area pericolosa, territorio della gilda dei ladri, bottino nelle vicinanze, abitanti facili prede o possono fermarti in luogo ad un ladro in fuga)."
+        },
+        {
+          level: 2,
+          privilege: "Maestria",
+          description: "Puoi scegliere due abilità o un'abilità e un attacco da scasso) in cui ha competenza. Il Bonus Competenza per quelle prove è raddoppiato.",
+          scelta: true
+        },
+        {
+          level: 2,
+          privilege: "Ladro",
+          description: "Puoi scattare guadagnati azione bonus una volta a turno per Disimpegno, Nascondersi o Scattare."
+        },
+        {
+          level: 3,
+          privilege: "Privilegio dell'archetipo - Mira Stabile (Tasha)",
+          description: "Se non ti muovi nel tuo turno, puoi spendere l'azione bonus per darti vantaggio sul tuo prossimo tiro per colpire di tiro con arma.",
+          scelta: true
+        },
+        {
+          level: 4,
+          privilege: "Incremento punteggi di caratteristica",
+          description: "Aumenta di 2 un punteggio di caratteristica."
+        },
+        {
+          level: 5,
+          privilege: "Schivata Prodigiosa",
+          description: "Quando un attaccante che sei in grado di vedere ti colpisce con un attacco, puoi usare la tua reazione per dimezzare il danno dell'attacco effettuato contro di te."
+        },
+        {
+          level: 6,
+          privilege: "Maestria 2",
+          description: "Puoi scegliere altre due competenze.",
+          scelta: true
+        },
+        {
+          level: 7,
+          privilege: "Illusione",
+          description: "Quando sei vittima di un effetto che ti permette di compiere un tiro salvezza su Destrezza per dimezzare i danni, non subisci danni se superi il tiro salvezza, e solo metà danni se lo fallisci."
+        },
+        {
+          level: 8,
+          privilege: "Incremento punteggi di caratteristica",
+          description: "Aumenta di 2 un punteggio di caratteristica."
+        },
+        {
+          level: 9,
+          privilege: "Privilegio dell'archetipo",
+          description: "Privilegio speciale dell'archetipo a questo livello.",
+          scelta: true
+        },
+        {
+          level: 10,
+          privilege: "Incremento punteggi di caratteristica",
+          description: "Aumenta di 2 un punteggio di caratteristica."
+        },
+        {
+          level: 11,
+          privilege: 'Talento Affidabile',
+          description: 'Quando tiri un d20 per una prova con competenza, tratti i risultati inferiori a 10 come 10.'
+        },
+        {
+          level: 12,
+          privilege: 'Incremento punteggi di caratteristica',
+          description: 'Aumenta di 2 un punteggio di caratteristica.'
+        },
+        {
+          level: 13,
+          privilege: "Privilegio dell'archetipo",
+          description: 'Privilegio speciale dell’archetipo a questo livello.',
+          scelta: true
+        },
+        {
+          level: 14,
+          privilege: 'Senso Cieco',
+          description: 'Percepisci le creature invisibili entro 3 metri se non sono completamente coperte.'
+        },
+        {
+          level: 15,
+          privilege: 'Mente Sfuggente',
+          description: 'Ottieni competenza nei tiri salvezza su Saggezza.'
+        },
+        {
+          level: 16,
+          privilege: 'Incremento punteggi di caratteristica',
+          description: 'Aumenta di 2 un punteggio di caratteristica.'
+        },
+        {
+          level: 17,
+          privilege: "Privilegio dell'archetipo",
+          description: 'Privilegio speciale dell’archetipo a questo livello.',
+          scelta: true
+        },
+        {
+          level: 18,
+          privilege: 'Inafferrabile',
+          description: 'Finché non sei incapacitato, gli attacchi contro di te non hanno mai vantaggio.'
+        },
+        {
+          level: 19,
+          privilege: 'Incremento punteggi di caratteristica',
+          description: 'Aumenta di 2 un punteggio di caratteristica.'
+        },
+        {
+          level: 20,
+          privilege: 'Colpo di Fortuna',
+          description: 'Una volta per riposo breve, puoi trasformare un tiro mancato in un colpo riuscito o far riuscire una prova.'
+        }
+      ]
+    },
+    { nome: "Mago",
+      dadoVita: 6,
+      armature: [],
+      armi: ['pugnale', 'dardi', 'bastone', 'frusta'],
+      strumenti: [],
+      tiriSalvezza: ['intelligenza', 'saggezza'],
+      abilita: [
+        'arcano,indagare,intuizione,medicina,religione,storia',
+        'arcano,indagare,intuizione,medicina,religione,storia'
+      ],
+      linguaggi: '',
+      equipaggiamento: '(a) un pugnale o (b) una qualsiasi arma semplice; * una dotazione da studioso; * un libro degli incantesimi',
+      privilegi: [
+        {
+          level: 1,
+          privilege: 'Recupero Arcano',
+          description: 'Recuperi slot incantesimo dopo un riposo breve una volta al giorno.'
+        },
+        {
+          level: 2,
+          privilege: 'Tradizione Arcana',
+          description: 'Scegli una scuola di magia che conferisce privilegi.',
+          scelta: true
+        },
+        {
+          level: 3,
+          privilege: 'Studio Arcano',
+          description: 'Approfondisci le tue ricerche e tecniche arcane.'
+        },
+        {
+          level: 4,
+          privilege: 'Incremento Caratteristica',
+          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
+        },
+        {
+          level: 5,
+          privilege: 'Magia Superiore',
+          description: 'Accesso agli incantesimi di 3° livello e superiori.'
+        },
+        {
+          level: 6,
+          privilege: 'Privilegio della Tradizione Arcana',
+          description: 'La tua scuola di magia conferisce un nuovo privilegio.'
+        },
+        {
+          level: 7,
+          privilege: 'Studio Arcano',
+          description: 'Perfezioni le pratiche di lancio e studio degli incantesimi.'
+        },
+        {
+          level: 8,
+          privilege: 'Incremento Caratteristica',
+          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
+        },
+        {
+          level: 9,
+          privilege: 'Magia Avanzata',
+          description: 'Accedi a incantesimi di livello superiore.'
+        },
+        {
+          level: 10,
+          privilege: 'Privilegio della Tradizione Arcana',
+          description: 'La tua scuola di magia conferisce un nuovo privilegio.'
+        },
+        {
+          level: 11,
+          privilege: 'Incantesimi Superiori',
+          description: 'Accedi a incantesimi di livello più alto.'
+        },
+        {
+          level: 12,
+          privilege: 'Incremento Caratteristica',
+          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
+        },
+        {
+          level: 13,
+          privilege: 'Studio Arcano',
+          description: 'Rafforzi la comprensione di formule e rituali.'
+        },
+        {
+          level: 14,
+          privilege: 'Privilegio della Tradizione Arcana',
+          description: 'La tua scuola di magia conferisce un nuovo privilegio.'
+        },
+        {
+          level: 15,
+          privilege: 'Studio Arcano',
+          description: 'Affini ulteriormente la tua padronanza arcana.'
+        },
+        {
+          level: 16,
+          privilege: 'Incremento Caratteristica',
+          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
+        },
+        {
+          level: 17,
+          privilege: 'Incantesimi Superiori',
+          description: 'Accedi a incantesimi di livello più alto.'
+        },
+        {
+          level: 18,
+          privilege: 'Maestria degli Incantesimi',
+          description: 'Lanci alcuni incantesimi di basso livello senza spendere slot.'
+        },
+        {
+          level: 19,
+          privilege: 'Incremento Caratteristica',
+          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
+        },
+        {
+          level: 20,
+          privilege: 'Maestro Arcano',
+          description: 'Padroneggi la magia arcana con poteri eccezionali.'
+        }
+      ]
+    },
+    { nome: "Monaco",
       dadoVita: 8,
       armature: [],
       armi: ['semplici', 'spada corta'],
-      strumenti: ['Kit da ladro', 'uno strumento a scelta'],
+      strumenti: ['strumento da artigiano', 'strumento musicale'],
       tiriSalvezza: ['forza', 'destrezza'],
-      abilita: 'Due a scelta tra Acrobazia, Atletica, Storia, Intuizione, Religione.',
+      abilita: [
+        'acrobazia,atletica,furtività,intuizione,religione,storia',
+        'acrobazia,atletica,furtività,intuizione,religione,storia'
+      ],
       linguaggi: '',
       equipaggiamento: '(a) una spada corta o (b) una qualsiasi arma semplice; * una dotazione da esploratore; * 10 dardi',
       privilegi: [
@@ -830,14 +1093,16 @@ export const DND = {
         }
       ]
     },
-    {
-      nome: "Paladino",
+    { nome: "Paladino",
       dadoVita: 10,
       armature: ['leggere', 'medie', 'pesanti e scudi'],
       armi: ['semplici', 'da guerra'],
       strumenti: [],
       tiriSalvezza: ['saggezza', 'carisma'],
-      abilita: 'Due a scelta tra Atletica, Intimidire, Medicina, Persuasione, Religione.',
+      abilita: [
+        'atletica,intimidire,intuizione,medicina,persuasione,religione',
+        'atletica,intimidire,intuizione,medicina,persuasione,religione'
+      ],
       linguaggi: '',
       equipaggiamento: '(a) una spada lunga e uno scudo o (b) due armi da guerra; * (a) cinque giavellotti o (b) una qualsiasi arma semplice da mischia; * una dotazione da esploratore; * un simbolo sacro',
       privilegi: [
@@ -948,14 +1213,17 @@ export const DND = {
         }
       ]
     },
-    {
-      nome: "Ranger",
+    { nome: "Ranger",
       dadoVita: 10,
       armature: ['leggere', 'medie e scudi'],
       armi: ['semplici', 'da guerra'],
       strumenti: [],
       tiriSalvezza: ['destrezza', 'saggezza'],
-      abilita: 'Tre a scelta tra Atletica, Natura, Percezione, Sopravvivenza, Intuizione, Investigazione.',
+      abilita: [
+        'addestrare animali,atletica,furtività,indagare,intuizione,natura,percezione,sopravvivenza',
+        'addestrare animali,atletica,furtività,indagare,intuizione,natura,percezione,sopravvivenza',
+        'addestrare animali,atletica,furtività,indagare,intuizione,natura,percezione,sopravvivenza'
+      ],
       linguaggi: 'Una lingua aggiuntiva',
       equipaggiamento: '(a) un\'armatura di cuoio o (b) un\'armatura di maglia; * (a) due spade corte o (b) due qualsiasi armi semplici; * una dotazione da esploratore; * una lunga spada',
       privilegi: [
@@ -1063,143 +1331,16 @@ export const DND = {
         }
       ]
     },
-    {
-      nome: "Ladro",
-      dadoVita: 8,
-      armature: ['leggere'],
-      armi: ['semplici', 'spada lunga', 'spada corta', 'arco corto', 'balestra leggera'],
-      strumenti: ['Kit da ladro', 'strumenti da ladro'],
-      tiriSalvezza: ['destrezza', 'intelligenza'],
-      abilita: 'Quattro a scelta tra Acrobazia, Artifizio, Atletica, Inganno, Intuizione, Investigazione, Percezione, Rappresentazione, Sopravvivenza.',
-      linguaggi: '',
-      equipaggiamento: '(a) una spada corta o (b) una qualsiasi arma semplice; * (a) un arco corto e 20 frecce o (b) una balestra leggera e 20 dardi; * una dotazione da ladro; * una dotazione da esploratore',
-      privilegi: [
-        {
-          level: 1,
-          privilege: "Attacco Furtivo",
-          description: "Una volta per turno, puoi infliggere danni extra a una creatura che colpisci con un attacco con arma con arma accurata. Puoi avvinare quando, dadi di vantaggio sul tiro per colpire a quando il bersaglio ha un avversario a 1,5m."
-        },
-        {
-          level: 1,
-          privilege: "Gergo Ladresco",
-          description: "Impari gergo e codici che criptano messaggi. Sali un altro ladro più comprendi. Ci vuole il quadrupolo del tempo per trasmetterli. Inoltre, comprendi una serie di segni e simboli segreti per messaggi semplici e brevi (area pericolosa, territorio della gilda dei ladri, bottino nelle vicinanze, abitanti facili prede o possono fermarti in luogo ad un ladro in fuga)."
-        },
-        {
-          level: 2,
-          privilege: "Maestria",
-          description: "Puoi scegliere due abilità o un'abilità e un attacco da scasso) in cui ha competenza. Il Bonus Competenza per quelle prove è raddoppiato.",
-          scelta: true
-        },
-        {
-          level: 2,
-          privilege: "Ladro",
-          description: "Puoi scattare guadagnati azione bonus una volta a turno per Disimpegno, Nascondersi o Scattare."
-        },
-        {
-          level: 3,
-          privilege: "Privilegio dell'archetipo - Mira Stabile (Tasha)",
-          description: "Se non ti muovi nel tuo turno, puoi spendere l'azione bonus per darti vantaggio sul tuo prossimo tiro per colpire di tiro con arma.",
-          scelta: true
-        },
-        {
-          level: 4,
-          privilege: "Incremento punteggi di caratteristica",
-          description: "Aumenta di 2 un punteggio di caratteristica."
-        },
-        {
-          level: 5,
-          privilege: "Schivata Prodigiosa",
-          description: "Quando un attaccante che sei in grado di vedere ti colpisce con un attacco, puoi usare la tua reazione per dimezzare il danno dell'attacco effettuato contro di te."
-        },
-        {
-          level: 6,
-          privilege: "Maestria 2",
-          description: "Puoi scegliere altre due competenze.",
-          scelta: true
-        },
-        {
-          level: 7,
-          privilege: "Illusione",
-          description: "Quando sei vittima di un effetto che ti permette di compiere un tiro salvezza su Destrezza per dimezzare i danni, non subisci danni se superi il tiro salvezza, e solo metà danni se lo fallisci."
-        },
-        {
-          level: 8,
-          privilege: "Incremento punteggi di caratteristica",
-          description: "Aumenta di 2 un punteggio di caratteristica."
-        },
-        {
-          level: 9,
-          privilege: "Privilegio dell'archetipo",
-          description: "Privilegio speciale dell'archetipo a questo livello.",
-          scelta: true
-        },
-        {
-          level: 10,
-          privilege: "Incremento punteggi di caratteristica",
-          description: "Aumenta di 2 un punteggio di caratteristica."
-        },
-        {
-          level: 11,
-          privilege: 'Talento Affidabile',
-          description: 'Quando tiri un d20 per una prova con competenza, tratti i risultati inferiori a 10 come 10.'
-        },
-        {
-          level: 12,
-          privilege: 'Incremento punteggi di caratteristica',
-          description: 'Aumenta di 2 un punteggio di caratteristica.'
-        },
-        {
-          level: 13,
-          privilege: "Privilegio dell'archetipo",
-          description: 'Privilegio speciale dell’archetipo a questo livello.',
-          scelta: true
-        },
-        {
-          level: 14,
-          privilege: 'Senso Cieco',
-          description: 'Percepisci le creature invisibili entro 3 metri se non sono completamente coperte.'
-        },
-        {
-          level: 15,
-          privilege: 'Mente Sfuggente',
-          description: 'Ottieni competenza nei tiri salvezza su Saggezza.'
-        },
-        {
-          level: 16,
-          privilege: 'Incremento punteggi di caratteristica',
-          description: 'Aumenta di 2 un punteggio di caratteristica.'
-        },
-        {
-          level: 17,
-          privilege: "Privilegio dell'archetipo",
-          description: 'Privilegio speciale dell’archetipo a questo livello.',
-          scelta: true
-        },
-        {
-          level: 18,
-          privilege: 'Inafferrabile',
-          description: 'Finché non sei incapacitato, gli attacchi contro di te non hanno mai vantaggio.'
-        },
-        {
-          level: 19,
-          privilege: 'Incremento punteggi di caratteristica',
-          description: 'Aumenta di 2 un punteggio di caratteristica.'
-        },
-        {
-          level: 20,
-          privilege: 'Colpo di Fortuna',
-          description: 'Una volta per riposo breve, puoi trasformare un tiro mancato in un colpo riuscito o far riuscire una prova.'
-        }
-      ]
-    },
-    {
-      nome: "Stregone",
+    { nome: "Stregone",
       dadoVita: 6,
       armature: [],
       armi: ['semplici'],
       strumenti: [],
       tiriSalvezza: ['costituzione', 'carisma'],
-      abilita: 'Due a scelta tra Arcano, Inganno, Intimidire, Persuasione.',
+      abilita: [
+        'arcano,inganno,intimidire,intuizione,persuasione,religione',
+        'arcano,inganno,intimidire,intuizione,persuasione,religione'
+      ],
       linguaggi: '',
       equipaggiamento: '(a) un pugnale o (b) una qualsiasi arma semplice; * una dotazione da studioso; * un componente materiale per incantesimi',
       privilegi: [
@@ -1309,128 +1450,16 @@ export const DND = {
         }
       ]
     },
-    {
-      nome: "Mago",
-      dadoVita: 6,
-      armature: [],
-      armi: ['pugnale', 'dardi', 'bastone', 'frusta'],
-      strumenti: [],
-      tiriSalvezza: ['intelligenza', 'saggezza'],
-      abilita: 'Due a scelta tra Arcano, Storia, Investigazione, Medicina, Religione.',
-      linguaggi: '',
-      equipaggiamento: '(a) un pugnale o (b) una qualsiasi arma semplice; * una dotazione da studioso; * un libro degli incantesimi',
-      privilegi: [
-        {
-          level: 1,
-          privilege: 'Recupero Arcano',
-          description: 'Recuperi slot incantesimo dopo un riposo breve una volta al giorno.'
-        },
-        {
-          level: 2,
-          privilege: 'Tradizione Arcana',
-          description: 'Scegli una scuola di magia che conferisce privilegi.',
-          scelta: true
-        },
-        {
-          level: 3,
-          privilege: 'Studio Arcano',
-          description: 'Approfondisci le tue ricerche e tecniche arcane.'
-        },
-        {
-          level: 4,
-          privilege: 'Incremento Caratteristica',
-          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
-        },
-        {
-          level: 5,
-          privilege: 'Magia Superiore',
-          description: 'Accesso agli incantesimi di 3° livello e superiori.'
-        },
-        {
-          level: 6,
-          privilege: 'Privilegio della Tradizione Arcana',
-          description: 'La tua scuola di magia conferisce un nuovo privilegio.'
-        },
-        {
-          level: 7,
-          privilege: 'Studio Arcano',
-          description: 'Perfezioni le pratiche di lancio e studio degli incantesimi.'
-        },
-        {
-          level: 8,
-          privilege: 'Incremento Caratteristica',
-          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
-        },
-        {
-          level: 9,
-          privilege: 'Magia Avanzata',
-          description: 'Accedi a incantesimi di livello superiore.'
-        },
-        {
-          level: 10,
-          privilege: 'Privilegio della Tradizione Arcana',
-          description: 'La tua scuola di magia conferisce un nuovo privilegio.'
-        },
-        {
-          level: 11,
-          privilege: 'Incantesimi Superiori',
-          description: 'Accedi a incantesimi di livello più alto.'
-        },
-        {
-          level: 12,
-          privilege: 'Incremento Caratteristica',
-          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
-        },
-        {
-          level: 13,
-          privilege: 'Studio Arcano',
-          description: 'Rafforzi la comprensione di formule e rituali.'
-        },
-        {
-          level: 14,
-          privilege: 'Privilegio della Tradizione Arcana',
-          description: 'La tua scuola di magia conferisce un nuovo privilegio.'
-        },
-        {
-          level: 15,
-          privilege: 'Studio Arcano',
-          description: 'Affini ulteriormente la tua padronanza arcana.'
-        },
-        {
-          level: 16,
-          privilege: 'Incremento Caratteristica',
-          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
-        },
-        {
-          level: 17,
-          privilege: 'Incantesimi Superiori',
-          description: 'Accedi a incantesimi di livello più alto.'
-        },
-        {
-          level: 18,
-          privilege: 'Maestria degli Incantesimi',
-          description: 'Lanci alcuni incantesimi di basso livello senza spendere slot.'
-        },
-        {
-          level: 19,
-          privilege: 'Incremento Caratteristica',
-          description: 'Aumenta di 2 un punteggio di caratteristica o di 1 due punteggi.'
-        },
-        {
-          level: 20,
-          privilege: 'Maestro Arcano',
-          description: 'Padroneggi la magia arcana con poteri eccezionali.'
-        }
-      ]
-    },
-    {
-      nome: "Warlock",
+    { nome: "Warlock",
       dadoVita: 8,
       armature: ['leggere'],
       armi: ['semplici'],
       strumenti: [],
       tiriSalvezza: ['saggezza', 'carisma'],
-      abilita: 'Due a scelta tra Arcano, Inganno, Intimidire, Investigazione, Natura, Religione.',
+      abilita: [
+        'arcano,indagare,inganno,intimidire,natura,religione,storia',
+        'arcano,indagare,inganno,intimidire,natura,religione,storia'
+      ],
       linguaggi: '',
       equipaggiamento: '(a) un pugnale o (b) una qualsiasi arma semplice; * un\'armatura di cuoio; * una dotazione da studioso; * un componente materiale per incantesimi',
       privilegi: [
@@ -1542,14 +1571,16 @@ export const DND = {
         }
       ]
     },
-    {
-      nome: "Artefice",
+    { nome: "Artefice",
       dadoVita: 8,
       armature: ['leggere', 'medie', 'scudi'],
       armi: ['semplici'],
       strumenti: [],
       tiriSalvezza: ['costituzione', 'intelligenza'],
-      abilita: 'Due a scelta tra Arcano, Storia, Investigazione, Medicina, Natura, Percezione, Persuasione.',
+      abilita: [
+        'arcano,indagare,intuizione,medicina,persuasione,intrattenere,inganno,storia',
+        'arcano,indagare,intuizione,medicina,persuasione,intrattenere,inganno,storia'
+      ],
       linguaggi: '',
       equipaggiamento: '(a) un pugnale o (b) una qualsiasi arma semplice; * una dotazione da studioso; * un componente materiale per incantesimi',
       privilegi: [
@@ -2933,11 +2964,24 @@ export const DND = {
     }
   } as Sottoclassi,
   
-  // restituisce lista progressiva di privilegi
-  classiCollegate(character: PersonaggioDND) {
+  getClassi(personaggio:PersonaggioDND){
+    let result :Classe[] =[];
+    personaggio.privilegi.forEach(privilegio => {
+      const [nomeClasse,...nomeSottoclasse] =privilegio.classe.split(' ')
+      const classe = this.classi.find(c => c.nome === nomeClasse);
+      if (classe) result.push(classe);
+    })
+
+    return result;
+  },
+
+  /* restituisce lista progressiva di privilegi
+    * Guerriero campione 3
+    * Ladro assassino 2
+  */
+  getResocontoClassi(character: PersonaggioDND) {
     const result :{ classe: string, sottoclasse: string, livello: number }[] =[];
-    const privilegi = character.privilegi;
-    privilegi.forEach(privilegio => {
+    character.privilegi.forEach(privilegio => {
       const nomeClasse = privilegio.classe.split(' ')[0]
             .replace(/^[a-z]/, c => c.toUpperCase()); // la prima lettera è maiuscola
       const nomeSottoclasse = privilegio.classe
@@ -2950,7 +2994,8 @@ export const DND = {
     return result
   },  
 
-  getSottoclassiDisponibili(personaggio: PersonaggioDND): string[] {
+  // restituisce le classi dispnibili per progredire nel gioco
+  getClassiGiocabili(personaggio: PersonaggioDND): string[] {
     // 1. Genera tutte le sottoclassi disponibili 
     const tutteSottoclassi: string[] = [];
 
@@ -3044,7 +3089,7 @@ export const DND = {
       ],
       eta: "Maturità: ca. 100 anni (adulto culturale), Vita media: fino a 750 anni",
       taglia: "Media",
-      linguaggi: ["Comune", "Elfico"],
+      linguaggi: ["Comune", "Elfico","Extra"],
       privilegi: [
         { name: "scurovisione", description: "Potete vedere in condizioni di buio o luce fioca..." },
         { name: "trance", description: "Meditazione profonda di 4 h al posto del sonno umano..." },
@@ -3054,7 +3099,8 @@ export const DND = {
         { name: "trucchetto", description: "Conoscete un trucchetto da mago; Intelligenza è la caratteristica usata." },
         { name: "linguaggio extra", description: "Potete parlare, leggere e scrivere un linguaggio extra." }
       ],
-      armi: ['Spada lunga', 'Spada corta', 'Arco corto', 'Arco lungo']
+      armi: ['Spada lunga', 'Spada corta', 'Arco corto', 'Arco lungo'],
+      abilita:['percezione']
     },
     {
       nome: "Elfo Dei Boschi",
@@ -3075,7 +3121,8 @@ export const DND = {
         { name: "piede lesto", description: "Velocità base aumentata (es. 10,5 m per elfo dei boschi)." },
         { name: "maschera della selva", description: "Potete nascondervi da sporadiche oscurazioni naturali." }
       ],
-      armi: ['Spada lunga', 'Spada corta', 'Arco corto', 'Arco lungo']
+      armi: ['Spada lunga', 'Spada corta', 'Arco corto', 'Arco lungo'],
+      abilita:['percezione']
     },
     {
       nome: "Elfo Oscuro (Drow)",
@@ -3094,7 +3141,8 @@ export const DND = {
         { name: "incantesimi innati", description: "Potete lanciare magie innate (es. Luci Danzanti, Oscurità) usando Carisma." },
         { name: "sensibilità alla luce del sole", description: "Svantaggio ai tiri per colpire e Percezione quando esposti alla luce solare." }
       ],
-      armi: ['Stocco', 'Spada corta', 'Balestra a mano']
+      armi: ['Stocco', 'Spada corta', 'Balestra a mano'],
+      abilita:['percezione']
     },
     {
       nome: "Gnomo Delle Rocce",
@@ -3178,7 +3226,8 @@ export const DND = {
         { name: "scurovisione", description: "Potete vedere in condizioni di buio o luce fioca..." },
         { name: "stirpe fatata", description: "Vantaggio contro affascinato e immunità al sonno magico." },
         { name: "versatilità", description: "Competenza in due abilità a scelta." }
-      ]
+      ],
+      abilita: ['extra','extra']
     },
     {
       nome: "Mezzorco",
@@ -3195,7 +3244,8 @@ export const DND = {
         { name: "minaccioso", description: "Competenza nell’abilità Intimidire." },
         { name: "resistenza inesorabile", description: "Se ridotto a 0 PF (non ucciso sul colpo), potete tornare a 1 PF una volta per riposo lungo." },
         { name: "attacchi selvaggi", description: "Al critico con arma da mischia, tirate un dado aggiuntivo per il danno." }
-      ]
+      ],
+      abilita: ['intimidire']
     },
     {
       nome: "Umano",
@@ -3588,6 +3638,79 @@ export const DND = {
       return Array.from(result).join(', ');
   },
 
+  // valuta se l'abilità è disponibile
+  getCompetenzaAbilita(punteggioIndex:number, abilitaIndex:number, personaggio:PersonaggioDND):string{
+    const punteggio =personaggio.punteggi[punteggioIndex];
+    const abilita = punteggio.abilities[abilitaIndex];
+    const chiaviEscluse = new Set([
+      'tiro salvezza','forza','destrezza','costituzione',
+      'intelligenza','saggezza','carisma',
+    ]);
+    const tutteAbilita :string[] = personaggio.punteggi.flatMap((punteggio) =>
+      punteggio.abilities
+        .filter((abilita) => !chiaviEscluse.has(abilita.key))
+        .map((abilita) => abilita.key)
+    );
+    const abilitaSelezionate :string[] =personaggio.punteggi.flatMap((score) =>
+      score.abilities
+        .filter((abilita) =>abilita.value === true && !chiaviEscluse.has(abilita.key))
+        .map((abilita) => abilita.key)
+    );    
+
+    let result ='';
+    const colore ={ classe:'text-danger', razza:'text-success', 
+                    background:'text-primary', vuoto:'d-none'}
+    const abilitaValida =(abilitaDaControllare:string) =>(
+                          abilita.key.toLowerCase()===abilitaDaControllare.toLowerCase() ||
+                          abilitaDaControllare==='extra' ||
+                          abilitaDaControllare.toLowerCase().includes(abilita.key.toLowerCase()))&& 
+                          abilita.key!=='tiro salvezza' && 
+                          !abilita.value;    
+        
+    //  RAZZA
+        const razzaPersonaggio = personaggio.generali.find(g=> g.key === 'razza')?.value ||'';
+        const razzaMatch = this.getRazza(razzaPersonaggio+'')
+        if(!razzaMatch || !razzaMatch.abilita?.length) {
+          console.error('razza non trovata', razzaPersonaggio);
+          return '';
+        }
+        razzaMatch?.abilita?.forEach(abilitaRazza=>{          
+          if(abilitaValida(abilitaRazza)) result = colore.razza;
+        })
+
+
+    //  CLASSE
+        const classeMatch = this.getClassi(personaggio)[0];
+        if(!classeMatch.abilita){
+          console.error('abilita non trovata', classeMatch);
+          return ''
+        }
+        if(abilita.key=='tiro salvezza') 
+          classeMatch?.tiriSalvezza.forEach(competenzaTS=>{
+            if(punteggio.key==competenzaTS && !abilita.value) result = colore.classe;            
+          })
+        else classeMatch?.abilita.forEach(abilitaClasse=>{
+          if(abilitaValida(abilitaClasse)) result = colore.classe;
+        })
+
+        
+    //  BACKGROUND
+        const backgroundPersonaggio = personaggio.generali.find(g=> g.key === 'background')?.value ||'';
+        const backgroundMatch = this.getBackground(backgroundPersonaggio +'');
+        if(!backgroundMatch){
+          console.error('background non trovato', backgroundPersonaggio);
+          return '';
+        }
+        backgroundMatch.abilita.forEach(abilitaBackground=>{
+          if(abilitaValida(abilitaBackground)) result = colore.background;
+        })
+
+        
+    // if(result) console.log('*', abilita.key, `\t`, result);
+    if(abilita.key=='persuasione') console.log('\n\n\n');
+    
+    return result ||'d-none';
+  },
 
   oggetti:[
     { key: "abaco", prezzo: "2 mo", peso: 1 },
@@ -3953,7 +4076,7 @@ export const DND = {
    * @returns {{livello:number, dado:number}[]}
    */
   dadiVitaPersonaggio(character :PersonaggioDND){
-    const result = this.classiCollegate(character).map(c => ({
+    const result = this.getResocontoClassi(character).map(c => ({
       livello: c.livello,
       dado: this.getDadoVita(c.classe),
     }));
@@ -4156,40 +4279,40 @@ export function inizializzaPersonaggio() :PersonaggioDND {
     ispirazione: 0,
     punteggi: [
       { key: 'forza', value: 15, abilities: [
-        { key: 'Tiro Salvezza', value: false }, 
-        { key: 'Atletica', value: false }
+        { key: 'tiro salvezza', value: false }, 
+        { key: 'atletica', value: false }
       ]},
       { key: 'destrezza', value: 14, abilities: [
-        { key: 'Tiro Salvezza', value: false }, 
-        { key: 'Acrobatica', value: false }, 
-        { key: 'Rapidità di Mano', value: false }, 
-        { key: 'Furtività', value: false }
+        { key: 'tiro salvezza', value: false }, 
+        { key: 'acrobazia', value: false }, 
+        { key: 'rapidità di mano', value: false }, 
+        { key: 'furtività', value: false }
       ]},
       { key: 'costituzione', value: 13, abilities: [
-        { key: 'Tiro Salvezza', value: false }
+        { key: 'tiro salvezza', value: false }
       ]},
       { key: 'intelligenza', value: 12, abilities: [
-        { key: 'Tiro Salvezza', value: false }, 
-        { key: 'Arcano', value: false }, 
-        { key: 'Indagare', value: false }, 
-        { key: 'Natura', value: false }, 
-        { key: 'Religione', value: false }, 
-        { key: 'Storia', value: false }
+        { key: 'tiro salvezza', value: false }, 
+        { key: 'arcano', value: false }, 
+        { key: 'indagare', value: false }, 
+        { key: 'natura', value: false }, 
+        { key: 'religione', value: false }, 
+        { key: 'storia', value: false }
       ]},
       { key: 'saggezza', value: 10, abilities: [
-        { key: 'Tiro Salvezza', value: false }, 
-        { key: 'Addestrare Animali', value: false }, 
-        { key: 'Intuizione', value: false }, 
-        { key: 'Medicina', value: false }, 
-        { key: 'Percezione', value: false }, 
-        { key: 'Sopravvivenza', value: false }
+        { key: 'tiro salvezza', value: false }, 
+        { key: 'addestrare animali', value: false }, 
+        { key: 'intuizione', value: false }, 
+        { key: 'medicina', value: false }, 
+        { key: 'percezione', value: false }, 
+        { key: 'sopravvivenza', value: false }
       ]},
       { key: 'carisma', value: 8, abilities: [
-        { key: 'Tiro Salvezza', value: false }, 
-        { key: 'Inganno', value: false }, 
-        { key: 'Intimidire', value: false }, 
-        { key: 'Intrattenere', value: false }, 
-        { key: 'Persuasione', value: false }
+        { key: 'tiro salvezza', value: false }, 
+        { key: 'inganno', value: false }, 
+        { key: 'intimidire', value: false }, 
+        { key: 'intrattenere', value: false }, 
+        { key: 'persuasione', value: false }
       ]},
     ],
     competenze:[

@@ -128,7 +128,7 @@
             <label>Bonus Competenza:</label>
             <b>+{{ BC() }}</b>
           </div>
-          @for (punteggio of character().punteggi; track punteggio.key; let i = $index) {
+          @for (punteggio of character().punteggi; track punteggio.key; let punteggiIndex = $index) {
             <div class="d-grid mb-2" style="grid-template-columns: auto 1fr;">
               <div class="d-flex flex-column align-items-center rounded-2 py-0 px-2 border" 
                     style="width: 80px; height: fit-content;">
@@ -139,8 +139,8 @@
                         class="fs-4 fw-bold duckcase" 
                         style="transform: translateY(10px);"
                         >{{ mod(punteggio.value) > 0 ? '+' + mod(punteggio.value) : mod(punteggio.value) }}</label>
-                <input [value]="character().punteggi[i].value" 
-                        name="punteggi-{{i}}-value" 
+                <input [value]="character().punteggi[punteggiIndex].value" 
+                        name="punteggi-{{punteggiIndex}}-value" 
                         [id]="punteggio.key" 
                         type="text" max="25" 
                         class="form-control form-control-dnd" 
@@ -148,15 +148,17 @@
                         placeholder="Es: 10">
               </div>
               <ul class="ps-3 m-0">
-                @for (abilita of punteggio.abilities; track abilita.key; let j = $index) {
+                @for (abilita of punteggio.abilities; track abilita.key; let abilitaIndex = $index) {
                   <li class="d-flex gap-2 align-items-center">
                     <input [checked]="abilita.value" 
                             type="checkbox" 
-                            id="punteggi-{{i}}-abilities-{{j}}-value"
-                            name="punteggi-{{i}}-abilities-{{j}}-value"> 
-                    <label class="duckcase" for="punteggi-{{i}}-abilities-{{j}}-value">
+                            id="punteggi-{{punteggiIndex}}-abilities-{{abilitaIndex}}-value"
+                            name="punteggi-{{punteggiIndex}}-abilities-{{abilitaIndex}}-value"> 
+                    <label class="duckcase" for="punteggi-{{punteggiIndex}}-abilities-{{abilitaIndex}}-value">
                       <b>{{ dnd.abilityMod(character(), punteggio.value, abilita.value) }}</b>
-                      {{ (abilita.key) }}</label>
+                      {{ duckcase(abilita.key) }}
+                      <b [class]="dnd.getCompetenzaAbilita(punteggiIndex, abilitaIndex, character())">*</b>
+                    </label>
                   </li>
                 }
               </ul>
@@ -502,7 +504,7 @@
                       id="privilegio-value"
                       class="form-control form-control-dnd">
               <template autocomplete="privilegio-value" chars="3" options="3">
-                @for (sottoclasse of dnd.getSottoclassiDisponibili(character()); track sottoclasse) {
+                @for (sottoclasse of dnd.getClassiGiocabili(character()); track sottoclasse) {
                   <li>{{ sottoclasse }}</li>
                 }
               </template>

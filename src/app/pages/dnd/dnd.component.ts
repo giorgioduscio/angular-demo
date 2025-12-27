@@ -257,7 +257,7 @@ export class DndComponent implements OnInit {
   //  STAT
       getClassesString(): string {
         const personaggio = this.character();
-        const classi = DND.classiCollegate(personaggio);
+        const classi = DND.getResocontoClassi(personaggio);
         if (!classi || classi.length === 0) {
           return 'Nessuna';
         }

@@ -310,6 +310,10 @@ const Popover = {
         color: #fff !important;
         font-size: 12px; /* Dimensione del testo diminuita */
       }
+      .popover ol{
+        margin: 0;
+        padding-left: 15px;
+      }
     `;
     document.head.appendChild(style);
   },

@@ -12,40 +12,40 @@ export default interface PersonaggioDND {
   ispirazione: number,
   punteggi: [
     { key: 'forza', value: number, abilities: [
-      { key: 'Tiro Salvezza', value: boolean }, 
-      { key: 'Atletica', value: boolean }
+      { key: 'tiro salvezza', value: boolean }, 
+      { key: 'atletica', value: boolean }
     ]},
     { key: 'destrezza', value: number, abilities: [
-      { key: 'Tiro Salvezza', value: boolean }, 
-      { key: 'Acrobatica', value: boolean }, 
-      { key: 'Rapidità di Mano', value: boolean }, 
-      { key: 'Furtività', value: boolean }
+      { key: 'tiro salvezza', value: boolean }, 
+      { key: 'acrobazia', value: boolean }, 
+      { key: 'rapidità di mano', value: boolean }, 
+      { key: 'furtività', value: boolean }
     ]},
     { key: 'costituzione', value: number, abilities: [
-      { key: 'Tiro Salvezza', value: boolean }
+      { key: 'tiro salvezza', value: boolean }
     ]},
     { key: 'intelligenza', value: number, abilities: [
-      { key: 'Tiro Salvezza', value: boolean }, 
-      { key: 'Arcano', value: boolean }, 
-      { key: 'Indagare', value: boolean }, 
-      { key: 'Natura', value: boolean }, 
-      { key: 'Religione', value: boolean }, 
-      { key: 'Storia', value: boolean }
+      { key: 'tiro salvezza', value: boolean }, 
+      { key: 'arcano', value: boolean }, 
+      { key: 'indagare', value: boolean }, 
+      { key: 'natura', value: boolean }, 
+      { key: 'religione', value: boolean }, 
+      { key: 'storia', value: boolean }
     ]},
     { key: 'saggezza', value: number, abilities: [
-      { key: 'Tiro Salvezza', value: boolean }, 
-      { key: 'Addestrare Animali', value: boolean }, 
-      { key: 'Intuizione', value: boolean }, 
-      { key: 'Medicina', value: boolean }, 
-      { key: 'Percezione', value: boolean }, 
-      { key: 'Sopravvivenza', value: boolean }
+      { key: 'tiro salvezza', value: boolean }, 
+      { key: 'addestrare animali', value: boolean }, 
+      { key: 'intuizione', value: boolean }, 
+      { key: 'medicina', value: boolean }, 
+      { key: 'percezione', value: boolean }, 
+      { key: 'sopravvivenza', value: boolean }
     ]},
     { key: 'carisma', value: number, abilities: [
-      { key: 'Tiro Salvezza', value: boolean }, 
-      { key: 'Inganno', value: boolean }, 
-      { key: 'Intimidire', value: boolean }, 
-      { key: 'Intrattenere', value: boolean }, 
-      { key: 'Persuasione', value: boolean }
+      { key: 'tiro salvezza', value: boolean }, 
+      { key: 'inganno', value: boolean }, 
+      { key: 'intimidire', value: boolean }, 
+      { key: 'intrattenere', value: boolean }, 
+      { key: 'persuasione', value: boolean }
     ]},
   ],
   competenze:[
