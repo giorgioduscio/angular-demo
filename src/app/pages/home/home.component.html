@@ -14,49 +14,18 @@
 
     <!-- CONTENITORE DELLE CARD -->
     <main class="box">
-      <div class="card text-bg-dark" *ngFor="
-        let card of cards; 
-        index as index; count as count; 
-        first as first; last as last
-        even as even; odd as odd
-      ">
-        <ng-template *ngIf="isVisible; then show else error"></ng-template>
-        <ng-template #show>
-          <img [src]="card.imgUrl" [alt]="card.title" class="card-img-top">
-          <div class="card-body">
-            <h5 class="card-title">{{ card.title| uppercase }}</h5>
-            <p class="card-text">{{ card.description }}</p>
-            <button class="btn btn-primary" [routerLink]="card.path">Visita</button>
-          </div>
-        </ng-template>
-        <ng-template #error>
-          <div class="card-body">
-            <p class="card-text">Ops... hai nascosto tutto</p>
-          </div>
-        </ng-template>
-      </div>
-
-      <div class="card text-bg-dark">
+      <div class="card text-bg-dark" 
+           *ngFor="
+              let card of cards; 
+              index as index; count as count; 
+              first as first; last as last
+              even as even; odd as odd
+            ">
+        <img [src]="card.imgUrl" [alt]="card.title" class="card-img-top">
         <div class="card-body">
-          <h5 class="card-title">Scrivi qualcosa</h5>
-          <p class="card-text">(Two way binding)</p>
-          <input class="form-control text-bg-dark" type="text" [(ngModel)]="text" (change)="handleChange()" 
-                  data-autocomplete="Angular,React,Vue,Svelte" name="framework-search" />
-
-          <button class="btn btn-secondary"  (click)="onClick()">{{ text==='' ?'Vuoto' :text }}</button> 
-          <div [ngSwitch]="text">
-            <p *ngSwitchCase="'alpha'">{{text}} è stato previsto</p>
-            <p *ngSwitchCase="'beta'">{{text}} è stato previsto</p>
-            <p *ngSwitchCase="'gamma'">{{text}} è stato previsto</p>
-            <p *ngSwitchDefault>ngSwitch (prova a scrivere: alpha, beta o gamma)</p>
-          </div>
-
-          @if (isVisible){
-            <button class="btn btn-danger" (click)="setIsVisible()">Nascondi tutte le card</button>
-          }@else{
-            <button class="btn btn-success" (click)="setIsVisible()">Mostra tutte le card</button>
-          }
-            
+          <h5 class="card-title">{{ card.title }}</h5>
+          <p class="card-text">{{ card.description }}</p>
+          <button class="btn btn-primary" [routerLink]="card.path">Visita</button>
         </div>
       </div>
 

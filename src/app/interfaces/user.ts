@@ -6,6 +6,7 @@ export interface User{
   
   imageUrl:string,
   role:number,
+  suggestion?:string,
   key?:string,
 }
 

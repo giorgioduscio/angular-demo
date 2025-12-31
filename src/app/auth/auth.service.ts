@@ -43,7 +43,7 @@ export class AuthService {
   resetLocalUser(){
     this.user.set(undefined)
     localStorage.removeItem('user')
-    location.reload()
+    setTimeout(()=> location.href ='', 50)
   }  
 
 }

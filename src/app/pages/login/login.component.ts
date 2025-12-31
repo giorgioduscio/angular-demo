@@ -4,7 +4,7 @@ import { User } from '../../interfaces/user';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../shared/navbar/navbar.component';
-import validation from './validation';
+import { initForm, getForm, FormField } from './validation';
 import { randomCompiler } from '../../tools/randomCompiler';
 import { NgFor, NgIf } from '@angular/common';
 
@@ -13,7 +13,6 @@ import { NgFor, NgIf } from '@angular/common';
   standalone: true,
   imports: [ NavbarComponent, ReactiveFormsModule, FormsModule, RouterModule, NgIf, NgFor, ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
 })
 
 export class LoginComponent {
@@ -21,16 +20,21 @@ export class LoginComponent {
     document.title="Login"
     this.voidForm()
   }
+  pageMessages={
+    title:'Iscriviti',
+    alternativeLinkPath:'/access',
+    alternativeLinkLabel:'Accedi',
+    alternativeMessage:'Hai già un account?'
+  }
 
   // todo MOSTRA GLI USERS
   users :User[] =[]
   keys :string[] =[]
   form! :FormGroup<any>
-  template :any[] =[]
+  template :FormField[] =[]
   voidForm(){
-    const {templateForm, controller} =validation()
-    this.form =new FormGroup(controller)
-    this.template =templateForm
+    this.template = initForm()
+    this.form = getForm(this.template)
   }
 
   //TODO AGGIUNGE UN USER

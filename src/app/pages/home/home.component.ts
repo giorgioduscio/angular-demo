@@ -1,7 +1,7 @@
 import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, DoCheck, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { CommonModule, NgFor, NgIf, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
+import { CommonModule, NgFor } from '@angular/common';
 import { NavbarComponent } from "../../shared/navbar/navbar.component";
 import { RouterModule } from '@angular/router';
 import { HomeDirective } from './home.directive';
@@ -11,10 +11,9 @@ import { AutocompleteInline } from '../../tools/autocomplete';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ RouterModule, FormsModule, 
-    NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, NgStyle,
-    CommonModule, NavbarComponent, HomeDirective
-  ],
+  imports: [RouterModule, FormsModule,
+    NgFor,
+    CommonModule, NavbarComponent, HomeDirective],
 
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],

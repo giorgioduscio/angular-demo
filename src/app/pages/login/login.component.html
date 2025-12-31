@@ -1,35 +1,49 @@
 <article>
   <app-navbar></app-navbar>
-  <div>
-    <h1>Iscriviti</h1>
-    <p>I campi contrassegnati dall'asterisco * sono obbligatori</p>
-    <form (ngSubmit)="onSubmit()" [formGroup]="form">
 
-      @for (item of template; track item; let i=$index){
-        <div>
-          @if (item.type==='select'){
-            <select [formControlName]="item.key" class="form-select text-bg-dark">
-              <option value="" selected style="display: none;">{{ item.title }}{{ form.get(item.key)?.valid ?'' :' *' }}</option>
-              <option *ngFor="let opt of item.options" [value]="opt.value">{{opt.title}}</option>
-            </select>
-
-          }@else{
-            <div class="form-floating">
-              <input 
-                class="form-control" 
-                [type]="item.type" 
-                [id]="item.key" 
-                placeholder=""
-                [formControlName]="item.key"
-              > <label [for]="item.key">{{ item.title }}{{ form.get(item.key)?.valid ?'' :' *' }}</label>
-            </div>
-          }
-          <i *ngIf="!form.get(item.key)?.valid &&form.get(item.key)?.touched">Campo non valido.</i>
-        </div>
-      }
-      <p>Hai già un profilo? <a routerLink="/access">Accedi</a></p>
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Invio</button>
+  <div class="container mt-3" style="max-width: 600px;">
+    <h1>{{ pageMessages.title }}</h1>
+    <p>I campi contrassegnati dall'asterisco <b class="text-danger">*</b> sono obbligatori</p>
     
+    <form (ngSubmit)="onSubmit()" [formGroup]="form" class="gy-3">
+      <fieldset class="d-flex flex-wrap gap-2">
+        @for (item of template; track item; let i=$index){
+          <div class="form-group flex-auto" style="max-width: 300px;">
+            <label [for]="item.key" class="form-label m-2">
+              <i>{{ item.label }}</i>
+              <b class="text-danger mx-1">{{ item.asterisk ?'*' :'' }}</b>
+            </label>
+  
+            @if (item.type==='select'){
+              <select [formControlName]="item.key" class="form-select text-bg-dark" [class.is-invalid]="form.get(item.key)?.invalid && form.get(item.key)?.touched">
+                <option value="" style="display: none;">{{ item.placeholder }}</option>
+                <option *ngFor="let opt of item.options" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+  
+            }@else{
+              <input  class="form-control" 
+                      [type]="item.type" 
+                      [id]="item.key" 
+                      [name]="item.key" 
+                      [placeholder]="item.placeholder"
+                      [formControlName]="item.key"
+                      [class.is-invalid]="form.get(item.key)?.invalid && form.get(item.key)?.touched"> 
+            }
+            <div class="invalid-feedback" *ngIf="form.get(item.key)?.invalid && form.get(item.key)?.touched">
+              {{item.errorMessage || 'Campo non valido.'}}
+            </div>
+            <small class="form-text text-muted">{{ item.message }}</small>
+          </div>
+        }
+      </fieldset>
+
+      <p class="my-3">{{ pageMessages.alternativeMessage}} 
+        <a [routerLink]="pageMessages.alternativeLinkPath">
+          {{ pageMessages.alternativeLinkLabel }}
+        </a>
+      </p>
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Invio</button>
     </form>
+    
   </div>
 </article>

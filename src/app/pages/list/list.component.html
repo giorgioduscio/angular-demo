@@ -1,60 +1,74 @@
 
 <article>
   <app-navbar></app-navbar>
-  
-  <div class="container">
+
+  <div class="container p-2" style="max-width: 600px;">
     <!-- INSERIMENTO -->
-    <header class="container">
-      <h3>{{ 'listaDelleCoseDaFare' | paragraph }}</h3>
-      <form #formdata="ngForm" (ngSubmit)="onAdd(formdata)">
-        <div class="form-floating">
-          <input class="form-control" 
-            type="text" 
-            name="title" 
-            id="title" 
-            placeholder=""
-            required ngModel
-          >
+    <header class="mx-auto">
+      <h3 class="text-center mb-4">{{ 'listaDelleCoseDaFare' | paragraph }}</h3>  
+
+      <form #formdata="ngForm" (ngSubmit)="list_create(formdata)" 
+            class="mx-auto d-flex gap-2 align-items-end" 
+            style="max-width: max-content;">
+        <div class="">
           <label for="title">Inserisci azione</label>
+          <input class="form-control mt-1"
+                 type="text"
+                 name="title"
+                 id="title"
+                 placeholder="Es: Fagioli"
+                 required ngModel>
         </div>
-        <button 
-          class="btn btn-secondary bi bi-plus-lg"  
-          type="submit" 
-          [disabled]="formdata.invalid"></button>
+        <button type="submit"
+                class="btn btn-primary"
+                [disabled]="formdata.invalid">
+          <i class="bi bi-plus-lg"></i>
+          <span class="d-none d-sm-inline mx-1">Aggiungi</span>
+        </button>
       </form>
     </header>
-  
+
+
     <!-- TABELLA -->
-    <div class="container table-responsive-sm">
-      <table class="table align-middle table-dark table-borderless table-hover">
-        <tbody>
-          <tr *ngFor="let item of list; let i =index">
-            <td>
-              <input class="form-check-input" 
-                (change)="onPatch($event, i)" 
-                type="checkbox" 
-                id="complete" 
-                [checked]="item.complete" 
-                class="form-check-input"
-              >
-            </td>
-            <td>
-              <input class="form-control" 
-                (change)="onPatch($event, i)" 
-                type="text" 
-                id="title" 
-                [placeholder]="item.title" 
-              >
-            </td>
-            <td>
-              <button class="btn btn-danger" (click)="onDelete(i)">
-                <i class="bi bi-trash3-fill"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <main *ngIf="!list.length" class="m-3">
+      <div class="alert alert-info">
+        La lista è vuota. Compila il campo per popolare la lista.
+      </div>
+    </main>
+    
+    <main *ngIf="list.length" class="mx-auto mt-4">
+      <div class="table-responsive-sm">
+        <table class="table align-middle table-borderless table-hover table-dark">
+          <tbody>
+
+            <tr *ngFor="let item of list; let i =index">
+              <td class="p-2">
+                <button class="btn btn-danger" (click)="list_delete(i)">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </td>
+              <td class="p-2">
+                <input class="form-control"
+                       (change)="list_update($event, i)"
+                       type="text"
+                       id="title"
+                       [value]="item.title">
+              </td>
+              <td class="p-2">
+                <div class="form-check">
+                  <input class="form-check-input"
+                         (change)="list_update($event, i)"
+                         type="checkbox"
+                         id="complete"
+                         [checked]="item.complete">
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </main>
 
   </div>
 </article>

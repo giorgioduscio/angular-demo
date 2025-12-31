@@ -1,8 +1,0 @@
-nav{
-  position: sticky;
-  top: 0; 
-  z-index: 10;
-
-  background:linear-gradient(2deg, var(--c3), var(--c3), var(--c2));
-  box-shadow: 0 0 10px black;
-}

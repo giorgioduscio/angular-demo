@@ -1,13 +1,12 @@
 import { Component, effect } from '@angular/core';
-import { smartRoutes } from '../../../app.routes';
-import { RouterLink } from '@angular/router';
+import { SmartRoute, smartRoutes } from '../../../app.routes';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
-import { SmartRoute } from '../../../tools/buildSmartRouter';
 
 @Component({
   selector: 'app-dropdown',
   standalone: true,
-  imports: [ RouterLink, ],
+  imports: [ RouterLink, RouterLinkActive ],
   
   template:`
   <li class="nav-item dropdown">
@@ -18,7 +17,7 @@ import { SmartRoute } from '../../../tools/buildSmartRouter';
     <ul class="dropdown-menu">
     @for (page of pages; track $index){
       <li>
-        <a class="dropdown-item" routerLink="/{{page.path}}">{{ page.path }}</a>
+        <a class="dropdown-item" routerLink="/{{page.path}}" routerLinkActive="active" #rla="routerLinkActive" [attr.aria-current]="rla.isActive ? 'page' : null">{{ page.title || page.path }}</a>
       </li>
     }
     </ul>

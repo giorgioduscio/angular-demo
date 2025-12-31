@@ -6,29 +6,52 @@ import { LoginComponent } from './pages/login/login.component';
 import { AccessComponent } from './pages/login/access.component';
 import { ChatComponent } from './pages/chat/chat.component';
 import { MessagesComponent } from './pages/chat/messages/messages.component';
-import { buildSmartRouter } from './tools/buildSmartRouter';
 import { Error404Component } from './pages/error404/error404.component';
-import { CalcComponent } from './pages/calc/calc.component';
 import { PersonalAreaComponent } from './pages/personalArea/personalArea.component';
-import { GdrComponent } from './pages/gdr/gdr.component';
 import { DndComponent } from './pages/dnd/dnd.component';
+import { Routes } from '@angular/router';
+import { authGuard } from './auth/auth.guard';
+
+export interface SmartRoute{
+  path:string
+  component?:any
+  redirectTo?:string
+  pathMatch?: 'full' |'prefix'
+  canActivate?:any[]
+
+  title?:string
+  auth?:number[]
+  show?:boolean
+}
+
+export function buildSmartRouter(newSmartRoutes: SmartRoute[]){
+  const smartRoutes = newSmartRoutes.map(route => ({ ...route }))
+  const routes: Routes = smartRoutes.map(route => {
+    const newRoute = { ...route }
+    if(newRoute.auth!==undefined) newRoute.canActivate =[authGuard]
+
+    delete newRoute.title;
+    delete newRoute.auth;
+    delete newRoute.show;
+    return newRoute;
+  });
+  return { smartRoutes, routes };
+}
 
 export const { routes, smartRoutes } =buildSmartRouter([
-  { path: 'home', component: HomeComponent },
-  { path: 'error', component: Error404Component },
-  { show:true, path: 'hierarchy', component: HierarchyComponent },
-  { show:true, path: 'list', component: ListComponent },
-  { show:true, path: 'calc', component: CalcComponent },
-  { path: 'user/:userKey', component: PersonalAreaComponent, auth:[] },
-  { path: 'gdr/:userKey/:charKey', component: GdrComponent, auth:[] },
-  { show:true, path: 'dashboard', component: DashboardComponent, auth:[0] },
-  { show:true, path: 'dnd', component: DndComponent },
+  { title: 'Home', path: 'home', component: HomeComponent },
+  { title: 'Errore', path: 'error', component: Error404Component },
+  { title: 'Reattività', show:true, path: 'hierarchy', component: HierarchyComponent },
+  { title: 'Lista', show:true, path: 'list', component: ListComponent },
+  { title: 'Area personale', path: 'user/:userKey', component: PersonalAreaComponent, auth:[] },
+  { title: 'Lista utenti', show:true, path: 'dashboard', component: DashboardComponent, auth:[0] },
+  { title:'Schede D&D', show:true, path: 'dnd', component: DndComponent },
 
   // LOGIN
-  { path: 'login', component: LoginComponent },
-  { path: 'access', component: AccessComponent },
+  { title:'Registrazione', path: 'login', component: LoginComponent },
+  { title:'Accessso', path: 'access', component: AccessComponent },
   // CHAT
-  { show:true, path: 'chat', component: ChatComponent, auth:[] },
+  { title:'Chat', path: 'chat', component: ChatComponent, auth:[] },
     { path: 'chat/:chatKey', component: MessagesComponent, auth:[] },
     
   { path: '', redirectTo: '/home', pathMatch: 'full' },

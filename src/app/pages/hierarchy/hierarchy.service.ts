@@ -1,40 +1,60 @@
-import { HttpClient } from '@angular/common/http';
 import { effect, Injectable, signal } from '@angular/core';
 import { ListItem } from '../../interfaces/list';
-import { mapper } from '../../tools/mapper';
+import { randomCompiler } from '../../tools/randomCompiler';
+import { agree, toast } from '../../tools/feedbacksUI';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HierarchyService {
-  private url ="https://list-89d05-default-rtdb.europe-west1.firebasedatabase.app/todos"
-  list =signal<ListItem[]>([])
-  constructor(private http:HttpClient){
-    effect(()=>{ 
-      // console.log("service",this.list()) 
-    })
+  private storageKey = 'todos';
+  list = signal<ListItem[]>([]);
+
+  constructor() {
+    this.todo_read(); 
+    effect(() => {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.list()));
+    });
   }
 
-  addTodo(body: ListItem){
-    this.http.post( this.url+".json", body ).subscribe((res:any)=>{
-      this.list().push( {...body, key: res.name} ) 
-    })
+  todo_create(body: ListItem ={complete: false, title: randomCompiler.string() }) {
+    const newItem = { ...body, key: Date.now().toString() };
+    this.list.update(currentList => [...currentList, newItem]);
+    toast('Elemento aggiunto', 'success')
   }
-  getTodo(){
-    this.http.get(this.url+".json").subscribe((res:any)=>{
-      this.list.set( mapper(res) )
-    })
+
+  todo_read() {
+    const storedList = localStorage.getItem(this.storageKey);
+    if (storedList) {
+      this.list.set(JSON.parse(storedList));
+    } else {
+      this.list.set([]);
+    }
   }
-  deleteTodo(key: string){
-    this.http.delete(`${this.url}/${key}.json`).subscribe((res:any)=>{
-      this.list.set(this.list() .filter(item=>item.key!=key))
-    })
+
+  async todo_delete(key: string) {
+    if(!await agree(`Eliminate l'elemento?`, 'Rimuovi', 'danger')) return;
+    this.list.update(currentList => currentList.filter(item => item.key !== key));
+    toast('Elemento rimosso', 'danger')
   }
-  patchTodo(key: string, body:ListItem){
-    this.http.put(`${this.url}/${key}.json`, body).subscribe((res:any)=>{
-      let index =404
-      this.list() .map((item,i)=>{item.key===key ?index=i :404})
-      this.list()[index]=res
-    })
+
+  todo_update(item: ListItem, e: Event) {
+    const { name, value, checked } = e.target as HTMLInputElement;
+    const updatedItem = {
+      ...item,
+      [name]: name === 'title' ? value : checked,
+    };
+
+    this.list.update((currentList) => {
+      const index = currentList.findIndex((currentItem) => currentItem.key === item.key);
+      if (index !== -1) {
+        const newList = [...currentList];
+        newList[index] = { ...updatedItem, key: item.key };
+        return newList;
+      }
+      return currentList;
+    });
+    toast('Elemento aggiornato', 'primary')
   }
+  
 }
