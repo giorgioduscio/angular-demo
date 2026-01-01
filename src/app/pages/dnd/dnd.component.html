@@ -39,7 +39,7 @@
 
         <div class="d-flex flex-column gap-1 flex-auto">
           <div class="p-2 border rounded" 
-                data-popover="Derivato dai privilegi di classe">{{ getClassesString() }}</div>
+                data-popover="Derivato dai privilegi di classe">{{ classiString() }}</div>
           <label for="classe">Classe</label>
         </div>
         <div class="d-flex flex-column gap-1 flex-auto">
@@ -138,7 +138,7 @@
                 <label [for]="punteggio.key" 
                         class="fs-4 fw-bold duckcase" 
                         style="transform: translateY(10px);"
-                        >{{ mod(punteggio.value) > 0 ? '+' + mod(punteggio.value) : mod(punteggio.value) }}</label>
+                        >{{ mod()(punteggio.value) > 0 ? '+' + mod()(punteggio.value) : mod()(punteggio.value) }}</label>
                 <input [value]="character().punteggi[punteggiIndex].value" 
                         name="punteggi-{{punteggiIndex}}-value" 
                         [id]="punteggio.key" 
@@ -157,7 +157,7 @@
                     <label class="duckcase" for="punteggi-{{punteggiIndex}}-abilities-{{abilitaIndex}}-value">
                       <b>{{ dnd.abilityMod(character(), punteggio.value, abilita.value) }}</b>
                       {{ duckcase(abilita.key) }}
-                      <b [class]="dnd.getCompetenzaAbilita(punteggiIndex, abilitaIndex, character())">*</b>
+                      <b [class]="competenzeAbilita()[punteggiIndex][abilitaIndex]">*</b>
                     </label>
                   </li>
                 }
@@ -166,7 +166,7 @@
           }
           <div class="pt-3 d-flex align-items-center justify-content-between">
             <i>Saggezza Passiva (Percezione):</i> 
-            <b>{{ passiva("percezione") }}</b>
+            <b>{{ saggezzaPassiva() }}</b>
           </div>
         </main>
       </div>
@@ -186,7 +186,7 @@
                         [id]="competenza.key" 
                         class="form-control form-control-dnd"
                         placeholder="Es: Comune, Elfico"
-                        [attr.data-popover]="getGuida(competenza.key)"
+                        [attr.data-popover]="guide()[competenza.key]"
                         >{{ competenza.value }}</textarea>
             </div>
           }
@@ -212,18 +212,18 @@
                       type="number" 
                       class="form-control form-control-dnd"
                       placeholder="Es: 10"
-                      [attr.data-popover]="getGuida('classe_armatura')">
+                      [attr.data-popover]="guide()['classe_armatura']">
             </div>
             <div class="d-flex flex-column gap-1">
               <label>Iniziativa</label>
-              <div class="p-2 border rounded" data-popover="Derivata dal modificatore di Destrezza">{{ dnd.iniziativa(character()) }}</div>
+              <div class="p-2 border rounded" data-popover="Derivata dal modificatore di Destrezza">{{ iniziativa() }}</div>
             </div>
             <div class="d-flex flex-column gap-1">
               <label for="velocita">Velocità</label>
               <textarea [value]="character().velocita" 
                         name="velocita" id="velocita" 
                         class="form-control form-control-dnd"
-                        [attr.data-popover]="getGuida('velocita')"></textarea>
+                        [attr.data-popover]="guide()['velocita']"></textarea>
             </div>
           </div>
 
@@ -232,7 +232,7 @@
             <div class="d-flex flex-column gap-1">
               <label for="pfm">Massimi</label>
               <div class="p-2 border rounded"
-                    data-popover="Derivato dai privilegi di classe">{{ dnd.puntiFeritaMassimi(character()) }}</div>
+                    data-popover="Derivato dai privilegi di classe">{{ puntiFeritaMassimi() }}</div>
             </div>
             <div class="d-flex flex-column gap-1">
               <label for="pfa">Attuali</label>
@@ -258,8 +258,8 @@
               <label>Dadi Vita</label>
               <div class="p-2 border rounded"
                     data-popover="Derivato dai privilegi di classe">
-                @if(dnd.dadiVitaPersonaggio(character()).length) {
-                  @for (dado of dnd.dadiVitaPersonaggio(character()); track dado.dado; let last = $last) {
+                @if(dadiVitaPersonaggio().length) {
+                  @for (dado of dadiVitaPersonaggio(); track dado.dado; let last = $last) {
                     {{ dado.livello }}d{{ dado.dado }}{{ !last ? ', ' : '' }}
                   }
                 } @else {
@@ -376,7 +376,7 @@
             }
           </div>
 
-          <h6>Inventario ({{ dnd.trasporto(character()) }} kg)</h6>
+          <h6>Inventario ({{ trasporto() }} kg)</h6>
           <form class="d-grid pb-2 gap-1 align-items-center" 
                 style="grid-template-columns: auto 60px 1fr;"
                 (ngSubmit)="addToList('equipaggiamento', $event)">
@@ -466,10 +466,10 @@
         <h5 class="p-2 fw-bold">Tratti e Privilegi</h5>
         <main>
           <!-- RAZZA -->
-          @if (getPrivilegiRazza()?.privilegi?.length) {
+          @if (privilegiRazza()?.privilegi?.length) {
             <label>Privilegi di Razza</label>
             <ul>
-              @for (privilegio of getPrivilegiRazza()?.privilegi; track $index) {
+              @for (privilegio of privilegiRazza()?.privilegi; track $index) {
                 <li class="duckcase small">
                   <b>{{ (privilegio.name) }}</b>: 
                   {{ privilegio.description }}</li>
@@ -477,10 +477,10 @@
             </ul>
           }
           <!-- BACKGROUND -->
-          @if (getPrivilegiBackground()) {
+          @if (privilegiBackground()) {
             <label>Privilegi di Background</label>
             <ul>
-              @for (privilegio of getPrivilegiBackground()?.privilegi; track $index) {
+              @for (privilegio of privilegiBackground()?.privilegi; track $index) {
                 <li class="duckcase small">
                   <b>{{ (privilegio.name) }}</b>: 
                   {{ privilegio.description }}</li>
@@ -504,7 +504,7 @@
                       id="privilegio-value"
                       class="form-control form-control-dnd">
               <template autocomplete="privilegio-value" chars="3" options="3">
-                @for (sottoclasse of dnd.getClassiGiocabili(character()); track sottoclasse) {
+                @for (sottoclasse of classiGiocabili(); track sottoclasse) {
                   <li>{{ sottoclasse }}</li>
                 }
               </template>
@@ -520,7 +520,7 @@
             
           } @else {
             <div>
-              @for (classe of dnd.privilegiMappati(character()); track i; let i = $index) {
+              @for (classe of privilegiMappati(); track i; let i = $index) {
                 <div>
                   <!-- INPUT CLASSE -->
                   <section class="d-flex gap-2">

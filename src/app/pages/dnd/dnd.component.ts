@@ -1,4 +1,4 @@
-import { Component, signal, effect, WritableSignal, OnInit, HostListener } from '@angular/core';
+import { Component, signal, effect, WritableSignal, OnInit, HostListener, computed } from '@angular/core';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DND, inizializzaPersonaggio } from './dndManual';
@@ -16,11 +16,10 @@ import duckcase from '../../tools/duckcase';
   templateUrl: './dnd.component.html',
   styleUrl: './dnd.component.css'
 })
-export class DndComponent implements OnInit {
+export class DndComponent {
   public dnd = DND;
   public local = local;
-  public duckcase =duckcase
-
+  public duckcase = duckcase;
   private _character: WritableSignal<PersonaggioDND> = signal(this.loadCharacter());
   public character = this._character.asReadonly();
 
@@ -30,22 +29,74 @@ export class DndComponent implements OnInit {
 
     effect(() => {
       localStorage.setItem('character', JSON.stringify(this._character()));
-      document.title =`${this._character().nome_personaggio}`;      
-      // console.warn(this.character().privilegi);
+      document.title = `${this._character().nome_personaggio}`;
     });
 
-    setTimeout(()=> toast('Inizializzazione scheda'), 1000)
-  }
-  ngOnInit(): void {
+    setTimeout(() => toast('Inizializzazione scheda'), 1000);
     this.checkScreenSize();
   }
+
+
+  //  VISUALIZZAZIONE
+  public readonly mod = computed(() =>(score: number) => DND.getModificatore(score));
+  public readonly liv = computed(() => DND.getLivello(this.character()));
+  public readonly BC = computed(() => DND.getBonusCompetenza(this.character()));
+  public readonly classiString = computed(() => {
+    const classi = DND.getResocontoClassi(this.character());
+    if (!classi || classi.length === 0) {
+      return 'Nessuna';
+    }
+    return classi.map(c => `${c.classe} ${c.livello}`).join(', ');
+  });
+  public readonly privilegiRazza = computed(() => {
+    const razza = this.character().generali.find(g => g.key === "razza")?.value || '';
+    return DND.getRazza(String(razza));
+  });
+  public readonly privilegiBackground = computed(() => {
+    const background = this.character().generali.find(g => g.key === "background")?.value || '';
+    return DND.getBackground(String(background));
+  });
+  public readonly saggezzaPassiva = computed(() => DND.getValorePassivoAbilita('percezione', this.character()));
+  public readonly iniziativa = computed(() => DND.iniziativa(this.character()));
+  public readonly puntiFeritaMassimi = computed(() => DND.puntiFeritaMassimi(this.character()));
+  public readonly dadiVitaPersonaggio = computed(() => DND.dadiVitaPersonaggio(this.character()));
+  public readonly trasporto = computed(() => DND.trasporto(this.character()));
+  public readonly privilegiMappati = computed(() => DND.privilegiMappati(this.character()));
+  public readonly classiGiocabili = computed(() => DND.getClassiGiocabili(this.character()));
+  public readonly competenzeAbilita = computed(() => {
+    const char = this.character();
+    const results: string[][] = [];
+    char.punteggi.forEach((punteggio, punteggiIndex) => {
+      const row: string[] = [];
+      punteggio.abilities.forEach((abilita, abilitaIndex) => {
+        row.push(DND.getCompetenzaAbilita.call(DND, punteggiIndex, abilitaIndex, char));
+      });
+      results.push(row);
+    });
+    return results;
+  });
+  
+  public readonly guide = computed(() => {
+    const createGuida = (generator: (char: PersonaggioDND) => string, prefix: string) => {
+      const result = generator(this.character());
+      return result.includes('*') ? `${prefix}:>${result}` : '';
+    };
+    return {
+      linguaggi: createGuida((char) => DND.getCompetenzeLinguaggi(char), 'Linguaggi disponibili'),
+      armi: createGuida((char) => DND.getCompetenzeArmi(char), 'Armi disponibili'),
+      strumenti: createGuida((char) => DND.getCompetenzeStrumenti(char), 'Strumenti disponibili'),
+      armature: createGuida((char) => DND.getCompetenzeArmature(char), 'Armature disponibili'),
+      classe_armatura: createGuida((char) => DND.getClasseArmatura(char), 'Classe armatura'),
+      velocita: createGuida((char) => DND.getVelocita(char), 'Velocità'),
+    };
+  });
 
   //  DIMENZIONE SCHERMO
       @HostListener('window:resize', ['$event'])
       onResize(event: Event): void {
-        this.checkScreenSize(); // Controlla la dimensione al ridimensionamento della finestra
+        this.checkScreenSize(); 
       }
-      public isMobileView: boolean = false; // Add this line
+      public isMobileView: boolean = false; 
       private checkScreenSize(): void {
         this.isMobileView = window.innerWidth < 900; 
       }
@@ -56,7 +107,7 @@ export class DndComponent implements OnInit {
         },
         { key: 'punteggi', 
           label: 'Punteggi', 
-          icon: 'bar-chart'
+          icon: 'list-check'
         },
         { key: 'competenzeLinguaggi', 
           label: 'Competenze e Linguaggi', 
@@ -68,7 +119,7 @@ export class DndComponent implements OnInit {
         },
         { key: 'attacchiIncantesimi', 
           label: 'Attacchi e Incantesimi', 
-          icon: 'arrow-through-heart'
+          icon: 'magic'
         },
         { key: 'equipaggiamento', 
           label: 'Equipaggiamento', 
@@ -254,30 +305,6 @@ export class DndComponent implements OnInit {
     form.reset();
   }
 
-  //  STAT
-      getClassesString(): string {
-        const personaggio = this.character();
-        const classi = DND.getResocontoClassi(personaggio);
-        if (!classi || classi.length === 0) {
-          return 'Nessuna';
-        }
-        return classi.map(c => `${c.classe} ${c.livello}`).join(', ');
-      }
-      getPrivilegiRazza(){
-        const razza =this.character().generali.find(g=>g.key==="razza")?.value +'';
-        return DND.getRazza(razza ||'')
-      }
-      getPrivilegiBackground(){
-        const background =this.character().generali.find(g=>g.key==="background")?.value +'';
-        return DND.getBackground(background ||'')
-      }
-      liv(){
-        return DND.getLivello(this.character());
-      }
-      BC =()=> DND.getBonusCompetenza(this.character());
-      mod = DND.getModificatore;
-      passiva =(nomeAbilita:string)=> DND.getValorePassivoAbilita(nomeAbilita, this.character())
-
   getPlaceholder(key: string): string {
     switch (key) {
       case 'nome_giocatore':
@@ -313,32 +340,5 @@ export class DndComponent implements OnInit {
           console.error("Failed to parse character from clipboard", error);
         }
       }
-
-  //  GUIDE
-      getGuida(nomeSezione:string) :string{
-        let result ='';
-        switch (nomeSezione) {
-          case 'linguaggi': 
-              result ='Linguaggi disponibili:>'+ DND.getCompetenzeLinguaggi(this.character());
-              break;
-          case 'armi': 
-              result = 'Armi disponibili:>'+ DND.getCompetenzeArmi(this.character())
-              break; 
-          case 'strumenti': 
-              result = 'Strumenti disponibili:>'+ DND.getCompetenzeStrumenti(this.character())
-              break; 
-          case 'armature': 
-              result = 'Armature disponibili:>'+ DND.getCompetenzeArmature(this.character())
-              break; 
-          case 'classe_armatura': 
-              result = 'Classe armatura:>'+DND.getClasseArmatura( this.character())
-              break; 
-          case 'velocita': 
-              result = 'Velocità:>'+DND.getVelocita( this.character())
-              break; 
-        }
-        return result.includes('*') ?result :'';
-      }
-
 }
 

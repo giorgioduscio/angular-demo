@@ -3221,7 +3221,7 @@ export const DND = {
       ],
       eta: "Maturità: circa 20 anni, Vita media: oltre 180 anni",
       taglia: "Media (150–180 cm)",
-      linguaggi: ["Comune", "Elfico", "linguaggio extra a scelta"],
+      linguaggi: ["Comune", "Elfico", "linguaggio a scelta"],
       privilegi: [
         { name: "scurovisione", description: "Potete vedere in condizioni di buio o luce fioca..." },
         { name: "stirpe fatata", description: "Vantaggio contro affascinato e immunità al sonno magico." },
@@ -3256,7 +3256,7 @@ export const DND = {
       ],
       eta: "Maturità: ~18 anni, Vita media: ~80 anni",
       taglia: "Media",
-      linguaggi: ["Comune", "linguaggio extra a scelta"],
+      linguaggi: ["Comune", "linguaggio a scelta"],
       privilegi: []
     },
     {
@@ -3328,7 +3328,7 @@ export const DND = {
       name: "Artigiano della Gilda",
       abilita: ["intuizione", "persuasione"],
       strumenti: ["uno strumento da artigiano a scelta"],
-      linguaggi: "uno a scelta",
+      linguaggi: "linguaggio a scelta",
       equipaggiamento: "Una serie di strumenti da artigiano (a scelta), una lettera di presentazione della gilda, un abito da viaggiatore, una borsa con 15 monete oro (mo)",
       privilegi: [
         {
@@ -3367,7 +3367,7 @@ export const DND = {
       name: "Eremita",
       abilita: ["medicina", "religione"],
       strumenti: ["borsa da erborista"],
-      linguaggi: "uno a scelta",
+      linguaggi: "linguaggio a scelta",
       equipaggiamento: "Un bastone, una coperta invernale, un abito comune, un kit da erborista, una borsa con 5 monete oro (mo)",
       privilegi: [
         {
@@ -3393,7 +3393,7 @@ export const DND = {
       name: "Forestiero",
       abilita: ["atletica", "sopravvivenza"],
       strumenti: ["uno strumento musicale a scelta"],
-      linguaggi: "uno a scelta",
+      linguaggi: "linguaggio a scelta",
       equipaggiamento: "Un bastone, una tagliola, un trofeo di un animale ucciso, un abito da viaggiatore, una borsa con 10 monete oro (mo)",
       privilegi: [
         {
@@ -3458,7 +3458,7 @@ export const DND = {
       name: "Nobile",
       abilita: ["persuasione", "storia"],
       strumenti: ["un tipo di gioco a scelta"],
-      linguaggi: "uno a scelta",
+      linguaggi: "linguaggio a scelta",
       equipaggiamento: "Un abito pregiato, un anello con sigillo, una pergamena con albero genealogico, una borsa con 25 monete oro (mo)",
       privilegi: [
         {
@@ -3510,7 +3510,17 @@ export const DND = {
 
   //  GUIDE ALLE COMPETENZE
   getCompetenzeLinguaggi(personaggio: PersonaggioDND): string {
-      let result = new Set<string>();
+      // Usiamo un oggetto per tracciare i linguaggi e il loro conteggio
+      const linguaggiMap: Record<string, number> = {};
+
+      // Funzione ausiliaria per aggiungere un linguaggio con il contatore
+      const addLinguaggio = (lingua: string) => {
+          if (linguaggiMap[lingua]) {
+              linguaggiMap[lingua]++; // Incrementa il contatore
+          } else {
+              linguaggiMap[lingua] = 1; // Primo inserimento
+          }
+      };
 
       // RAZZA
       const razzaPersonaggio = personaggio.generali.find(g => g.key == 'razza');
@@ -3519,12 +3529,12 @@ export const DND = {
           console.error('linguaggi razza non trovati:', razzaPersonaggio, razza);
           return '';
       }
-      razza.linguaggi.forEach(lingua => result.add(`* ${lingua}`));
+      razza.linguaggi.forEach(lingua => addLinguaggio(lingua));
 
       // CLASSE
       const classiPersonaggio = personaggio.privilegi.map(priv => priv.classe.toLowerCase()).join(', ');
-      if (classiPersonaggio.includes('druido')) result.add('* Druidico');
-      if (classiPersonaggio.includes('ladro')) result.add('* Gergo ladresco');
+      if (classiPersonaggio.includes('druido')) addLinguaggio('Druidico');
+      if (classiPersonaggio.includes('ladro')) addLinguaggio('Gergo ladresco');
 
       // BACKGROUND
       const backgroundPersonaggio = personaggio.generali.find(g => g.key == 'background');
@@ -3533,9 +3543,14 @@ export const DND = {
           console.error('nessun background');
           return '';
       }
-      result.add(`* ${backgroundMatch?.linguaggi}`);
+      addLinguaggio(backgroundMatch?.linguaggi);
 
-      return Array.from(result).join(', ');
+      // Costruisci il risultato con i contatori
+      const result = Object.entries(linguaggiMap).map(([lingua, count]) => {
+          return count > 1 ? `* (x${count}) ${lingua}` : `* ${lingua}`;
+      });
+
+      return result.join(', ');
   },
 
   getCompetenzeArmi(personaggio: PersonaggioDND): string {
@@ -3705,10 +3720,6 @@ export const DND = {
           if(abilitaValida(abilitaBackground)) result = colore.background;
         })
 
-        
-    // if(result) console.log('*', abilita.key, `\t`, result);
-    if(abilita.key=='persuasione') console.log('\n\n\n');
-    
     return result ||'d-none';
   },
 
@@ -3904,12 +3915,8 @@ export const DND = {
   
 
   //  LOGICA DI SCHEDA
-  /**
-   * Calcola il modificatore di caratteristica
-   * @param {number} score
-   * @returns {number}
-   */
-  getModificatore: (score:number) => Math.floor((score - 10) / 2),
+  // converte il punteggio di caratteristica nel suo modificatore
+  getModificatore: (score:number) =>{ return Math.floor((score - 10) / 2)},
   /**
    * Calcola il bonus per un'abilità in funzione della caratteristica e della competenza
    * @param {any} character
