@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/navbar/navbar.component';
 import { HomeComponent } from './pages/home/home.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { UtentiComponent } from './pages/utenti/utenti.component';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +11,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
     RouterOutlet,
     NavbarComponent,
     HomeComponent,
-    DashboardComponent,
+    UtentiComponent,
   ],
   template: `<router-outlet />`,
 })

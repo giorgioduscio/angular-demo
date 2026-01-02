@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { User } from '../interfaces/user';
-import { mapper } from '../tools/mapper';
 import { BehaviorSubject, map } from 'rxjs';
+import { FirebaseMapper } from '../tools/firebaseMapper';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
@@ -15,7 +15,7 @@ export class UsersService {
   $users =new BehaviorSubject<User[]>([])
   private getUsers(){
     this.http.get<{[k:string]:User}>(this.url +'.json').subscribe((res=>{
-      const mappedUsers =mapper(res)
+      const mappedUsers =FirebaseMapper(res)
       this.users.set(mappedUsers)
       this.$users.next(mappedUsers)
       // console.log("get",this.users());

@@ -1,4 +1,4 @@
-export function mapper(obj:object) {
+export function FirebaseMapper(obj:object) {
   let newObject :any =obj
   return Object.keys(newObject) .map(key=>{
     newObject[key]['key']=key

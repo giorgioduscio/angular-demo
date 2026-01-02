@@ -4,8 +4,8 @@ import { NgFor, NgIf } from '@angular/common';
 import { NavbarComponent } from "../../shared/navbar/navbar.component";
 import { ListItem } from '../../interfaces/list';
 import { ParagraphPipe } from './paragraph.pipe';
-import { mapper } from '../../tools/mapper';
 import { agree, toast } from '../../tools/feedbacksUI';
+import { FirebaseMapper } from '../../tools/firebaseMapper';
 
 @Component({
   selector: 'app-list',
@@ -40,7 +40,7 @@ export class ListComponent implements OnInit {
         result[item.key] = item;
       }
     });
-    this.list = mapper(result);
+    this.list = FirebaseMapper(result);
   }
 
   @ViewChild('formData') formData!: NgForm;

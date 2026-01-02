@@ -1,5 +1,5 @@
 import { HomeComponent } from './pages/home/home.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { UtentiComponent } from './pages/utenti/utenti.component';
 import { ListComponent } from './pages/list/list.component';
 import { HierarchyComponent } from './pages/hierarchy/hierarchy.component';
 import { LoginComponent } from './pages/login/login.component';
@@ -44,7 +44,7 @@ export const { routes, smartRoutes } =buildSmartRouter([
   { title: 'Reattività', show:true, path: 'hierarchy', component: HierarchyComponent },
   { title: 'Lista', show:true, path: 'list', component: ListComponent },
   { title: 'Area personale', path: 'user/:userKey', component: PersonalAreaComponent, auth:[] },
-  { title: 'Lista utenti', show:true, path: 'dashboard', component: DashboardComponent, auth:[0] },
+  { title: 'Lista utenti', show:true, path: 'utenti', component: UtentiComponent, auth:[0] },
   { title:'Schede D&D', show:true, path: 'dnd', component: DndComponent },
 
   // LOGIN

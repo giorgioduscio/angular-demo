@@ -1,9 +1,9 @@
 export const siteActions =()=>[
   {
     imgUrl:"https://img.freepik.com/vettori-gratuito/illustrazione-dell-interfaccia-utente_53876-37635.jpg?t=st=1739950023~exp=1739953623~hmac=bf5e7fe57a791559ad1fff990545f140ef464c74a42550deaed26928ec56df5c&w=826",
-    title:"Dashboard", 
+    title:"Utenti", 
     auth:[0], 
-    path:'/dashboard',
+    path:'/utenti',
     description:"Gestisci gli utenti iscritti."
   },
   // {

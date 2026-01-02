@@ -1,0 +1,122 @@
+<article>
+  <app-navbar></app-navbar>
+  <div class="container my-3">
+
+    <header class="d-flex flex-wrap gap-2 pb-3 justify-content-between align-items-center">
+      <h1 class="w-100">Tabella utenti</h1>
+      <!-- FILTRO -->
+      <div id="filtro">
+        <label for="filtro_value">
+          <i class="bi bi-search"></i>
+          Utenti
+        </label>
+
+        <input type="email"
+              class="form-control mt-1"
+              id="filtro_value"
+              placeholder="Cerca per email o username"
+              (input)="filtro_set($event)">
+      </div>
+
+      <!-- PAGINAZIONE -->
+      <div class="d-flex">
+        <nav aria-label="Pagination">
+          <ul class="pagination mb-0">
+            <li class="page-item" [class.disabled]="paginazione_index === 1">
+              <a class="page-link bg-transparent border-0" href="#"
+                (click)="$event.preventDefault(); paginazione_goto(paginazione_index - 1)"
+                aria-label="Previous">
+                <i class="bi bi-caret-left-fill"></i>
+              </a>
+            </li>
+
+            @for(page of [].constructor(paginazione_totalePagine); track $index) {
+              <li class="page-item">
+                <a class="page-link bg-transparent rounded border-primary" href="#"
+                  [class.border-0]="paginazione_index !== $index + 1"
+                  [class.text-white]="paginazione_index !== $index + 1"
+                  (click)="$event.preventDefault(); paginazione_goto($index + 1)">
+                  {{ $index + 1 }}
+                  <span class="visually-hidden" *ngIf="paginazione_index === $index + 1">(current)</span>
+                </a>
+              </li>
+            }
+
+            <li class="page-item" [class.disabled]="paginazione_index === paginazione_totalePagine">
+              <a class="page-link bg-transparent border-0" href="#"
+                (click)="$event.preventDefault(); paginazione_goto(paginazione_index + 1)"
+                aria-label="Next">
+                <i class="bi bi-caret-right-fill"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- SELECT RANGE -->
+        <select (change)="paginazione_setRange($event)" 
+                class="select-dark"
+                name="paginazione_setRange" id="paginazione_setRange">
+          @for (opt of paginazione_rangeWrapper; track $index) {
+            <option [value]="opt" [selected]="opt === paginazione_range" class="bg-dark text-light">{{opt}}/Pagina</option>
+          }
+        </select>
+      </div>
+    </header>
+
+    <!-- TABELLA -->
+    <div class="table-responsive">
+      <table class="table table-striped table-hover table-borderless align-middle table-dark">
+        <thead>
+          <tr>
+            <th><button class="btn btn-success bi bi-person-fill-add" routerLink="/login"></button></th>
+            <th *ngFor="let col of colonne" class="position-relative">
+              <button class="btn btn-dark w-100 text-start"
+                      (click)="ordinamento_set(col.key)">
+                {{ col.label }}
+              </button>
+              <i class="bi bi-caret-up-fill icon-up"
+                 [class.text-primary]="ordinamento_value[col.key]=='desc'"
+                 [class.text-secondary]="ordinamento_value[col.key]!='desc'">
+              </i>
+              <i class="bi bi-caret-down-fill icon-down"
+                 [class.text-primary]="ordinamento_value[col.key]=='asc'"
+                 [class.text-secondary]="ordinamento_value[col.key]!='asc'">
+              </i>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for(utente of vistaUtenti; track utente.id) {
+            <tr>
+              <td>
+                <button class="btn btn-danger" (click)="handleDelete(utente)">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </td>
+              <td *ngFor="let col of colonne">
+                @if (col.key==='imageUrl') {
+                  <img [src]="utente[col.key]" [alt]="utente.username">
+                } @else if (col.key==='id') {
+                  <i>{{ utente[col.key] }}</i>
+                } @else if (col.key==='role') {
+                  <select class="form-select bg-dark text-light" (change)="handleChange(utente, col.key, $event)">
+                    <option value="" selected style="display: none;">{{ rolesValues[utente.role].title }}</option>
+                    <option *ngFor="let opt of rolesValues"
+                            class="text-bg-dark"
+                            value="{{opt.value}}">{{ opt.title }}</option>
+                  </select>
+                } @else {
+                  <input class="form-control bg-dark text-light"
+                        [value]="utente[col.key]"
+                        type="text"
+                        (change)="handleChange(utente, col.key, $event)">
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</article>

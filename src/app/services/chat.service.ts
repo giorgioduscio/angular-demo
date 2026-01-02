@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Chat } from '../interfaces/chat';
-import { mapper } from '../tools/mapper';
+import { FirebaseMapper } from '../tools/firebaseMapper';
 
 @Injectable({  providedIn: 'root' })
 export class ChatService {
@@ -18,7 +18,7 @@ export class ChatService {
     if(userId) this.http.get<{[k:string]:Chat}>(this.url+".json")
     .subscribe(res=>{
       // recupera solo le chat che includono l'utente
-      let mappedChats :Chat[] =!res ?[] :mapper(res).filter((chat:Chat)=>
+      let mappedChats :Chat[] =!res ?[] :FirebaseMapper(res).filter((chat:Chat)=>
         chat.usersId.some(id=> id===userId)
       )
 

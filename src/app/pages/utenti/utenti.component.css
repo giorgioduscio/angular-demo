@@ -1,0 +1,26 @@
+@import url(../../../customFloatingLabel.css);
+
+/* FILTRO */
+.form-floating{
+  background: var(--c1);
+}
+
+/* TABELLA */
+.icon-up, .icon-down{
+  position: absolute;
+  right: 20px;
+  top: 8px;
+  pointer-events: none;
+}
+.icon-down{
+  top: 20px !important;
+}
+
+.select-dark{
+  padding: 8px 4px;
+  background: var(--c1);
+  color: var(--c5);
+  border-radius: 8px;
+  border-color: transparent;
+  cursor: pointer;
+}
