@@ -6,7 +6,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { NavbarComponent } from "../../shared/navbar/navbar.component";
 import { RolesValues, User } from '../../interfaces/user';
 import { RouterModule } from '@angular/router';
-import { agree } from '../../tools/feedbacksUI';
+import { agree, toast } from '../../tools/feedbacksUI';
 import { Subscription } from 'rxjs';
 
 // IA: decoratore @component per definire metadati, template e stili del componente
@@ -46,7 +46,7 @@ export class UtentiComponent implements OnInit, OnDestroy {
     { key: 'id', label: 'Id' },
     { key: 'email', label: 'Email' },
     { key: 'username', label: 'Username' },
-    { key: 'role', label: 'Role' },
+    { key: 'role', label: 'Ruolo' },
   ];
 
   // IA: proprietà e metodo per gestire il filtro degli utenti
@@ -166,22 +166,35 @@ export class UtentiComponent implements OnInit, OnDestroy {
   }
 
   // IA: metodo per gestire le modifiche ai dati di un utente
-  handleChange(user: User, key: keyof User, e: Event) {
-    // IA: gestisce il nuovo valore in base al tipo di input
-    const { value, type, checked } = e.target as HTMLInputElement;
-    const newValue = type === 'checkbox' ? checked :
+  async handleChange(user: User, key: keyof User, e: Event) {
+    // valori
+    const input =e.target as HTMLInputElement
+    const { value, type, checked } = input;
+    const newValue = 
+      type === 'checkbox' ? checked :
+      (type==='text' || !value.trim()) ?value.trim() :
       !isNaN(Number(value)) ? Number(value) :
-        value;
+      value;
 
-    const newUser = { ...user, [key]: newValue };
-
-    // IA: valida l'email se il campo modificato è di tipo email
-    if (typeof newValue === 'string') {
-      if (type === 'email' && !newValue.includes('@')) {
-        alert("Email non valida. Inserire '@'.");
-      } else {
-        this.usersService.patchUser(user.id, newUser);
-      }
+    // validazione
+    let isValid =true;
+    if (key === 'email' && typeof newValue === 'string' && !newValue.trim().includes('@')) {
+      isValid =false;
+      toast("Email non valida. Inserire '@'", 'danger');
     }
+    if(key=='username' && typeof newValue=='string' && newValue.trim().length<3){
+      isValid =false;
+      toast("Inserire almeno tre caratteri", 'danger')
+    }
+    if(!isValid) return input.classList.add('is-invalid');
+    
+    // feedback e salvataggio
+    input.classList.remove('is-invalid')
+    if(!await agree('Aggiorare l\'utente?', 'Aggiorna')) 
+      return input.value =user[key] as string;
+    this.usersService.patchUser(user.id, { ...user, [key]: newValue });
+    toast(`Campo ${key} aggiornato`, 'success');
+    input.classList.add('is-valid');
+    setTimeout(()=> input.classList.remove('is-valid'), 2000);
   }
 }

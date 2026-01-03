@@ -1,10 +1,5 @@
 @import url(../../../customFloatingLabel.css);
 
-/* FILTRO */
-.form-floating{
-  background: var(--c1);
-}
-
 /* TABELLA */
 .icon-up, .icon-down{
   position: absolute;

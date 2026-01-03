@@ -1,16 +1,14 @@
-
 <article>
   <app-navbar></app-navbar>
 
-  <div class="container p-2" style="max-width: 600px;">
+  <div class="container p-2 max-w-400px">
     <!-- INSERIMENTO -->
     <header class="mx-auto">
       <h3 class="text-center mb-4">{{ 'listaDelleCoseDaFare' | paragraph }}</h3>  
 
       <form #formdata="ngForm" (ngSubmit)="list_create(formdata)" 
-            class="mx-auto d-flex gap-2 align-items-end" 
-            style="max-width: max-content;">
-        <div class="">
+            class="mx-auto d-flex gap-2 align-items-end max-w-max-content">
+        <div>
           <label for="title">Inserisci azione</label>
           <input class="form-control mt-1"
                  type="text"
@@ -30,45 +28,37 @@
 
 
     <!-- TABELLA -->
-    <main *ngIf="!list.length" class="m-3">
-      <div class="alert alert-info">
-        La lista è vuota. Compila il campo per popolare la lista.
-      </div>
-    </main>
+    @if (!list.length) {
+      <main class="m-3">
+        <div class="alert alert-info">
+          La lista è vuota. Compila il campo per popolare la lista.
+        </div>
+      </main>
+
+    }@else {
+      <main class="mx-auto mt-4 d-grid gap-3 align-items-center cols-auto-1fr-auto">
+        @for (item of list; track $index) {
+          <button class="btn btn-danger" (click)="list_delete($index)">
+            <i class="bi bi-trash3-fill"></i>
+          </button>
+          
+          <input class="form-control"
+                  (change)="list_update($event, $index)"
+                  type="text"
+                  id="title"
+                  [value]="item.title">
+  
+          <div class="form-check">
+            <input class="form-check-input"
+                    (change)="list_update($event, $index)"
+                    type="checkbox"
+                    id="complete"
+                    [checked]="item.complete">
+          </div>
+        }
+      </main>
+    }
     
-    <main *ngIf="list.length" class="mx-auto mt-4">
-      <div class="table-responsive-sm">
-        <table class="table align-middle table-borderless table-hover table-dark">
-          <tbody>
-
-            <tr *ngFor="let item of list; let i =index">
-              <td class="p-2">
-                <button class="btn btn-danger" (click)="list_delete(i)">
-                  <i class="bi bi-trash3-fill"></i>
-                </button>
-              </td>
-              <td class="p-2">
-                <input class="form-control"
-                       (change)="list_update($event, i)"
-                       type="text"
-                       id="title"
-                       [value]="item.title">
-              </td>
-              <td class="p-2">
-                <div class="form-check">
-                  <input class="form-check-input"
-                         (change)="list_update($event, i)"
-                         type="checkbox"
-                         id="complete"
-                         [checked]="item.complete">
-                </div>
-              </td>
-            </tr>
-
-          </tbody>
-        </table>
-      </div>
-    </main>
 
   </div>
 </article>

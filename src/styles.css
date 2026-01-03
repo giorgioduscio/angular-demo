@@ -23,16 +23,15 @@ html, body{
 label{ 
   font-style: italic; 
 }
-input.form-control, select.form-select{
-  background: transparent;
-  color: white;
+.form-control, .form-select{
+  background: transparent !important;
+  color: white !important;
+  appearance: auto !important; 
+  resize: none !important;
 }
 input.form-control:focus{
   background: transparent;
   color: white;
-}
-textarea{
-  resize: none !important;
 }
 *::placeholder{
   color: inherit !important;
@@ -78,22 +77,22 @@ a{
   border-color: inherit !important;
 }
 .text-bg-c1{
-  background-color: var(--c1);
-  color: var(--c5);
+  background-color: var(--c1) !important;
+  color: var(--c5) !important;
 }
 .text-bg-c2{
-  background-color: var(--c2);
-  color: var(--c5);
+  background-color: var(--c2) !important;
+  color: var(--c5) !important;
 }
 .text-bg-c3{
-  background-color: var(--c3);
-  color: var(--c5);
+  background-color: var(--c3) !important;
+  color: var(--c5) !important;
 }
 .text-bg-c4{
-  background-color: var(--c4);
-  color: var(--c5);
+  background-color: var(--c4) !important;
+  color: var(--c5) !important;
 }
 .text-bg-c5{
-  background-color: var(--c5);
-  color: var(--c1);
+  background-color: var(--c5) !important;
+  color: var(--c1) !important;
 }

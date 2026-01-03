@@ -1,9 +1,7 @@
 sito
 - creare calendario
 - aggiornare chat
-- input:search devono avere sempre una x
-- floating table placeholder
-- stile select
+- x search input
 
 
 dnd

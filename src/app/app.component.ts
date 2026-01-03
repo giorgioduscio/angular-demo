@@ -1,24 +1,18 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from './shared/navbar/navbar.component';
-import { HomeComponent } from './pages/home/home.component';
-import { UtentiComponent } from './pages/utenti/utenti.component';
+import customStyle from '../styles';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet,
-    NavbarComponent,
-    HomeComponent,
-    UtentiComponent,
+    RouterOutlet
   ],
   template: `<router-outlet />`,
 })
 export class AppComponent {
-  title ='ggg-ng';
-  onCatchData(value: string){
-    this.title =value
+  constructor() {
+    customStyle()
   }
   
 }

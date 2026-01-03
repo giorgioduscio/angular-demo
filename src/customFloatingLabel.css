@@ -1,8 +1,8 @@
 /* CUSTOM FLOATING LABELS */
 /* input */
 .form-floating >.form-control{
-  min-height: 3rem;
-  height: 3rem;
+  min-height: 2.5rem;
+  height: 2.5rem;
   padding: 10px;
 
   border-width: 2px;
@@ -16,22 +16,28 @@
 /* label */
 .form-floating >label{
   height: min-content;
-  max-width: 90%;
+  width: 93%;
   padding: 0;
   margin-left: 10px;
-  transform: translateY(40%);
+  transform: translateY(30%);
 
-  background: inherit;
+  background: inherit !important;
   color: inherit;
   border-radius: 10px;
 }
   .form-floating >label::after{
     background: transparent;
   }
+  /* se in focus e ha un placeholder, rimane in alto */
   .form-floating >.form-control:focus ~label, 
   .form-floating >.form-control:not(:placeholder-shown) ~label{
+    width: min-content;
+    max-width: 90%;
     padding: 0 5px;
     margin: 0 5px;
-    transform: scale(.85) translateY(-35%) translateX(.15rem);
+    transform: scale(.85) translateY(-45%) translateX(.15rem);
+  }
+  
+  .form-floating >.form-control:focus ~label{
     color: #86b7fe;
   }

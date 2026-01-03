@@ -9,8 +9,8 @@ export class UsersService {
   constructor(private http: HttpClient){
     this.getUsers()
   }
-  
   private url ="https://users-b9804-default-rtdb.europe-west1.firebasedatabase.app/users"
+  
   users =signal<User[]>([])
   $users =new BehaviorSubject<User[]>([])
   private getUsers(){
@@ -28,19 +28,28 @@ export class UsersService {
       setTimeout(()=> console.log("addUser",this.users()[ this.users().length-1 ]), 1000);
     })  
   }
-  deleteUser(i:number){
-    let key =this.users()[i].key
+  deleteUser(userId:number){
+    const userToDelete = this.users().find(u => u.id === userId);
+    if (!userToDelete || !userToDelete.key) {
+      console.error('Utente non trovato o chiave mancante per id:', userId);
+      return;
+    }
+    const key = userToDelete.key;
     this.http.delete(`${this.url}/${key}.json`).subscribe(res=>{
       this.getUsers()
-      console.log("deleteUser",this.users());
+      console.log("deleteUser, id:", userId);
     })
   }
-  patchUser(i:number, user:User){
-    let key =this.users()[i].key
+  patchUser(userId:number, user:User){
+    const userToUpdate = this.users().find(u => u.id === userId);
+    if (!userToUpdate || !userToUpdate.key) {
+      console.error('Utente non trovato o chiave mancante per id:', userId);
+      return;
+    }
+    const key = userToUpdate.key;
     this.http.put(`${this.url}/${key}.json`, user).subscribe(res=>{
       this.getUsers()
-
-      setTimeout(()=> console.log("patchUser", this.users()[i]), 1000);
+      console.log('utenti aggiornati', res);
     })
   }
 }
