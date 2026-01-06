@@ -1,5 +1,4 @@
 import { Component, effect } from '@angular/core';
-import { NavbarComponent } from "../../shared/navbar/navbar.component";
 import { AuthService } from '../../auth/auth.service';
 import { User } from '../../interfaces/user';
 import { siteActions } from './siteActions';
@@ -9,7 +8,7 @@ import { NgIf } from '@angular/common';
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [NavbarComponent, RouterModule, NgIf, ],
+  imports: [RouterModule, NgIf, ],
   templateUrl: './personalArea.component.html',
   styleUrl: './personalArea.component.css'
 })

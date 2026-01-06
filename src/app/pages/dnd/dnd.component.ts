@@ -3,7 +3,6 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DND, inizializzaPersonaggio } from './dndManual';
 import { local } from './localStorage';
-import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import {toast, agree, popovers_init} from '../../tools/feedbacksUI';
 import { Autocomplete } from '../../tools/autocomplete';
 import PersonaggioDND from '../../interfaces/personaggioDND';
@@ -12,7 +11,7 @@ import duckcase from '../../tools/duckcase';
 @Component({
   selector: 'app-dnd',
   standalone: true,
-  imports: [NgIf, CommonModule, FormsModule, NavbarComponent],
+  imports: [NgIf, CommonModule, FormsModule],
   templateUrl: './dnd.component.html',
   styleUrl: './dnd.component.css'
 })

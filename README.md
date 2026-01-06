@@ -14,13 +14,12 @@ Esegui `ng generate component nome-componente` per generare un nuovo componente.
 
 Esegui `ng build` per compilare il progetto. Gli artefatti della compilazione verranno memorizzati nella directory `dist/`.
 
-## Esecuzione dei test unitari
+## Esecuzione dei test 
 
-Esegui `ng test` per eseguire i test unitari tramite [Karma](https://karma-runner.github.io).
+Esegui `npx playwright test` per eseguire tutti i test disponibili nel progetto.
 
-## Esecuzione dei test end-to-end
-
-Esegui `ng e2e` per eseguire i test end-to-end tramite una piattaforma a tua scelta. Per utilizzare questo comando, devi prima aggiungere un pacchetto che implementi le funzionalità di test end-to-end.
+* **Test per componente specifico:** `npx playwright test src/app/tests/nomeFile.test.ts`
+* **Esempio:** `npx playwright test src/app/tests/list.test.ts`
 
 ## Ulteriore aiuto
 
@@ -31,11 +30,7 @@ Per ottenere ulteriore aiuto su Angular CLI usa `ng help` o consulta la pagina [
 L'applicazione include le seguenti funzionalità:
 
 *   **Sistema di Login:** Gestione dell'accesso e autenticazione degli utenti.
-*   **Dashboard Utente:** Pagina riepilogativa personalizzata per l'utente.
-*   **Chat:** Sistema di messaggistica istantanea tra utenti.
 *   **Pagina DND:** Sezione dedicata a contenuti e strumenti per Dungeons & Dragons.
-*   **Pagina GDR:** Sezione dedicata a contenuti e strumenti per Giochi di Ruolo.
-*   **Calcolatrice:** Un semplice strumento di calcolo.
 *   **Gestione Liste:** Creazione e organizzazione di liste personalizzate.
 *   **Area Personale:** Sezione per la gestione del profilo e delle impostazioni utente.
 *   **Home Page:** La pagina principale di atterraggio del sito.

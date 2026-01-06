@@ -1,10 +1,20 @@
-sito
+# Comandi abituali
+
+git reset head~1
+git push origin -f main 
+npx playwright test src/app/tests/list.test.ts
+
+# Cose da completare
+
+## Generali 
+
 - creare calendario
 - aggiornare chat
 - x search input
+- programmazione+test nello stesso file
 
 
-dnd
+## dnd
 2. guida equipaggiamento
 2. guida abilità (una stella accanto alla label)
 3. file di autocompletamento (competenza tiri salvezza in base alla classe)

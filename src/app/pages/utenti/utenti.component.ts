@@ -1,19 +1,18 @@
 // IA: definizione del componente utenti con dipendenze angular core e moduli necessari
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../services/users.service';
-import { NgFor, NgIf } from '@angular/common';
-import { NavbarComponent } from "../../shared/navbar/navbar.component";
 import { RolesValues, User } from '../../interfaces/user';
-import { RouterModule } from '@angular/router';
 import { agree, toast } from '../../tools/feedbacksUI';
 import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { NgFor, NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 // IA: decoratore @component per definire metadati, template e stili del componente
 @Component({
   selector: 'app-utenti',
   standalone: true,
-  imports: [FormsModule, NgFor, NgIf, NavbarComponent, RouterModule],
+  imports: [FormsModule, NgFor, NgIf, RouterModule],
   templateUrl: './utenti.component.html',
   styleUrl: './utenti.component.css'
 })

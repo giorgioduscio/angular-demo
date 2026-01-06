@@ -3,7 +3,6 @@ import { UsersService } from '../../services/users.service';
 import { User } from '../../interfaces/user';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { initForm, getForm, FormField } from './validation';
 import { randomCompiler } from '../../tools/randomCompiler';
 import { NgFor, NgIf } from '@angular/common';
@@ -11,7 +10,7 @@ import { NgFor, NgIf } from '@angular/common';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ NavbarComponent, ReactiveFormsModule, FormsModule, RouterModule, NgIf, NgFor, ],
+  imports: [ ReactiveFormsModule, FormsModule, RouterModule, NgIf, NgFor, ],
   templateUrl: './login.component.html',
 })
 

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ggg-angular": {
+    "angular-demo": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/ggg-angular",
+            "outputPath": "dist/angular-demo",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -62,10 +62,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "ggg-angular:build:production"
+              "buildTarget": "angular-demo:build:production"
             },
             "development": {
-              "buildTarget": "ggg-angular:build:development"
+              "buildTarget": "angular-demo:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -73,7 +73,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "ggg-angular:build"
+            "buildTarget": "angular-demo:build"
           }
         },
         "test": {

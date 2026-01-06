@@ -1,95 +1,86 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
-import { NavbarComponent } from "../../shared/navbar/navbar.component";
 import { ListItem } from '../../interfaces/list';
 import { ParagraphPipe } from './paragraph.pipe';
 import { agree, toast } from '../../tools/feedbacksUI';
-import { FirebaseMapper } from '../../tools/firebaseMapper';
 
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [NgIf, FormsModule, NgFor, NavbarComponent, ParagraphPipe],
+  imports: [NgIf, FormsModule, NgFor, ParagraphPipe],
   templateUrl: './list.component.html'
 })
 
 export class ListComponent implements OnInit {
   ngOnInit() {
     document.title = 'Lista';
-    this.list_read();
+    this.ls_get();
   }
-  
-  private readonly localStorageKey = 'listItems';
   list: ListItem[] = [];
-
-  private getStoredList(): ListItem[] {
+  
+  //  LocalStorage
+  localStorageKey = 'listItems';
+  ls_get() {
     const stored = localStorage.getItem(this.localStorageKey);
-    return stored ? JSON.parse(stored) : [];
+    this.list = stored ? JSON.parse(stored) : [];
   }
-
-  private saveList(list: ListItem[]): void {
+  ls_set(list: ListItem[]): void {
     localStorage.setItem(this.localStorageKey, JSON.stringify(list));
   }
-
-  list_read() {
-    const list = this.getStoredList();
-    const result: { [k: string]: ListItem } = {};
-    list.forEach(item => {
-      if (item.key) {
-        result[item.key] = item;
-      }
-    });
-    this.list = FirebaseMapper(result);
+  
+  // Crea un nuovo elemento
+  @ViewChild('formData') formData!: NgForm;
+  isValid(): boolean {
+    return this.formData?.value?.title?.trim().length > 2;
   }
 
-  @ViewChild('formData') formData!: NgForm;
-  list_create(formData: NgForm) {
+  //  stato
+  handleCreate(formData: NgForm) {
+    if (!this.isValid()) return console.error('non valido');
+
     let newItem: ListItem = {
       complete: false,
-      title: formData.value.title,
-      key: 'item_' + Date.now().toString()
+      title: formData.value.title.trim(),
+      id: 'item_' + Date.now().toString() + Math.random().toString(36).substring(2, 9)
     };
 
-    const list = this.getStoredList();
-    list.push(newItem);
-    this.saveList(list);
+    this.list.push(newItem);
+    this.ls_set(this.list);
 
-    this.list_read();
     formData.reset();
-    toast('Elemento aggiunto');
+    toast('Elemento aggiunto', 'primary');
   }
 
-  async list_delete(index: number) {
-    if(!await agree('Eliminare l\'elemento?', 'Rimuovi', 'danger')) return;
-    const key = this.list[index].key;
-    if (!key) return console.error('elemento non trovato');
+  //  Elimina un elemento
+  async handleDelete(index: number) {
+    if (!await agree('Eliminare l\'elemento?', 'Rimuovi', 'danger')) return;
+    const id = this.list[index].id;
+    if (!id) return console.error('Elemento non trovato');
 
-    let list = this.getStoredList();
-    list = list.filter(item => item.key !== key);
-    this.saveList(list);
-    this.list_read();
+    this.list = this.list.filter(item => item.id !== id);
+    this.ls_set(this.list);
 
-    toast('Elemento eliminato');
+    toast('Elemento eliminato', 'danger');
   }
 
-  list_update(event: Event, index: number) {
-    const { value, id, checked } = (event.target as HTMLInputElement);
-    const newField = id === 'complete' ? checked : value;
-    const propName = id as keyof ListItem;
+  //  Aggiorna un elemento
+  handleUpdate(event: Event, index: number) {
+    const { value, name, checked } = (event.target as HTMLInputElement);
+    const newField = name === 'complete' ? checked : value;
+    const propName = name as keyof ListItem;
+    const id = this.list[index].id;
 
-    const key = this.list[index].key;
-    if (key) {
-        let list = this.getStoredList();
-        const itemIndex = list.findIndex(item => item.key === key);
-        if (itemIndex > -1) {
-            const updatedItem: any = { ...list[itemIndex] };
-            updatedItem[propName] = newField;
-            list[itemIndex] = updatedItem;
-            this.saveList(list);
-            this.list_read();
-        }
-    }
-    toast('Elemento aggiornato');
+    if (!id) return console.error('ID non trovato');
+
+    const itemIndex = this.list.findIndex(item => item.id === id);
+    if (itemIndex === -1) return console.error('Indice non trovato');
+
+    const updatedItem: ListItem = { ...this.list[itemIndex] };
+    (updatedItem as any)[propName] = newField;
+    this.list[itemIndex] = updatedItem;
+    this.ls_set(this.list);
+
+    toast('Elemento aggiornato', 'success');
   }
 }

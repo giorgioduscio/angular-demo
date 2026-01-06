@@ -1,64 +1,69 @@
 <article>
-  <app-navbar></app-navbar>
-
   <div class="container p-2 max-w-400px">
-    <!-- INSERIMENTO -->
-    <header class="mx-auto">
-      <h3 class="text-center mb-4">{{ 'listaDelleCoseDaFare' | paragraph }}</h3>  
+    <header class="mx-auto" role="banner" aria-labelledby="lista-titolo">
+      <h3 id="lista-titolo" class="text-center mb-4">{{ 'listaDelleCoseDaFare' | paragraph }}</h3>
 
-      <form #formdata="ngForm" (ngSubmit)="list_create(formdata)" 
-            class="mx-auto d-flex gap-2 align-items-end max-w-max-content">
+      <form #formData="ngForm" (ngSubmit)="handleCreate(formData)"
+            class="mx-auto d-flex gap-2 align-items-end max-w-max-content"
+            aria-labelledby="form-titolo">
         <div>
-          <label for="title">Inserisci azione</label>
+          <label for="title" class="form-label">Inserisci azione</label>
           <input class="form-control mt-1"
                  type="text"
                  name="title"
                  id="title"
-                 placeholder="Es: Fagioli"
-                 required ngModel>
+                 placeholder="Es: Comprare fagioli"
+                 required
+                 ngModel
+                 aria-required="true"
+                 aria-describedby="input-help">
         </div>
         <button type="submit"
                 class="btn btn-primary"
-                [disabled]="formdata.invalid">
-          <i class="bi bi-plus-lg"></i>
+                [disabled]="!isValid()"
+                aria-label="Aggiungi attività alla lista">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i>
           <span class="d-none d-sm-inline mx-1">Aggiungi</span>
         </button>
       </form>
     </header>
 
-
-    <!-- TABELLA -->
     @if (!list.length) {
-      <main class="m-3">
-        <div class="alert alert-info">
+      <main class="m-3" role="main">
+        <div class="alert alert-info" role="alert" aria-live="polite">
           La lista è vuota. Compila il campo per popolare la lista.
         </div>
       </main>
-
-    }@else {
-      <main class="mx-auto mt-4 d-grid gap-3 align-items-center cols-auto-1fr-auto">
+      
+    } @else {
+      <main class="mx-auto mt-4 d-grid gap-3 align-items-center cols-auto-1fr-auto" role="main">
         @for (item of list; track $index) {
-          <button class="btn btn-danger" (click)="list_delete($index)">
-            <i class="bi bi-trash3-fill"></i>
+          <button class="btn btn-danger"
+                  (click)="handleDelete($index)"
+                  [id]="item.title +'-'+ item.id"
+                  [attr.aria-label]="'Elimina attività: '+item.title">
+            <i class="bi bi-trash3-fill" aria-hidden="true"></i>
           </button>
-          
+
           <input class="form-control"
-                  (change)="list_update($event, $index)"
-                  type="text"
-                  id="title"
-                  [value]="item.title">
-  
+                 (change)="handleUpdate($event, $index)"
+                 type="text"
+                 name="title"
+                 id="title-{{$index}}"
+                 [value]="item.title"
+                 [attr.aria-label]="'Modifica attività: '+item.title">
+
           <div class="form-check">
             <input class="form-check-input"
-                    (change)="list_update($event, $index)"
-                    type="checkbox"
-                    id="complete"
-                    [checked]="item.complete">
+                   (change)="handleUpdate($event, $index)"
+                   type="checkbox"
+                   name="complete"
+                   id="complete-{{$index}}"
+                   [checked]="item.complete"
+                   [attr.aria-label]="'Attività completata: '+item.title">
           </div>
         }
       </main>
     }
-    
-
   </div>
 </article>

@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { NavbarComponent } from "../../shared/navbar/navbar.component";
 
 @Component({
   selector: 'app-error404',
   standalone: true,
-  imports: [NavbarComponent],
+  imports: [],
   templateUrl: './error404.component.html',
   styleUrl: './error404.component.css'
 })

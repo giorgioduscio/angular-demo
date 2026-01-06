@@ -1,7 +1,6 @@
 import { HierarchyBComponent } from "./hierarchyB.component";
 import { Component, effect } from "@angular/core";
 import { ListItem } from "../../interfaces/list";
-import { NavbarComponent } from "../../shared/navbar/navbar.component";
 import { HierarchyService } from "./hierarchy.service";
 import { HierarchyAComponent } from "./hierarchyA.component";
 import { NgIf } from "@angular/common";
@@ -9,10 +8,9 @@ import { NgIf } from "@angular/common";
 @Component({
   selector: 'app-hierarchy',
   standalone: true,
-  imports: [NgIf, NavbarComponent, HierarchyAComponent, HierarchyBComponent],
+  imports: [NgIf, HierarchyAComponent, HierarchyBComponent],
   template: `
   <article>
-    <app-navbar></app-navbar>
     <div class="mx-auto my-2" style="max-width: 800px;">
 
       <main class="p-2 border rounded">

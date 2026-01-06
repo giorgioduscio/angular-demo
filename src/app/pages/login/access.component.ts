@@ -3,14 +3,13 @@ import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { User } from '../../interfaces/user';
 import { AuthService } from '../../auth/auth.service';
-import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { NgIf } from '@angular/common';
 import { initForm, getForm } from './validation';
 
 @Component({
   selector: 'app-access',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, RouterModule, NavbarComponent, NgIf],
+  imports: [ReactiveFormsModule, FormsModule, RouterModule, NgIf],
   templateUrl: './login.component.html',
 })
 export class AccessComponent {

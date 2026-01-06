@@ -2,7 +2,6 @@ import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit,
 import { FormsModule } from '@angular/forms';
 
 import { CommonModule, NgFor } from '@angular/common';
-import { NavbarComponent } from "../../shared/navbar/navbar.component";
 import { RouterModule } from '@angular/router';
 import { HomeDirective } from './home.directive';
 import { siteActions } from '../personalArea/siteActions';
@@ -13,7 +12,7 @@ import { AutocompleteInline } from '../../tools/autocomplete';
   standalone: true,
   imports: [RouterModule, FormsModule,
     NgFor,
-    CommonModule, NavbarComponent, HomeDirective],
+    CommonModule, HomeDirective],
 
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
