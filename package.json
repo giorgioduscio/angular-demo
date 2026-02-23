@@ -2,11 +2,15 @@
   "name": "angular-demo",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
     "dev": "ng build && ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+
+    "docker:up": "docker compose up --detach",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs --follow",
+    "docker:build:force": "docker compose build --no-cache"
   },
   "private": true,
   "dependencies": {

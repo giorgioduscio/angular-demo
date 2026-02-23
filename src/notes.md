@@ -8,13 +8,12 @@ npx playwright test src/app/tests/list.test.ts
 
 ## Generali 
 
-- creare calendario
-- aggiornare chat
 - x search input
 - programmazione+test nello stesso file
 
 
 ## dnd
+2. inserire le schede dei diversi personaggi che l'utente ha salvato
 2. guida equipaggiamento
 2. guida abilità (una stella accanto alla label)
 3. file di autocompletamento (competenza tiri salvezza in base alla classe)

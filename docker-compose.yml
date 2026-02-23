@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  angular-demo:
+    build: .
+    container_name: angular-demo
+    ports:
+      - "4200:4200"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules  # Evita di sovrascrivere node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    command: npx ng serve --host 0.0.0.0 --poll 1000
