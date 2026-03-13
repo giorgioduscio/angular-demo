@@ -11,6 +11,7 @@ import { PersonalAreaComponent } from './pages/personalArea/personalArea.compone
 import { DndComponent } from './pages/dnd/dnd.component';
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
+import { MappeComponent } from './pages/mappe/mappe.component';
 
 export interface SmartRoute{
   path:string
@@ -46,6 +47,9 @@ export const { routes, smartRoutes } =buildSmartRouter([
   { title: 'Area personale', path: 'user/:userKey', component: PersonalAreaComponent, auth:[] },
   { title: 'Lista utenti', show:true, path: 'utenti', component: UtentiComponent, auth:[0] },
   { title:'Schede D&D', show:true, path: 'dnd', component: DndComponent },
+
+  // MAPPE GDR
+  { title:'Mappe', show:true, path: 'mappe', component: MappeComponent },
 
   // LOGIN
   { title:'Registrazione', path: 'login', component: LoginComponent },

@@ -1,0 +1,86 @@
+<div class="container">
+  <!-- Header: Cronologia dei tiri -->
+  <div *ngIf="tiri.length" class="p-2">
+    <h3 class="h4">Cronologia dei tiri</h3>
+    <div class="overflow-x-auto">
+      <div class="d-flex gap-2">
+        <small *ngFor="let tiro of tiri"
+               class="p-2 border rounded bg-dark text-nowrap">
+          {{ tiro }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Main: Griglia della mappa -->
+  <section class="py-3">
+    <!-- Messaggio placeholder se la mappa non è stata generata -->
+    <p *ngIf="!righe || !colonne" 
+        class="alert alert-info">
+      <strong class="text-dark">Attenzione</strong> <br>
+      Inserisci una dimensione (es. "9x9") per generare la griglia
+    </p>
+
+    <!-- Tabella dinamica -->
+    <div *ngIf="righe && colonne" class="table-responsive">
+      <h3>Mappa</h3>
+      <table class="m-auto table table-dark table-bordered table-striped table-hover table-striped-columns">
+        <thead>
+          <tr>
+            <th></th>
+            <!-- Intestazioni delle colonne (numeri) -->
+            <th *ngFor="let col of mappa_getColonne(colonne); let i = index"
+              class="px-3 text-center">
+              {{ i + 1 }}
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Righe della tabella -->
+          <tr *ngFor="let rowKey of mappa_getRighe(mappa)">
+            <!-- Intestazione della riga (lettera) -->
+            <th class="text-center">{{ rowKey }}</th>
+            <!-- Celle della riga -->
+            <td *ngFor="let cell of mappa[rowKey]; let j = index"
+                class="text-center cell"
+                [attr.data-cell]="rowKey + (j + 1)">
+              {{ cell || '' }}
+            </td>
+            <!-- Intestazione della riga (lettera) -->
+            <th class="text-center">{{ rowKey }}</th>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th></th>
+          <!-- Intestazioni delle colonne (numeri) -->
+          <th *ngFor="let col of mappa_getColonne(colonne); let i = index"
+              class="px-3 text-center">
+            {{ i + 1 }}
+          </th>
+          <th></th>
+        </tr>
+      </tfoot>
+      </table>
+    </div>
+  </section>
+
+
+  <!-- Footer: Input principale -->
+  <div class="pt-5">
+    <div class="fixed-bottom p-2 shadow-lg text-bg-c2">
+      <form (submit)="handlePrompt($event)" 
+            class="m-auto d-flex gap-2 min-w-250px max-w-400px">
+        <label for="promptInput" class="visually-hidden">Prompt</label>
+        <input id="promptInput" name="prompt" type="text"
+               class="form-control"
+               placeholder="Inserisci prompt">
+        <button type="submit" class="btn btn-primary p-2">
+          <i class="bi bi-plus-lg"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
