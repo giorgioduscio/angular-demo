@@ -15,23 +15,46 @@
 
   <!-- Main: Griglia della mappa -->
   <section class="py-3">
-    <!-- Messaggio placeholder se la mappa non è stata generata -->
-    <p *ngIf="!righe || !colonne" 
-        class="alert alert-info">
-      <strong class="text-dark">Attenzione</strong> <br>
-      Inserisci una dimensione (es. "9x9") per generare la griglia
-    </p>
-
     <!-- Tabella dinamica -->
+    <h3>Mappa</h3>
+    <div class="py-3 d-flex gap-2 align-items-center overflow-x-auto">
+      <span>Salvate:</span>
+      <span *ngFor="let nome of getNomiMappeSalvate()"
+            class="border rounded p-1 border-secondary"
+      >{{ nome }}</span>
+    </div>
+
+    <!-- Messaggio placeholder se la mappa non è stata generata -->
+    <div *ngIf="!righe || !colonne" 
+         class="text-bg-c2 p-2 border rounded">
+      <strong>Mappe</strong>
+      <ul>
+        <li><strong>9x9</strong> per generare una mappa 9x9</li>
+        <li><strong>mappa salva nome_mappa</strong> per salvare la mappa corrente</li>
+        <li><strong>mappa nome_mappa</strong> per caricare una mappa salvata</li>
+        <li><strong>mappa elimina nome_mappa</strong> per eliminare una mappa salvata</li>
+      </ul>
+      <strong>Simboli</strong>
+      <ul>
+        <li><strong>- in b4</strong> per aggiungere il simbolo "-" nella cella b4</li>
+        <li><strong>Aldo in b4</strong> per SPOSTARE "Aldo" nella cella b4</li>
+      </ul>
+      <strong>Dadi</strong>
+      <ul>
+        <li><strong>2d4</strong> per tirare 2 dadi da 4 facce</li>
+        <li><strong>d4+3</strong> per tirare 1 dado da 4 facce e aggiungere 3</li>
+        <li><strong>d20-5</strong> per tirare 1 dado da 20 facce e sottrarre 5</li>
+      </ul>
+    </div>
+
     <div *ngIf="righe && colonne" class="table-responsive">
-      <h3>Mappa</h3>
-      <table class="m-auto table table-dark table-bordered table-striped table-hover table-striped-columns">
+      <table class="w-min-content m-auto table table-sm table-primary table-borderless table-striped table-hover table-striped-columns">
         <thead>
           <tr>
             <th></th>
             <!-- Intestazioni delle colonne (numeri) -->
             <th *ngFor="let col of mappa_getColonne(colonne); let i = index"
-              class="px-3 text-center">
+              class="text-center w-60px">
               {{ i + 1 }}
             </th>
             <th></th>
@@ -41,15 +64,16 @@
           <!-- Righe della tabella -->
           <tr *ngFor="let rowKey of mappa_getRighe(mappa)">
             <!-- Intestazione della riga (lettera) -->
-            <th class="text-center">{{ rowKey }}</th>
+            <th class="text-center p-2">{{ rowKey }}</th>
             <!-- Celle della riga -->
             <td *ngFor="let cell of mappa[rowKey]; let j = index"
-                class="text-center cell"
+                class="text-center"
+                [class.table-warning]="cell === '-'"
                 [attr.data-cell]="rowKey + (j + 1)">
               {{ cell || '' }}
             </td>
             <!-- Intestazione della riga (lettera) -->
-            <th class="text-center">{{ rowKey }}</th>
+            <th class="text-center p-2">{{ rowKey }}</th>
         </tr>
       </tbody>
       <tfoot>
@@ -65,6 +89,7 @@
       </tfoot>
       </table>
     </div>
+
   </section>
 
 

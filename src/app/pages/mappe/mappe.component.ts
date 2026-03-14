@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { toast } from '../../tools/feedbacksUI';
+import { agree, toast } from '../../tools/feedbacksUI';
+
+interface Mappa {
+  [key: string]: string[];
+}
 
 @Component({
   selector: 'app-mappe',
@@ -9,10 +13,15 @@ import { toast } from '../../tools/feedbacksUI';
   templateUrl: './mappe.component.html',
 })
 export class MappeComponent {
-  tiri: string[] = []; // Array per memorizzare la cronologia dei tiri
-  mappa: { [key: string]: string[] } = {}; // Oggetto per memorizzare la griglia della mappa
-  righe: number = 0; // Numero di righe della mappa
-  colonne: number = 0; // Numero di colonne della mappa
+  constructor() {
+    this.getMappeSalvate();
+  }
+
+  tiri: string[] = [];
+  mappa: Mappa = {};
+  righe: number = 0;
+  colonne: number = 0;
+  mappeSalvate: { [key: string]: { mappa: Mappa, righe: number, colonne: number } } = {};
 
   /**
    * Gestisce l'input del prompt principale.
@@ -22,9 +31,8 @@ export class MappeComponent {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const input = form.elements.namedItem('prompt') as HTMLInputElement;
-
     if (!input) {
-      toast('Input non trovato', 'danger');
+      console.error("Input non trovato");
       return;
     }
 
@@ -34,17 +42,15 @@ export class MappeComponent {
       return;
     }
 
-    // Suddivide il prompt in singoli comandi separati da virgole
     const comandi = value.split(',')
                         .map(cmd => cmd.trim())
                         .filter(cmd => cmd);
 
-    // Esegue ogni comando in sequenza
     for (const comando of comandi) {
       this.eseguiComando(comando);
     }
 
-    input.value = ''; // Pulisce l'input dopo l'invio
+    input.value = '';
   }
 
   /**
@@ -52,7 +58,6 @@ export class MappeComponent {
    * @param comando Il comando da eseguire.
    */
   eseguiComando(comando: string): void {
-    // Gestione del tiro dei dadi (es. "d20+5", "2d10-3", "d100")
     const match_tiro_dadi = comando.match(/^(\d*)d(\d+)([+-]\d+)?$/i);
     if (match_tiro_dadi) {
       const qta = match_tiro_dadi[1] ? parseInt(match_tiro_dadi[1], 10) : 1;
@@ -60,7 +65,6 @@ export class MappeComponent {
       const modifier = match_tiro_dadi[3] ? parseInt(match_tiro_dadi[3], 10) : 0;
       this.setTiri(qta, max, modifier);
     }
-    // Gestione della creazione della griglia (es. "9x9", "20x10")
     else if (comando.match(/^(\d+)x(\d+)$/i)) {
       const match_griglia = comando.match(/^(\d+)x(\d+)$/i);
       if (match_griglia) {
@@ -69,14 +73,48 @@ export class MappeComponent {
         this.creaMappa(righe, colonne);
       }
     }
-    // Gestione dell'inserimento di simboli nelle celle (es. ". in g4", "ciao in a3")
     else if (comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i)) {
       const match_inserisci = comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i);
       if (match_inserisci) {
         const simbolo = match_inserisci[1].trim();
         const riga = match_inserisci[2].toUpperCase();
-        const colonna = parseInt(match_inserisci[3], 10) - 1; // Converti in indice (0-based)
+        const colonna = parseInt(match_inserisci[3], 10) - 1;
         this.setMappa(riga, colonna, simbolo);
+      }
+    }
+    else if (comando.startsWith("mappa ")) {
+      const mappaEsistente = !!this.mappa && !!this.mappa['A'];
+      const match_elimina_mappa = comando.match(/^mappa elimina (.+)$/i);
+      const match_salva_mappa = comando.match(/^mappa salva (.+)$/i);
+      const match_carica_mappa = comando.match(/^mappa (.+)$/i);
+      const match_lista_mappe = comando.match(/^mappa lista$/i);
+
+      if (match_lista_mappe) {
+        const nomiMappe = this.getNomiMappeSalvate();
+        if (nomiMappe.length === 0) {
+          toast("Nessuna mappa salvata");
+        } else {
+          toast(`Mappe salvate: ${nomiMappe.join(', ')}`);
+        }
+      }
+      else if (match_elimina_mappa) {
+        const nome_mappa = match_elimina_mappa[1].trim();
+        this.eliminaMappaSalvata(nome_mappa);
+      }
+      else if (match_salva_mappa) {
+        if (!mappaEsistente) {
+          toast("Nessuna mappa da salvare", 'danger');
+        } else {
+          const nome_mappa = match_salva_mappa[1].trim();
+          this.setMappeSalvate(nome_mappa);
+        }
+      }
+      else if (match_carica_mappa) {
+        const nome_mappa = match_carica_mappa[1].trim();
+        this.caricaMappaSalvata(nome_mappa);
+      }
+      else {
+        toast('Comando mappa non riconosciuto', 'danger');
       }
     }
     else {
@@ -84,72 +122,57 @@ export class MappeComponent {
     }
   }
 
-  /**
-   * Calcola un tiro di dadi e aggiorna la cronologia.
-   * @param qta Quantità di dadi (es. 2 in "2d10").
-   * @param max Numero massimo del dado (es. 10 in "2d10").
-   * @param modifier Modificatore (es. +5 in "d20+5").
-   */
   setTiri(qta: number, max: number, modifier: number): void {
     let total = 0;
     const rolls: number[] = [];
 
-    // Esegue i tiri
     for (let i = 0; i < qta; i++) {
-      const roll = Math.floor(Math.random() * max) + 1; // Tiro da 1 a max
+      const roll = Math.floor(Math.random() * max) + 1;
       rolls.push(roll);
       total += roll;
     }
 
-    // Applica il modificatore
     total += modifier;
-
-    // Crea la stringa di descrizione del tiro (es. "2d10+5 = 17")
     const modifierSign = modifier >= 0 ? `+${modifier}` : modifier;
     const description = `${qta}d${max}${modifier !== 0 ? modifierSign : ''} = ${total}`;
 
-    // Aggiunge il tiro alla cronologia
     this.tiri.unshift(description);
-    if(this.tiri.length > 10) {
+    if (this.tiri.length > 10) {
       this.tiri.pop();
     }
   }
 
-  /**
-   * Crea una griglia vuota con le dimensioni specificate.
-   * @param righe Numero di righe della griglia.
-   * @param colonne Numero di colonne della griglia.
-   */
   creaMappa(righe: number, colonne: number): void {
+    if (righe <= 0 || colonne <= 0) {
+      toast('Dimensioni della mappa non valide', 'danger');
+      return;
+    }
+
+    if (righe > 26) {
+      toast('Il numero massimo di righe è 26', 'danger');
+      return;
+    }
+
     this.righe = righe;
     this.colonne = colonne;
     this.mappa = {};
 
-    // Inizializza le righe della mappa
-    const lettereRighe = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
+    const lettereRighe = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     for (let i = 0; i < righe; i++) {
       const letteraRiga = lettereRighe[i];
       this.mappa[letteraRiga] = new Array(colonne).fill('');
     }
 
-    toast(`Mappa ${righe}x${colonne} creata con successo!`, 'success');
+    toast(`Mappa ${righe}x${colonne} creata!`, 'success');
   }
 
-  /**
-   * Imposta il valore di una cella nella mappa.
-   * Se il simbolo ha più di un carattere, lo rimuove dalle altre celle.
-   * @param riga Lettera della riga (es. "A").
-   * @param colonna Indice della colonna (0-based).
-   * @param simbolo Simbolo da inserire nella cella.
-   */
   setMappa(riga: string, colonna: number, simbolo: string): void {
     if (!this.mappa[riga] || colonna < 0 || colonna >= this.colonne) {
       toast(`Posizione "${riga}${colonna + 1}" non valida!`, 'danger');
       return;
     }
 
-    // Se il simbolo ha più di un carattere, lo rimuove dalle altre celle
     if (simbolo.length > 1) {
       for (const rowKey of Object.keys(this.mappa)) {
         for (let i = 0; i < this.mappa[rowKey].length; i++) {
@@ -160,26 +183,96 @@ export class MappeComponent {
       }
     }
 
-    // Imposta il simbolo nella cella specificata
     this.mappa[riga][colonna] = simbolo;
     toast(`"${simbolo}" inserito in ${riga}${colonna + 1}!`, 'success');
   }
 
-  /**
-   * Restituisce un array di numeri da 0 a length-1.
-   * Utilizzato per generare le colonne della tabella.
-   * @param length Lunghezza dell'array da generare.
-   */
   mappa_getColonne(length: number): number[] {
     return Array(length).fill(0).map((_, i) => i);
   }
 
-  /**
-   * Restituisce le chiavi di un oggetto.
-   * Utilizzato per iterare sulle righe della mappa.
-   * @param obj Oggetto di cui ottenere le chiavi.
-   */
   mappa_getRighe(obj: any): string[] {
     return Object.keys(obj);
+  }
+
+  getMappeSalvate(): void {
+    const savedMappe = localStorage.getItem('mappe');
+    if (savedMappe) {
+      try {
+        this.mappeSalvate = JSON.parse(savedMappe);
+      } catch (e) {
+        console.error("Errore nel parsing delle mappe salvate:", e);
+        this.mappeSalvate = {};
+      }
+    } else {
+      this.mappeSalvate = {};
+    }
+  }
+
+  getNomiMappeSalvate(): string[] {
+    return Object.keys(this.mappeSalvate);
+  }
+
+  getMappaSalvataDaNome(nomeMappa: string): { mappa: Mappa, righe: number, colonne: number } | null {
+    return this.mappeSalvate[nomeMappa] || null;
+  }
+
+  async setMappeSalvate(nomeMappa: string): Promise<void> {
+    if (!nomeMappa) {
+      toast('Nome mappa non valido', 'danger');
+      return;
+    }
+
+    if (this.mappeSalvate[nomeMappa] && !(await agree(`Mappa "${nomeMappa}" già esistente. Vuoi sovrascriverla?`))) {
+      return;
+    }
+
+    this.mappeSalvate[nomeMappa] = {
+      mappa: { ...this.mappa },
+      righe: this.righe,
+      colonne: this.colonne
+    };
+
+    try {
+      localStorage.setItem('mappe', JSON.stringify(this.mappeSalvate));
+      toast(`Mappa "${nomeMappa}" salvata!`, 'success');
+    } catch (e) {
+      console.error("Errore nel salvataggio della mappa:", e);
+      toast('Errore nel salvataggio della mappa', 'danger');
+    }
+  }
+
+  async eliminaMappaSalvata(nomeMappa: string): Promise<void> {
+    if (!this.mappeSalvate[nomeMappa]) {
+      toast(`Mappa "${nomeMappa}" non trovata`, 'danger');
+      return;
+    }
+
+    if (!(await agree(`Sei sicuro di voler eliminare la mappa "${nomeMappa}"?`))) {
+      return;
+    }
+
+    delete this.mappeSalvate[nomeMappa];
+
+    try {
+      localStorage.setItem('mappe', JSON.stringify(this.mappeSalvate));
+      toast(`Mappa "${nomeMappa}" eliminata!`, 'success');
+    } catch (e) {
+      console.error("Errore nell'eliminazione della mappa:", e);
+      toast('Errore nell\'eliminazione della mappa', 'danger');
+    }
+  }
+
+  async caricaMappaSalvata(nomeMappa: string): Promise<void> {
+    const mappaSalvata = this.getMappaSalvataDaNome(nomeMappa);
+    if (!mappaSalvata) {
+      toast(`Mappa "${nomeMappa}" non trovata`, 'danger');
+      return;
+    }
+
+    this.mappa = { ...mappaSalvata.mappa };
+    this.righe = mappaSalvata.righe;
+    this.colonne = mappaSalvata.colonne;
+    toast(`Mappa "${nomeMappa}" caricata!`, 'success');
   }
 }
