@@ -7,7 +7,7 @@
     <form (ngSubmit)="onSubmit()" [formGroup]="form" class="gy-3">
       <fieldset class="d-flex flex-wrap gap-2">
         @for (item of template; track item; let i=$index){
-          <div class="form-group flex-auto" style="max-width: 300px;">
+          <div class="form-group flex-auto" style="max-width: 250px;">
             <label [for]="item.key" class="form-label m-2">
               <i>{{ item.label }}</i>
               <b class="text-danger mx-1">{{ item.asterisk ?'*' :'' }}</b>

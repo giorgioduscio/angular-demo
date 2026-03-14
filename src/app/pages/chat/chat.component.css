@@ -48,7 +48,7 @@
 }
   #addChat>div{
     padding: 0 1rem 1rem;
-    max-width: 300px;
+    max-width: 250px;
     margin: auto;
     display: flex;
     justify-content: flex-end;

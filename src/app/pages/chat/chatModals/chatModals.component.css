@@ -1,6 +1,6 @@
 @import url(../../../../customFloatingLabel.css);
 main{
-  max-width: 300px;
+  max-width: 250px;
   margin: auto;
   display: grid;
   gap: 10px;

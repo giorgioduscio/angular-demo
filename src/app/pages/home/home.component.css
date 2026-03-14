@@ -12,7 +12,7 @@ header{
   text-align: center;
 }
   header>div{
-    width: 300px;
+    width: 250px;
   }
   header img{
     width: 200px;
@@ -38,7 +38,7 @@ main{
   gap: 10px;
 }
 .card{
-  width: 300px;
+  width: 250px;
 }
   .card .card-img-top{
     object-fit: cover;

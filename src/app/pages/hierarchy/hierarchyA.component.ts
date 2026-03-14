@@ -8,7 +8,7 @@ import { NgIf } from '@angular/common';
   standalone: true,
   imports: [NgIf],
   template: `
-    <main class="p-2 border rounded my-2" style="max-width: 300px;">
+    <main class="p-2 border rounded my-2" style="max-width: 250px;">
       <header class="d-flex align-items-center gap-2">
         <button class="btn btn-success bi bi-plus-lg" (click)="hierarchyService.todo_create()"></button>
         <h3>Componente A</h3>

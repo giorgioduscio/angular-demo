@@ -6,7 +6,7 @@ import { HierarchyBBComponent } from "./hierarchyBB.component";
   standalone: true,
   imports: [HierarchyBBComponent],
   template: `
-    <main class="p-2 border rounded my-2" style="max-width: 300px;">
+    <main class="p-2 border rounded my-2" style="max-width: 250px;">
       <header class="d-flex align-items-center gap-2">
         <h3>Componente B</h3>
       </header>
