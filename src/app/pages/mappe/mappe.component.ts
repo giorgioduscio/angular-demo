@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { agree, toast } from '../../tools/feedbacksUI';
+import { CombattimentoService } from './logicaCombattimento.service';
 
-interface Mappa {
+export interface Mappa {
   [key: string]: string[];
 }
 
@@ -13,7 +14,8 @@ interface Mappa {
   templateUrl: './mappe.component.html',
 })
 export class MappeComponent {
-  constructor() {
+  constructor(public comb: CombattimentoService) {
+    document.title = "Mappe";
     this.getMappeSalvate();
   }
 
@@ -42,7 +44,7 @@ export class MappeComponent {
       return;
     }
 
-    const comandi = value.split(',')
+    const comandi = value.split('>')
                         .map(cmd => cmd.trim())
                         .filter(cmd => cmd);
 
@@ -58,68 +60,134 @@ export class MappeComponent {
    * @param comando Il comando da eseguire.
    */
   eseguiComando(comando: string): void {
-    const match_tiro_dadi = comando.match(/^(\d*)d(\d+)([+-]\d+)?$/i);
-    if (match_tiro_dadi) {
-      const qta = match_tiro_dadi[1] ? parseInt(match_tiro_dadi[1], 10) : 1;
-      const max = parseInt(match_tiro_dadi[2], 10);
-      const modifier = match_tiro_dadi[3] ? parseInt(match_tiro_dadi[3], 10) : 0;
-      this.setTiri(qta, max, modifier);
-    }
-    else if (comando.match(/^(\d+)x(\d+)$/i)) {
-      const match_griglia = comando.match(/^(\d+)x(\d+)$/i);
-      if (match_griglia) {
-        const righe = parseInt(match_griglia[1], 10);
-        const colonne = parseInt(match_griglia[2], 10);
-        this.creaMappa(righe, colonne);
-      }
-    }
-    else if (comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i)) {
-      const match_inserisci = comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i);
-      if (match_inserisci) {
-        const simbolo = match_inserisci[1].trim();
-        const riga = match_inserisci[2].toUpperCase();
-        const colonna = parseInt(match_inserisci[3], 10) - 1;
-        this.setMappa(riga, colonna, simbolo);
-      }
-    }
-    else if (comando.startsWith("mappa ")) {
-      const mappaEsistente = !!this.mappa && !!this.mappa['A'];
-      const match_elimina_mappa = comando.match(/^mappa elimina (.+)$/i);
-      const match_salva_mappa = comando.match(/^mappa salva (.+)$/i);
-      const match_carica_mappa = comando.match(/^mappa (.+)$/i);
-      const match_lista_mappe = comando.match(/^mappa lista$/i);
+    //  Tiro dadi
+        const match_tiro_dadi = comando.match(/^(\d*)d(\d+)([+-]\d+)?$/i);
+        if (match_tiro_dadi) {
+          const qta = match_tiro_dadi[1] ? parseInt(match_tiro_dadi[1], 10) : 1;
+          const max = parseInt(match_tiro_dadi[2], 10);
+          const modifier = match_tiro_dadi[3] ? parseInt(match_tiro_dadi[3], 10) : 0;
+          this.setTiri(qta, max, modifier);
+          return;
+        }
 
-      if (match_lista_mappe) {
-        const nomiMappe = this.getNomiMappeSalvate();
-        if (nomiMappe.length === 0) {
-          toast("Nessuna mappa salvata");
-        } else {
-          toast(`Mappe salvate: ${nomiMappe.join(', ')}`);
+    //  Creazione griglia
+        const match_griglia = comando.match(/^(\d+)x(\d+)$/i);
+        if (match_griglia) {
+          const righe = parseInt(match_griglia[1], 10);
+          const colonne = parseInt(match_griglia[2], 10);
+          this.creaMappa(righe, colonne);
+          return;
         }
-      }
-      else if (match_elimina_mappa) {
-        const nome_mappa = match_elimina_mappa[1].trim();
-        this.eliminaMappaSalvata(nome_mappa);
-      }
-      else if (match_salva_mappa) {
-        if (!mappaEsistente) {
-          toast("Nessuna mappa da salvare", 'danger');
-        } else {
-          const nome_mappa = match_salva_mappa[1].trim();
-          this.setMappeSalvate(nome_mappa);
+
+    //  Gestione mappe
+        if (comando.startsWith("mappa ")) {
+          const mappaEsistente = !!this.mappa && !!this.mappa['A'];
+          const match_elimina_mappa = comando.match(/^mappa elimina (.+)$/i);
+          const match_salva_mappa = comando.match(/^mappa salva (.+)$/i);
+          const match_carica_mappa = comando.match(/^mappa (.+)$/i);
+          const match_lista_mappe = comando.match(/^mappa lista$/i);
+
+          if (match_lista_mappe) {
+            const nomiMappe = this.getNomiMappeSalvate();
+            if (nomiMappe.length === 0) {
+              toast("Nessuna mappa salvata");
+            } else {
+              toast(`Mappe salvate: ${nomiMappe.join(', ')}`);
+            }
+          }
+          else if (match_elimina_mappa) {
+            const nome_mappa = match_elimina_mappa[1].trim();
+            this.eliminaMappaSalvata(nome_mappa);
+          }
+          else if (match_salva_mappa) {
+            if (!mappaEsistente) {
+              toast("Nessuna mappa da salvare", 'danger');
+            } else {
+              const nome_mappa = match_salva_mappa[1].trim();
+              this.setMappeSalvate(nome_mappa);
+            }
+          }
+          else if (match_carica_mappa) {
+            const nome_mappa = match_carica_mappa[1].trim();
+            this.caricaMappaSalvata(nome_mappa);
+          }
+          else {
+            toast('Comando mappa non riconosciuto', 'danger');
+          }
+          return;
         }
-      }
-      else if (match_carica_mappa) {
-        const nome_mappa = match_carica_mappa[1].trim();
-        this.caricaMappaSalvata(nome_mappa);
-      }
-      else {
-        toast('Comando mappa non riconosciuto', 'danger');
-      }
-    }
-    else {
-      toast(`Comando "${comando}" non riconosciuto`, 'danger');
-    }
+    
+    //  Inserimento simbolo
+        const match_inserisci = comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i);
+        if (match_inserisci) {
+          const simbolo = match_inserisci[1].trim();
+          const riga = match_inserisci[2].toUpperCase();
+          const colonna = parseInt(match_inserisci[3], 10) - 1;
+          this.setMappa(riga, colonna, simbolo);
+          return;
+        }
+
+    //  creazione squadre 
+        const squadreMatch = comando.match(/^([a-zA-Z]):\s*(.+)$/i);
+        if (squadreMatch) {
+          const prompt = comando.split(' ');
+          const nomeSquadra = prompt.find(p=> p.endsWith(':'))?.replace(':', '') ??'';
+          const gradoSfida = prompt.find(p=> p.startsWith('gs'))?.replace('gs', '') ??'';
+          const bonusIniziativa = Number(prompt
+                .find(p=> p.startsWith('+') || p.startsWith('-'))?? 0);
+          const ripetizioni = Number(prompt.find(p=> p.startsWith('x'))?.replace('x', '') ?? 1);
+          const classeArmatura =Number(prompt.find(p=> p.startsWith('ca'))?.replace('ca', '') ?? 0);
+          const nomeGiocatore = prompt.find(p=> !p.endsWith(':') 
+                                && !p.startsWith('gs') 
+                                && !p.startsWith('+') 
+                                && !p.startsWith('-') 
+                                && !p.startsWith('x')) ??"";
+
+          if(!nomeGiocatore && !gradoSfida) return toast("un giocatore non può avere grado sfida", "danger");
+          if(nomeGiocatore && !classeArmatura) return toast("un giocatore deve avere una classe armatura", "danger");
+          
+          for(let i = 0; i < ripetizioni; i++) {
+            this.comb.addCombattente(nomeSquadra, bonusIniziativa, 
+                              gradoSfida, nomeGiocatore, classeArmatura);
+          }
+
+          // se ci sono almeno due squadre, esegui posizionamento
+          let squadreEsistenti: string[] = [];
+          this.comb.combattenti.forEach(combattente=>{
+            if(!squadreEsistenti.includes(combattente.squadra)) {
+              squadreEsistenti.push(combattente.squadra);
+            }
+          })
+          
+          this.eseguiComando('posizionamento');
+          
+          console.log('squadreEsistenti', this.comb.combattenti);
+          return;
+        }
+
+    //  POSIZIONAMENTO
+        const posizionamentoMatch = comando.match(/^posizionamento$/i);
+        if (posizionamentoMatch) {
+          this.comb.posizionamento(this.mappa, this.righe, this.colonne);
+          return;
+        }
+
+    // TURNO SQUADRA
+        const turnoSquadraMatch = comando.match(/^turno ([a-zA-Z]+)$/i);
+        if (turnoSquadraMatch) {
+          if(!this.righe || !this.colonne) {
+            return toast("Selezionare mappa", "danger");
+          }
+          if(this.comb.combattenti.length<2) {
+            return toast("Combattenti insufficenti", "danger");
+          }
+          const squadra = turnoSquadraMatch[1];
+          this.comb.turnoSquadra(squadra, this.mappa, this.righe, this.colonne)
+          return;
+        }
+
+    // ERRORE
+    toast(`Comando "${comando}" non riconosciuto`, 'danger');
   }
 
   setTiri(qta: number, max: number, modifier: number): void {
@@ -276,3 +344,4 @@ export class MappeComponent {
     toast(`Mappa "${nomeMappa}" caricata!`, 'success');
   }
 }
+

@@ -1,13 +1,39 @@
 <div class="container">
-  <!-- Header: Cronologia dei tiri -->
-  <div *ngIf="tiri.length" class="p-2">
-    <h3 class="h4">Cronologia dei tiri</h3>
-    <div class="overflow-x-auto">
-      <div class="d-flex gap-2">
-        <small *ngFor="let tiro of tiri"
-               class="p-2 border rounded bg-dark text-nowrap">
-          {{ tiro }}
-        </small>
+  <!-- Header: strumenti -->
+  <div class="py-3 d-grid gap-2" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <!-- Cronologia dei tiri -->
+    <div *ngIf="tiri.length > 0">
+      <h3 class="h4">Cronologia dei tiri</h3>
+      <div class="overflow-x-auto">
+        <div class="d-flex gap-2">
+          <small *ngFor="let tiro of tiri"
+                class="p-2 border rounded text-nowrap">
+            {{ tiro }}
+          </small>
+        </div>
+      </div>
+    </div>
+    <!-- squadre e combattenti -->
+    <div *ngIf="comb.combattenti.length > 0">
+      <h3>Personaggi</h3>
+      <div class="d-flex gap-2 align-items-center overflow-x-auto">
+        <div *ngFor="let combattente of comb.combattenti" 
+            class="border rounded p-2 text-nowrap">
+          {{ combattente.id }} <br> 
+          <i *ngIf="combattente.puntiFerita" class="bi bi-heart">
+            {{ combattente.puntiFerita }}</i>
+        </div>
+      </div>
+    </div>
+    <!-- Mappe salvate -->
+    <div *ngIf="getNomiMappeSalvate().length > 0">
+      <h3>Mappe salvate</h3>
+      <div class="pb-3 d-flex gap-2 align-items-center overflow-x-auto">
+        <span *ngFor="let nome of getNomiMappeSalvate()"
+              class="border rounded p-2">
+          <i class="bi bi-map me-2"></i>
+          <b>{{ nome }}</b>
+        </span>
       </div>
     </div>
   </div>
@@ -15,38 +41,46 @@
 
   <!-- Main: Griglia della mappa -->
   <section class="py-3">
-    <!-- Tabella dinamica -->
-    <h3>Mappa</h3>
-    <div class="py-3 d-flex gap-2 align-items-center overflow-x-auto">
-      <span>Salvate:</span>
-      <span *ngFor="let nome of getNomiMappeSalvate()"
-            class="border rounded p-1 border-secondary"
-      >{{ nome }}</span>
-    </div>
-
     <!-- Messaggio placeholder se la mappa non è stata generata -->
-    <div *ngIf="!righe || !colonne" 
-         class="text-bg-c2 p-2 border rounded">
-      <strong>Mappe</strong>
-      <ul>
-        <li><strong>9x9</strong> per generare una mappa 9x9</li>
-        <li><strong>mappa salva nome_mappa</strong> per salvare la mappa corrente</li>
-        <li><strong>mappa nome_mappa</strong> per caricare una mappa salvata</li>
-        <li><strong>mappa elimina nome_mappa</strong> per eliminare una mappa salvata</li>
-      </ul>
-      <strong>Simboli</strong>
-      <ul>
-        <li><strong>- in b4</strong> per aggiungere il simbolo "-" nella cella b4</li>
-        <li><strong>Aldo in b4</strong> per SPOSTARE "Aldo" nella cella b4</li>
-      </ul>
-      <strong>Dadi</strong>
-      <ul>
-        <li><strong>2d4</strong> per tirare 2 dadi da 4 facce</li>
-        <li><strong>d4+3</strong> per tirare 1 dado da 4 facce e aggiungere 3</li>
-        <li><strong>d20-5</strong> per tirare 1 dado da 20 facce e sottrarre 5</li>
-      </ul>
+    <div *ngIf="!righe || !colonne" class="d-grid gap-2" 
+          style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+      <div class="text-bg-c2 p-2 border rounded">
+        <h5>Mappe</h5>
+        <ul>
+          <li><strong>9x9</strong> per generare una mappa 9x9</li>
+          <li><strong>mappa salva nome_mappa</strong> per salvare la mappa corrente</li>
+          <li><strong>mappa nome_mappa</strong> per caricare una mappa salvata</li>
+          <li><strong>mappa elimina nome_mappa</strong> per eliminare una mappa salvata</li>
+        </ul>
+      </div>
+      
+      <div class="text-bg-c2 p-2 border rounded">
+        <h5>Simboli</h5>
+        <ul>
+          <li><strong>- in b4</strong> per aggiungere il simbolo "-" nella cella b4</li>
+          <li><strong>Aldo in b4</strong> per SPOSTARE "Aldo" nella cella b4</li>
+        </ul>
+      </div>
+      
+      <div class="text-bg-c2 p-2 border rounded">
+        <h5>Dadi</h5>
+        <ul>
+          <li><strong>2d4</strong> per tirare 2 dadi da 4 facce</li>
+          <li><strong>d4+3</strong> per tirare 1 dado da 4 facce e aggiungere 3</li>
+          <li><strong>d20-5</strong> per tirare 1 dado da 20 facce e sottrarre 5</li>
+        </ul>
+      </div>
+      
+      <div class="text-bg-c2 p-2 border rounded">
+        <h5>Combattimento</h5>
+        <ul>
+          <li><strong>a: x3 gf1/2</strong> assegna 3 npc di gf 1/2 alla squadra a</li>
+          <li><strong>b: Elio +2</strong> aggiunge Elio alla squadra b con +2 all'iniziativa</li>
+        </ul>
+      </div>
     </div>
 
+    <!-- TABELLA -->
     <div *ngIf="righe && colonne" class="table-responsive">
       <table class="w-min-content m-auto table table-sm table-primary table-borderless table-striped table-hover table-striped-columns">
         <thead>
@@ -66,11 +100,11 @@
             <!-- Intestazione della riga (lettera) -->
             <th class="text-center p-2">{{ rowKey }}</th>
             <!-- Celle della riga -->
-            <td *ngFor="let cell of mappa[rowKey]; let j = index"
+            <td *ngFor="let cellValue of mappa[rowKey]; let j = index"
                 class="text-center"
-                [class.table-warning]="cell === '-'"
+                [class.table-warning]="cellValue === '-'"
                 [attr.data-cell]="rowKey + (j + 1)">
-              {{ cell || '' }}
+              {{ cellValue || '' }}
             </td>
             <!-- Intestazione della riga (lettera) -->
             <th class="text-center p-2">{{ rowKey }}</th>
