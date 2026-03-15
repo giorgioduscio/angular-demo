@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { toast } from "../../tools/feedbacksUI";
 import { statisticheGradoSfida } from "./gradiSfida";
-import { Mappa } from "./mappe.component";
+import { Mappa } from "./mappa.service";
 
 export interface Combattente {
     id: string;

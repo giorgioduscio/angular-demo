@@ -17,19 +17,19 @@
     <div *ngIf="comb.combattenti.length > 0">
       <h3>Personaggi</h3>
       <div class="d-flex gap-2 align-items-center overflow-x-auto">
-        <div *ngFor="let combattente of comb.combattenti" 
+        <div *ngFor="let combattente of comb.combattenti"
             class="border rounded p-2 text-nowrap">
-          {{ combattente.id }} <br> 
+          {{ combattente.id }} <br>
           <i *ngIf="combattente.puntiFerita" class="bi bi-heart">
             {{ combattente.puntiFerita }}</i>
         </div>
       </div>
     </div>
     <!-- Mappe salvate -->
-    <div *ngIf="getNomiMappeSalvate().length > 0">
+    <div *ngIf="mappa.getNomi().length > 0">
       <h3>Mappe salvate</h3>
       <div class="pb-3 d-flex gap-2 align-items-center overflow-x-auto">
-        <span *ngFor="let nome of getNomiMappeSalvate()"
+        <span *ngFor="let nome of mappa.getNomi()"
               class="border rounded p-2">
           <i class="bi bi-map me-2"></i>
           <b>{{ nome }}</b>
@@ -38,12 +38,12 @@
     </div>
   </div>
 
-
   <!-- Main: Griglia della mappa -->
   <section class="py-3">
     <!-- Messaggio placeholder se la mappa non è stata generata -->
-    <div *ngIf="!righe || !colonne" class="d-grid gap-2" 
+    <div *ngIf="!mappa.righe || !mappa.colonne" class="d-grid gap-2"
           style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+      <!-- Contenuto placeholder -->
       <div class="text-bg-c2 p-2 border rounded">
         <h5>Mappe</h5>
         <ul>
@@ -53,7 +53,7 @@
           <li><strong>mappa elimina nome_mappa</strong> per eliminare una mappa salvata</li>
         </ul>
       </div>
-      
+
       <div class="text-bg-c2 p-2 border rounded">
         <h5>Simboli</h5>
         <ul>
@@ -61,7 +61,7 @@
           <li><strong>Aldo in b4</strong> per SPOSTARE "Aldo" nella cella b4</li>
         </ul>
       </div>
-      
+
       <div class="text-bg-c2 p-2 border rounded">
         <h5>Dadi</h5>
         <ul>
@@ -70,7 +70,7 @@
           <li><strong>d20-5</strong> per tirare 1 dado da 20 facce e sottrarre 5</li>
         </ul>
       </div>
-      
+
       <div class="text-bg-c2 p-2 border rounded">
         <h5>Combattimento</h5>
         <ul>
@@ -81,13 +81,13 @@
     </div>
 
     <!-- TABELLA -->
-    <div *ngIf="righe && colonne" class="table-responsive">
+    <div *ngIf="mappa.righe && mappa.colonne" class="table-responsive">
       <table class="w-min-content m-auto table table-sm table-primary table-borderless table-striped table-hover table-striped-columns">
         <thead>
           <tr>
             <th></th>
             <!-- Intestazioni delle colonne (numeri) -->
-            <th *ngFor="let col of mappa_getColonne(colonne); let i = index"
+            <th *ngFor="let col of mappa_getColonne(); let i = index"
               class="text-center w-60px">
               {{ i + 1 }}
             </th>
@@ -96,11 +96,11 @@
         </thead>
         <tbody>
           <!-- Righe della tabella -->
-          <tr *ngFor="let rowKey of mappa_getRighe(mappa)">
+          <tr *ngFor="let rowKey of mappa_getRighe()">
             <!-- Intestazione della riga (lettera) -->
             <th class="text-center p-2">{{ rowKey }}</th>
             <!-- Celle della riga -->
-            <td *ngFor="let cellValue of mappa[rowKey]; let j = index"
+            <td *ngFor="let cellValue of mappa.mappa[rowKey]; let j = index"
                 class="text-center"
                 [class.table-warning]="cellValue === '-'"
                 [attr.data-cell]="rowKey + (j + 1)">
@@ -108,29 +108,27 @@
             </td>
             <!-- Intestazione della riga (lettera) -->
             <th class="text-center p-2">{{ rowKey }}</th>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th></th>
-          <!-- Intestazioni delle colonne (numeri) -->
-          <th *ngFor="let col of mappa_getColonne(colonne); let i = index"
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th></th>
+            <!-- Intestazioni delle colonne (numeri) -->
+            <th *ngFor="let col of mappa_getColonne(); let i = index"
               class="px-3 text-center">
-            {{ i + 1 }}
-          </th>
-          <th></th>
-        </tr>
-      </tfoot>
+              {{ i + 1 }}
+            </th>
+            <th></th>
+          </tr>
+        </tfoot>
       </table>
     </div>
-
   </section>
-
 
   <!-- Footer: Input principale -->
   <div class="pt-5">
     <div class="fixed-bottom p-2 shadow-lg text-bg-c2">
-      <form (submit)="handlePrompt($event)" 
+      <form (submit)="handlePrompt($event)"
             class="m-auto d-flex gap-2 min-w-250px max-w-400px">
         <label for="promptInput" class="visually-hidden">Prompt</label>
         <input id="promptInput" name="prompt" type="text"
