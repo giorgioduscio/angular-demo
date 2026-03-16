@@ -1,4 +1,9 @@
 <div class="container">
+  <div class="my-3 alert alert-warning">
+    <i class="bi bi-exclamation-triangle text-dark"></i>
+    Pagina in sviluppo
+  </div>
+
   <!-- Header: strumenti -->
   <div class="py-3 d-grid gap-2" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
     <!-- Cronologia dei tiri -->
@@ -127,7 +132,7 @@
 
   <!-- Footer: Input principale -->
   <div class="pt-5">
-    <div class="fixed-bottom p-2 shadow-lg text-bg-c2">
+    <div class="fixed-bottom p-2 shadow-lg text-bg-c2 z-1">
       <form (submit)="handlePrompt($event)"
             class="m-auto d-flex gap-2 min-w-250px max-w-400px">
         <label for="promptInput" class="visually-hidden">Prompt</label>

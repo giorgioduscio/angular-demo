@@ -1,4 +1,11 @@
-<header id="localActions">
+<div class="container">
+  <div class="my-3 alert alert-warning">
+    <i class="bi bi-exclamation-triangle text-dark"></i>
+    Pagina in sviluppo
+  </div>
+</div>
+
+<div id="localActions">
   <div class="container p-2 d-flex justify-content-between gap-2" 
        style="max-width: max-content;">
     <button class="btn btn-secondary text-truncate" (click)="pasteCharacter()">
@@ -11,10 +18,10 @@
       <i class="bi bi-x-lg"></i> Resetta 
     </button>
   </div>
-</header>
+</div>
 
 
-<article class="container d-flex flex-wrap justify-content-center align-items-start gap-1 m-auto"
+<section class="container d-flex flex-wrap justify-content-center align-items-start gap-1 m-auto"
          style="max-width: 1000px;"
          (change)="handleChange($event)">
 
@@ -571,26 +578,28 @@
     }
   </section>
 
-</article>
+</section>
 
 
-<footer *ngIf="isMobileView" class="pt-5 pb-3">
-  <div  class="m-auto d-flex gap-2 p-1 fixed-bottom text-bg-c1 shadow-lg overflow-x-auto" 
-        style="max-width: max-content;"
-        id="buttonsList">
-    @for (btn of mobileButtons; track $index) {
-      <button class="btn p-1" 
-              [class.btn-secondary]="activeSection === btn.key" 
-              [class.btn-outline-secondary]="activeSection !== btn.key" 
-              (click)="setSection(btn.key)">
-  
-        <div class="d-flex flex-column">
-          <i class="bi bi-{{btn.icon}} fs-2"></i>
-          <small  class="text-truncate font-size-3" 
-                  style="width: 50px;"
-                  >{{ btn.label }}</small> 
-        </div>
-      </button>
-    }
+<div *ngIf="isMobileView" class="pt-5 pb-3">
+  <div class="fixed-bottom z-1 shadow-lg">
+    <div  class="m-auto d-flex gap-2 p-1 text-bg-c1 overflow-x-auto" 
+          style="max-width: max-content;"
+          id="buttonsList">
+      @for (btn of mobileButtons; track $index) {
+        <button class="btn p-1" 
+                [class.btn-secondary]="activeSection === btn.key" 
+                [class.btn-outline-secondary]="activeSection !== btn.key" 
+                (click)="setSection(btn.key)">
+    
+          <div class="d-flex flex-column">
+            <i class="bi bi-{{btn.icon}} fs-2"></i>
+            <small  class="text-truncate font-size-3" 
+                    style="width: 50px;"
+                    >{{ btn.label }}</small> 
+          </div>
+        </button>
+      }
+    </div>
   </div>
-</footer>
+</div>

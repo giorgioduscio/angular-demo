@@ -10,44 +10,43 @@ import { agree } from '../../../tools/feedbacksUI';
   imports: [ RouterModule, ],
   template: `
     @if (localeUser){
-      <div class="d-flex gap-2 align-items-center" role="group" aria-label="Pulsanti profilo utente">
-        <button class="position-relative btn p-0 rounded-circle overflow-hidden" 
-                type="button"
-                routerLink="/user/{{localeUser.key}}">
-          <img [src]="localeUser.imageUrl" [alt]="localeUser.username" style="width:50px; height: 50px;">
+      <div class="d-flex gap-2 align-items-center" 
+           role="group" aria-label="Pulsanti profilo utente">
+        <button class="p-2 btn btn-secondary rounded-circle overflow-hidden" 
+                type="button" routerLink="/user/{{localeUser.key}}">
+          <strong>{{labelName}}</strong>
         </button>
         <!-- Bottone di logout -->
         <button type="button" class="btn btn-danger" 
-                (click)="onResetLocalUser()" aria-label="Logout">Esci</button>
+                (click)="onResetLocalUser()" 
+                aria-label="Logout">
+          <i class="me-2 bi bi-arrow-bar-right d-none d-md-inline"></i>
+          <span>Esci</span>
+        </button>
       </div>
 
     }@else {
-      <div class="btn-group">
-        <button type="button" 
-                class="btn btn-secondary" 
-                routerLink="/login" 
-                aria-label="Pagina di login">
-          <i class="bi bi-person-fill-add"></i>
-          <span class="ms-2 d-none d-sm-inline">Registrati</span>
-        </button> 
-
-        <button type="button" 
-                class="btn btn-primary" 
-                routerLink="/access" 
-                aria-label="Pagina di accesso">
-          <i class="bi bi-box-arrow-in-right"></i>
-          <span class="ms-2 d-none d-sm-inline">Accesso</span>
-        </button> 
-      </div>
+      <button type="button" 
+              class="btn btn-primary" 
+              routerLink="/access" 
+              aria-label="Pagina di accesso">
+        <i class="bi bi-person-fill"></i>
+        <span class="ms-2 d-none d-md-inline">Accesso</span>
+      </button> 
     }
   `,
 })
 export class ProfileComponent {
   localeUser :User |undefined =undefined
+  labelName =""
 
   constructor(private authService:AuthService){
     effect(()=>{
       this.localeUser =authService.user()
+      this.labelName =this.localeUser?.username
+                      .split(' ')
+                      .map(parola=> parola.charAt(0))
+                      .join('') || ''
     })
   }
   //todo RESET
