@@ -167,19 +167,20 @@ export class MappeComponent {
       return;
     }
 
-    // // TURNO SQUADRA
-    // const turnoSquadraMatch = comando.match(/^turno ([a-zA-Z]+)$/i);
-    // if (turnoSquadraMatch) {
-    //   if(!this.mappa.righe || !this.mappa.colonne) {
-    //     return toast("Selezionare mappa", "danger");
-    //   }
-    //   if(this.comb.combattenti.length<2) {
-    //     return toast("Combattenti insufficenti", "danger");
-    //   }
-    //   const squadra = turnoSquadraMatch[1];
-    //   this.comb.turnoSquadra(squadra, this.mappa.mappa, this.mappa.righe, this.mappa.colonne)
-    //   return;
-    // }
+    // PERSONAGGIO ATTACCA MANUALMENTE 
+    // "id_attaccante attacca id_attaccato"
+    const attaccoManualeMatch = comando.split(' ').length === 3
+                          && comando.split(" ")[1]==='attacca';
+    if (attaccoManualeMatch) {
+      const [idAttaccante, _, idAttaccato] = comando.toLocaleLowerCase().split(' ');
+      const attaccante = this.comb.combattenti.find(c => c.id.toLowerCase() === idAttaccante);
+      const attaccato = this.comb.combattenti.find(c => c.id.toLowerCase() === idAttaccato);
+      if(!attaccante || !attaccato) return toast("Contendenti non trovati", "danger");
+
+      // console.log('Attacco manuale:', attaccante.id, attaccato.id);
+      this.comb.tiraPerColpire(attaccante, attaccato);
+      return;
+    }
 
     // ERRORE
     toast(`Comando "${comando}" non riconosciuto`, 'danger');
@@ -216,3 +217,4 @@ export class MappeComponent {
   }
 
 }
+
