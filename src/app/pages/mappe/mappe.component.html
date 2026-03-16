@@ -34,13 +34,14 @@
   <!-- Main: Griglia della mappa -->
   <section class="py-3">
     <!-- Messaggio placeholder se la mappa non è stata generata -->
-    <div *ngIf="!mappa.righe || !mappa.colonne" class="d-grid gap-2"
+    <div *ngIf="!mappa.righe() || !mappa.colonne(); else mappaTemplate" class="d-grid gap-2"
           style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
       <!-- Contenuto placeholder -->
       <div class="text-bg-c2 p-2 border rounded">
         <h5>Mappe</h5>
         <ul>
           <li><strong>9x9</strong> per generare una mappa 9x9</li>
+          <li><strong>reset</strong> rimuove la mappa corrente</li>
           <li><strong>mappa salva nome_mappa</strong> per salvare la mappa corrente</li>
           <li><strong>mappa nome_mappa</strong> per caricare una mappa salvata</li>
           <li><strong>mappa elimina nome_mappa</strong> per eliminare una mappa salvata</li>
@@ -71,12 +72,14 @@
           <li><strong>b: Elio +2</strong> aggiunge Elio alla squadra b con +2 all'iniziativa</li>
           <li><strong>elio +20</strong> o <strong>elio -20</strong> aggiunge/sottrae 20 hp a Elio</li>
           <li><strong>kaki attacca ciano</strong> l'npc Kaki attacca l'npc Ciano</li>
+          <li><strong>turno a</strong> Gli npc della squadra a attaccano gli avversari</li>
         </ul>
       </div>
     </div>
+    <!-- placeholder -->
 
     <!-- TABELLA -->
-    <div *ngIf="mappa.righe && mappa.colonne" class="table-responsive">
+    <ng-template #mappaTemplate class="table-responsive">
       <table class="w-min-content m-auto table table-sm table-primary table-borderless table-striped table-hover table-striped-columns">
         <thead>
           <tr>
@@ -95,7 +98,7 @@
             <!-- Intestazione della riga (lettera) -->
             <th class="text-center p-2">{{ rowKey }}</th>
             <!-- Celle della riga -->
-            <td *ngFor="let cellValue of mappa.mappa[rowKey]; let j = index"
+            <td *ngFor="let cellValue of mappa.mappa()[rowKey]; let j = index"
                 [class.table-warning]="cellValue === '-'"
                 [attr.data-cell]="rowKey + (j + 1)">
               <app-cell [cellValue]="cellValue"></app-cell>
@@ -116,7 +119,8 @@
           </tr>
         </tfoot>
       </table>
-    </div>
+    </ng-template>
+    <!-- TABELLA -->
   </section>
 
   <!-- Footer: Input principale -->

@@ -1,22 +1,25 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { toast, agree } from '../../tools/feedbacksUI';
 
 export interface Mappa {
   [key: string]: string[];
 }
 
-@Injectable({  providedIn: 'root' })
+@Injectable({ providedIn: 'root' })
 export class MappaService {
+  // Proprietà convertite in signals
+  righe = signal<number>(0);
+  colonne = signal<number>(0);
+  mappa = signal<Mappa>({});
+  mappeSalvate = signal<{ [key: string]: { mappa: Mappa; righe: number; colonne: number } }>({});
+
   constructor() {
     this.syncLocale();
-  } 
-  
+  }
+
   // CREAZIONE MAPPA
-  righe: number = 0;
-  colonne: number = 0;
-  mappa: Mappa = {};
   creaMappa(righe: number, colonne: number): void {
-    // gestisce input non validi
+    // Gestisce input non validi
     if (righe <= 0 || colonne <= 0) {
       toast('Dimensioni della mappa non valide', 'danger');
       return;
@@ -28,17 +31,18 @@ export class MappaService {
       return;
     }
 
-    // costuzione
-    this.righe = righe;
-    this.colonne = colonne;
-    
+    // Costruzione
+    this.righe.set(righe);
+    this.colonne.set(colonne);
+
     const lettereRighe = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    this.mappa = {};
+    const nuovaMappa: Mappa = {};
     for (let i = 0; i < righe; i++) {
       const letteraRiga = lettereRighe[i];
-      this.mappa[letteraRiga] = new Array(colonne).fill('');
+      nuovaMappa[letteraRiga] = new Array(colonne).fill('');
     }
 
+    this.mappa.set(nuovaMappa);
     toast(`Mappa ${righe}x${colonne} creata!`, 'success');
   }
 
@@ -46,57 +50,61 @@ export class MappaService {
   mappa_getColonne(length: number): number[] {
     return Array(length).fill(0).map((_, i) => i);
   }
+
   mappa_getRighe(obj: any): string[] {
     return Object.keys(obj);
   }
 
   // AGGIUNGE SIMBOLI
   setMappa(riga: string, colonna: number, simbolo: string): void {
-    if (!this.mappa[riga] || colonna < 0 || colonna >= this.colonne) {
+    const mappaCorrente = this.mappa();
+    if (!mappaCorrente[riga] || colonna < 0 || colonna >= this.colonne()) {
       toast(`Posizione "${riga}${colonna + 1}" non valida!`, 'danger');
       return;
     }
 
     if (simbolo.length > 1) {
-      for (const rowKey of Object.keys(this.mappa)) {
-        for (let i = 0; i < this.mappa[rowKey].length; i++) {
-          if (this.mappa[rowKey][i] === simbolo) {
-            this.mappa[rowKey][i] = '';
+      for (const rowKey of Object.keys(mappaCorrente)) {
+        for (let i = 0; i < mappaCorrente[rowKey].length; i++) {
+          if (mappaCorrente[rowKey][i] === simbolo) {
+            mappaCorrente[rowKey][i] = '';
           }
         }
       }
     }
 
-    this.mappa[riga][colonna] = simbolo;
+    // Crea una nuova copia della mappa per evitare mutazioni dirette
+    const nuovaMappa = { ...mappaCorrente };
+    nuovaMappa[riga][colonna] = simbolo;
+    this.mappa.set(nuovaMappa);
+
     toast(`"${simbolo}" inserito in ${riga}${colonna + 1}!`, 'success');
   }
 
   // SALVATAGGIO MAPPE
-  mappeSalvate: { [key: string]: { mappa: Mappa, righe: number, colonne: number } } = {};
-  
   // Ottiene le mappe salvate dal localStorage
   syncLocale(): void {
     const savedMappe = localStorage.getItem('mappe');
     if (savedMappe) {
       try {
-        this.mappeSalvate = JSON.parse(savedMappe);
+        this.mappeSalvate.set(JSON.parse(savedMappe));
       } catch (e) {
-        console.error("Errore nel parsing delle mappe salvate:", e);
-        this.mappeSalvate = {};
+        console.error('Errore nel parsing delle mappe salvate:', e);
+        this.mappeSalvate.set({});
       }
     } else {
-      this.mappeSalvate = {};
+      this.mappeSalvate.set({});
     }
   }
 
   // Restituisce i nomi delle mappe salvate
   getNomi(): string[] {
-    return Object.keys(this.mappeSalvate);
+    return Object.keys(this.mappeSalvate());
   }
 
   // Restituisce una mappa salvata dato il nome
-  getMappaSalvataDaNome(nomeMappa: string): { mappa: Mappa, righe: number, colonne: number } | null {
-    return this.mappeSalvate[nomeMappa] || null;
+  getMappaSalvataDaNome(nomeMappa: string): { mappa: Mappa; righe: number; colonne: number } | null {
+    return this.mappeSalvate()[nomeMappa] || null;
   }
 
   // SALVA MAPPA
@@ -106,28 +114,31 @@ export class MappaService {
       return;
     }
 
-    if (this.mappeSalvate[nomeMappa] && !(await agree(`Mappa "${nomeMappa}" già esistente. Vuoi sovrascriverla?`))) {
+    if (this.mappeSalvate()[nomeMappa] && !(await agree(`Mappa "${nomeMappa}" già esistente. Vuoi sovrascriverla?`))) {
       return;
     }
 
-    this.mappeSalvate[nomeMappa] = {
-      mappa: { ...this.mappa },
-      righe: this.righe,
-      colonne: this.colonne
+    const mappeSalvateCorrenti = this.mappeSalvate();
+    mappeSalvateCorrenti[nomeMappa] = {
+      mappa: { ...this.mappa() },
+      righe: this.righe(),
+      colonne: this.colonne(),
     };
 
+    this.mappeSalvate.set(mappeSalvateCorrenti);
+
     try {
-      localStorage.setItem('mappe', JSON.stringify(this.mappeSalvate));
+      localStorage.setItem('mappe', JSON.stringify(mappeSalvateCorrenti));
       toast(`Mappa "${nomeMappa}" salvata!`, 'success');
     } catch (e) {
-      console.error("Errore nel salvataggio della mappa:", e);
+      console.error('Errore nel salvataggio della mappa:', e);
       toast('Errore nel salvataggio della mappa', 'danger');
     }
   }
 
   // ELIMINA MAPPA
   async eliminaMappaSalvata(nomeMappa: string): Promise<void> {
-    if (!this.mappeSalvate[nomeMappa]) {
+    if (!this.mappeSalvate()[nomeMappa]) {
       toast(`Mappa "${nomeMappa}" non trovata`, 'danger');
       return;
     }
@@ -136,13 +147,15 @@ export class MappaService {
       return;
     }
 
-    delete this.mappeSalvate[nomeMappa];
+    const mappeSalvateCorrenti = { ...this.mappeSalvate() };
+    delete mappeSalvateCorrenti[nomeMappa];
+    this.mappeSalvate.set(mappeSalvateCorrenti);
 
     try {
-      localStorage.setItem('mappe', JSON.stringify(this.mappeSalvate));
+      localStorage.setItem('mappe', JSON.stringify(mappeSalvateCorrenti));
       toast(`Mappa "${nomeMappa}" eliminata!`, 'success');
     } catch (e) {
-      console.error("Errore nell'eliminazione della mappa:", e);
+      console.error('Errore nell\'eliminazione della mappa:', e);
       toast('Errore nell\'eliminazione della mappa', 'danger');
     }
   }
@@ -155,9 +168,9 @@ export class MappaService {
       return;
     }
 
-    this.mappa = { ...mappaSalvata.mappa };
-    this.righe = mappaSalvata.righe;
-    this.colonne = mappaSalvata.colonne;
+    this.mappa.set({ ...mappaSalvata.mappa });
+    this.righe.set(mappaSalvata.righe);
+    this.colonne.set(mappaSalvata.colonne);
     toast(`Mappa "${nomeMappa}" caricata!`, 'success');
   }
 }

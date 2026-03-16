@@ -69,7 +69,7 @@ export class MappeComponent {
 
     // Gestione mappe
     if (comando.startsWith("mappa ")) {
-      const mappaEsistente = !!this.mappa.mappa && !!this.mappa.mappa['A'];
+      const mappaEsistente = !!this.mappa.mappa() && !!this.mappa.mappa()['A'];
       const match_elimina_mappa = comando.match(/^mappa elimina (.+)$/i);
       const match_salva_mappa = comando.match(/^mappa salva (.+)$/i);
       const match_carica_mappa = comando.match(/^mappa (.+)$/i);
@@ -141,7 +141,7 @@ export class MappeComponent {
 
       // Se ci sono almeno due squadre, esegui posizionamento
       let squadreEsistenti: string[] = [];
-      this.comb.combattenti.forEach(combattente=>{
+      this.comb.combattenti().forEach(combattente=>{
         if(!squadreEsistenti.includes(combattente.squadra)) {
           squadreEsistenti.push(combattente.squadra);
         }
@@ -154,7 +154,7 @@ export class MappeComponent {
     // POSIZIONAMENTO
     const posizionamentoMatch = 'start' === comando;
     if (posizionamentoMatch) {
-      this.comb.posizionamento(this.mappa.mappa, this.mappa.righe, this.mappa.colonne);
+      this.comb.posizionamento(this.mappa.mappa(), this.mappa.righe(), this.mappa.colonne());
       return;
     }
     
@@ -163,7 +163,7 @@ export class MappeComponent {
                               && (comando.includes('-') || comando.includes('+'));
     if (ferireCurareMatch) {
       const [idCombattente, quantita] = comando.split(' ');
-      this.comb.vitalita_personaggio(idCombattente, Number(quantita));
+      this.comb.vitalitaPersonaggio(idCombattente, Number(quantita));
       return;
     }
 
@@ -173,8 +173,9 @@ export class MappeComponent {
                           && comando.split(" ")[1]==='attacca';
     if (attaccoManualeMatch) {
       const [idAttaccante, _, idAttaccato] = comando.toLocaleLowerCase().split(' ');
-      const attaccante = this.comb.combattenti.find(c => c.id.toLowerCase() === idAttaccante);
-      const attaccato = this.comb.combattenti.find(c => c.id.toLowerCase() === idAttaccato);
+      const combattenti = this.comb.combattenti();
+      const attaccante = combattenti.find(c => c.id.toLowerCase() === idAttaccante);
+      const attaccato = combattenti.find(c => c.id.toLowerCase() === idAttaccato);
       if(!attaccante || !attaccato) return toast("Contendenti non trovati", "danger");
 
       // console.log('Attacco manuale:', attaccante.id, attaccato.id);
@@ -182,9 +183,43 @@ export class MappeComponent {
       return;
     }
 
+    // RIMUOVI PERSONAGGIO MANUALMENTE
+    // "rimuovi id_personaggio"
+    const rimuoviMatch = comando.startsWith("rimuovi ");
+    if (rimuoviMatch) {
+      const idPersonaggio = comando.split(" ")[1];
+      if(!idPersonaggio) return toast("ID personaggio non valido", "danger");
+
+      this.comb.removeCombattente(idPersonaggio);
+      return;
+    }
+
+    // SQUADRA ATTACCA AUTOMATICAMENTE
+    // "turno idSquadra"
+    const turnoMatch = comando.startsWith("turno ");
+    if (turnoMatch) {
+      const idSquadra = comando.split(" ")[1];
+      if(!idSquadra) return toast("ID squadra non valido", "danger");
+
+      this.comb.turnoSquadra(idSquadra);
+      return;
+    }
+
+    // RESET
+    if (comando === "reset") {
+      this.comb.combattenti.set([]);
+      this.mappa.mappa.set({});
+      this.mappa.righe.set(0);
+      this.mappa.colonne.set(0);
+      return;
+    }
+
     // ERRORE
     toast(`Comando "${comando}" non riconosciuto`, 'danger');
   }
+
+
+
 
   // TIRI DEI DADI
   tiri: string[] = [];
@@ -210,10 +245,10 @@ export class MappeComponent {
 
   // VISUALIZZAZIONE MAPPA
   mappa_getColonne(): number[] {
-    return this.mappa.mappa_getColonne(this.mappa.colonne);
+    return this.mappa.mappa_getColonne(this.mappa.colonne());
   }
   mappa_getRighe(): string[] {
-    return this.mappa.mappa_getRighe(this.mappa.mappa);
+    return this.mappa.mappa_getRighe(this.mappa.mappa());
   }
 
 }

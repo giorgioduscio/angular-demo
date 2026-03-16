@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, effect, Input, signal } from "@angular/core";
 import { Combattente, CombattimentoService } from "./logicaCombattimento.service";
 
 @Component({
@@ -7,21 +7,21 @@ import { Combattente, CombattimentoService } from "./logicaCombattimento.service
   standalone: true,
   imports: [CommonModule],
   template:`
-  <div class="text-center">
+  <div class="min-w-60px min-h-60px text-center">
     @if(combattente) {
       <div class="rounded p-2" [style.background]="color">
-        <h6 class="small">{{ combattente.id }}</h6>
-        <div>
+        <h6 class="small">{{ combattente!.id }}</h6>
+        <div class="text-nowrap">
           <i class="bi bi-heart me-1"></i>
-          <small>{{ combattente.puntiFerita }}</small>
+          <small>{{ combattente!.puntiFerita }}</small>
         </div>
-        <div>
+        <div class="text-nowrap">
           <i class="bi bi-shield-shaded me-1"></i>
-          <small>{{ combattente.classeArmatura }}</small>
+          <small>{{ combattente!.classeArmatura }}</small>
         </div>
       </div>
     } @else {
-      <div>
+      <div class="text-black">
         {{ cellValue }}
       </div>
     }
@@ -30,15 +30,19 @@ import { Combattente, CombattimentoService } from "./logicaCombattimento.service
 })
 export class CellComponent {
   @Input() cellValue: string = '';
-  combattente: Combattente | undefined;
+  combattente :Combattente | undefined;
 
-  constructor(private comb: CombattimentoService) {}
+  constructor(private comb: CombattimentoService) {
+    effect(()=>{
+      this.combattente = this.comb.getCombattenteById(this.cellValue);
+    })
+  }
 
   ngOnInit(): void {
     this.combattente = this.comb.getCombattenteById(this.cellValue);
     if (this.combattente) {
-      this.combattente.id = this.combattente.id.charAt(0).toUpperCase() + this.combattente.id.slice(1);
-      this.color = this.setColor(this.combattente.squadra);
+      this.combattente!.id = this.combattente!.id.charAt(0).toUpperCase() + this.combattente!.id.slice(1);
+      this.color = this.setColor(this.combattente!.squadra);
     }
     if (!this.combattente && this.cellValue.length > 1) console.warn(this.cellValue, "non trovato");
   }
