@@ -18,18 +18,6 @@
         </div>
       </div>
     </div>
-    <!-- squadre e combattenti -->
-    <div *ngIf="comb.combattenti.length > 0">
-      <h3>Personaggi</h3>
-      <div class="d-flex gap-2 align-items-center overflow-x-auto">
-        <div *ngFor="let combattente of comb.combattenti"
-            class="border rounded p-2 text-nowrap">
-          {{ combattente.id }} <br>
-          <i *ngIf="combattente.puntiFerita" class="bi bi-heart">
-            {{ combattente.puntiFerita }}</i>
-        </div>
-      </div>
-    </div>
     <!-- Mappe salvate -->
     <div *ngIf="mappa.getNomi().length > 0">
       <h3>Mappe salvate</h3>
@@ -81,6 +69,8 @@
         <ul>
           <li><strong>a: x3 gf1/2</strong> assegna 3 npc di gf 1/2 alla squadra a</li>
           <li><strong>b: Elio +2</strong> aggiunge Elio alla squadra b con +2 all'iniziativa</li>
+          <li><strong>elio +20</strong> aggiunge 20 hp a Elio</li>
+          <li><strong>elio -15</strong> sottrae 15 hp a Elio</li>
         </ul>
       </div>
     </div>
@@ -106,10 +96,9 @@
             <th class="text-center p-2">{{ rowKey }}</th>
             <!-- Celle della riga -->
             <td *ngFor="let cellValue of mappa.mappa[rowKey]; let j = index"
-                class="text-center"
                 [class.table-warning]="cellValue === '-'"
                 [attr.data-cell]="rowKey + (j + 1)">
-              {{ cellValue || '' }}
+              <app-cell [cellValue]="cellValue"></app-cell>
             </td>
             <!-- Intestazione della riga (lettera) -->
             <th class="text-center p-2">{{ rowKey }}</th>

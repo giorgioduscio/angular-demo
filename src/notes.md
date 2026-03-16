@@ -4,12 +4,25 @@ git reset head~1
 git push origin -f main 
 npx playwright test src/app/tests/list.test.ts
 
+# Prassi git
+
+`<tipo>(<ambito opzionale>): <descrizione>`
+
+- tipo: feat, fix, docs, style, refactor, test, chore
+
+Esempi:
+
+- feat(auth): add login with Google
+- fix(ui): correct button alignment on mobile
+- docs: update README with setup instructions
+
 # Cose da completare
 
 ## Generali 
 
 - x search input
 - programmazione+test nello stesso file
+- prova ad aggiungere un iframe
 
 
 ## dnd
@@ -20,3 +33,6 @@ npx playwright test src/app/tests/list.test.ts
 3. talenti
 3. incantesimi: sezione attacchi ed incantesimi. aggiungere incantesimi
 
+# mappe
+- personaggi che infliggono danni agli avversari
+- personaggi che si muovono nella mappa

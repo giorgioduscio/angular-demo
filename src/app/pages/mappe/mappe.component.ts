@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { toast } from '../../tools/feedbacksUI';
 import { CombattimentoService } from './logicaCombattimento.service';
 import { MappaService } from './mappa.service';
+import { CellComponent } from './cell.component';
 
 @Component({
   selector: 'app-mappe',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CellComponent],
   templateUrl: './mappe.component.html',
 })
 export class MappeComponent {
@@ -114,7 +115,7 @@ export class MappeComponent {
       return;
     }
 
-    // Creazione squadre
+    // CREAZIONE SQUADRE E PERSONAGGI 
     const squadreMatch = comando.match(/^([a-zA-Z]):\s*(.+)$/i);
     if (squadreMatch) {
       const prompt = comando.split(' ');
@@ -146,30 +147,39 @@ export class MappeComponent {
         }
       })
 
-      this.eseguiComando('posizionamento');
+      this.eseguiComando('start');
       return;
     }
 
     // POSIZIONAMENTO
-    const posizionamentoMatch = comando.match(/^posizionamento$/i);
+    const posizionamentoMatch = 'start' === comando;
     if (posizionamentoMatch) {
       this.comb.posizionamento(this.mappa.mappa, this.mappa.righe, this.mappa.colonne);
       return;
     }
-
-    // TURNO SQUADRA
-    const turnoSquadraMatch = comando.match(/^turno ([a-zA-Z]+)$/i);
-    if (turnoSquadraMatch) {
-      if(!this.mappa.righe || !this.mappa.colonne) {
-        return toast("Selezionare mappa", "danger");
-      }
-      if(this.comb.combattenti.length<2) {
-        return toast("Combattenti insufficenti", "danger");
-      }
-      const squadra = turnoSquadraMatch[1];
-      this.comb.turnoSquadra(squadra, this.mappa.mappa, this.mappa.righe, this.mappa.colonne)
+    
+    // FERIRE O CURARE "id_personaggio -10" "id_personaggio +14"
+    const ferireCurareMatch = comando.split(' ').length === 2
+                              && (comando.includes('-') || comando.includes('+'));
+    if (ferireCurareMatch) {
+      const [idCombattente, quantita] = comando.split(' ');
+      this.comb.vitalita_personaggio(idCombattente, Number(quantita));
       return;
     }
+
+    // // TURNO SQUADRA
+    // const turnoSquadraMatch = comando.match(/^turno ([a-zA-Z]+)$/i);
+    // if (turnoSquadraMatch) {
+    //   if(!this.mappa.righe || !this.mappa.colonne) {
+    //     return toast("Selezionare mappa", "danger");
+    //   }
+    //   if(this.comb.combattenti.length<2) {
+    //     return toast("Combattenti insufficenti", "danger");
+    //   }
+    //   const squadra = turnoSquadraMatch[1];
+    //   this.comb.turnoSquadra(squadra, this.mappa.mappa, this.mappa.righe, this.mappa.colonne)
+    //   return;
+    // }
 
     // ERRORE
     toast(`Comando "${comando}" non riconosciuto`, 'danger');
