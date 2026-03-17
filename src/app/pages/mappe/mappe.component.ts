@@ -165,7 +165,8 @@ export class MappeComponent {
       return;
     }
     
-    // FERIRE O CURARE "id_personaggio -10" "id_personaggio +14"
+    // FERIRE O CURARE 
+    // "id_personaggio -10" "id_personaggio +14"
     const ferireCurareMatch = comando.split(' ').length === 2
                               && (comando.includes('-') || comando.includes('+'));
     if (ferireCurareMatch) {
@@ -208,7 +209,24 @@ export class MappeComponent {
       const idSquadra = comando.split(" ")[1];
       if(!idSquadra) return toast("ID squadra non valido", "danger");
 
-      this.comb.turnoSquadra(idSquadra, this.mappa.mappa());
+      const {membri, avversari} =this.comb.getMembriSquadra(idSquadra)
+      for(const membro of membri) {
+        const nemicoScelto = this.comb.scegliNemico(membro, avversari, this.mappa.mappa());
+        let sonoVicini = false;
+        const muovi = () => {
+          for (let i = 0; i < 6; i++) {
+            sonoVicini = this.comb.sonoVicini(membro, nemicoScelto, this.mappa.mappa());
+            if(sonoVicini) break;
+            this.comb.movimento(membro, nemicoScelto, this.mappa.mappa);
+          }
+        }
+
+        console.log(`turno squadra '${idSquadra}'`);
+        muovi();
+        if(sonoVicini) this.comb.tiraPerColpire(membro, nemicoScelto);
+        else muovi();
+      }
+      
       return;
     }
 
@@ -259,5 +277,6 @@ export class MappeComponent {
   }
 
 }
+
 
 
