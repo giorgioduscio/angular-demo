@@ -186,7 +186,6 @@ export class MappeComponent {
       const attaccato = combattenti.find(c => c.id.toLowerCase() === idAttaccato);
       if(!attaccante || !attaccato) return toast("Contendenti non trovati", "danger");
 
-      // console.log('Attacco manuale:', attaccante.id, attaccato.id);
       this.comb.tiraPerColpire(attaccante, attaccato);
       return;
     }
@@ -209,22 +208,22 @@ export class MappeComponent {
       const idSquadra = comando.split(" ")[1];
       if(!idSquadra) return toast("ID squadra non valido", "danger");
 
+      console.log(`\n\nturno squadra '${idSquadra}'`);
       const {membri, avversari} =this.comb.getMembriSquadra(idSquadra)
       for(const membro of membri) {
         const nemicoScelto = this.comb.scegliNemico(membro, avversari, this.mappa.mappa());
-        let sonoVicini = false;
+        let sonoPortata = false;
         const muovi = () => {
           for (let i = 0; i < 6; i++) {
-            sonoVicini = this.comb.sonoVicini(membro, nemicoScelto, this.mappa.mappa());
-            if(sonoVicini) break;
+            sonoPortata = this.comb.sonoPortata(membro, nemicoScelto, this.mappa.mappa());
+            if(sonoPortata) break;
             this.comb.movimento(membro, nemicoScelto, this.mappa.mappa);
           }
         }
 
-        console.log(`turno squadra '${idSquadra}'`);
         muovi();
-        if(sonoVicini) this.comb.tiraPerColpire(membro, nemicoScelto);
-        else muovi();
+        if(sonoPortata) this.comb.tiraPerColpire(membro, nemicoScelto);
+        // else muovi(); // azione scatto
       }
       
       return;

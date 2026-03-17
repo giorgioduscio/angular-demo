@@ -191,29 +191,6 @@ export class CombattimentoService {
     );
   }
 
-  // Una squadra attacca l'altra ??
-  // turnoSquadra(idSquadra: string, mappa: Mappa): void {
-  //   // 1) Identifica attori
-  //   const squadra = this.combattenti().filter(c => c.squadra === idSquadra);
-  //   const nemici = this.combattenti().filter(c => c.squadra !== idSquadra);
-
-  //   if (squadra.length === 0 || nemici.length === 0) {
-  //     toast("Squadra o nemici non trovati", "danger");
-  //     return;
-  //   }
-
-  //   // 2) Fase d'azione per ogni combattente della squadra
-  //   console.log(`\n\nTurno squadra '${idSquadra}'`);
-  //   for (const attaccante of squadra) {
-  //     // Sceglie il nemico 
-  //     const nemicoPrescelto = this.scegliNemico(attaccante, nemici, mappa);
-  //     // si muove di 6 quadrati verso il nemico
-  //     this.movimento(attaccante, nemicoPrescelto, mappa);
-  //     // Attacca il nemico 
-  //     this.tiraPerColpire(attaccante, nemicoPrescelto);
-  //   }
-  // }
-
   // turno squadra
   getMembriSquadra(inSquadra:string)
   : {membri: Combattente[], avversari: Combattente[]} {
@@ -276,76 +253,7 @@ export class CombattimentoService {
     return nemicoPiuVicino;
   }
 
-  movimento(attaccante: Combattente, avversario: Combattente, mappa: WritableSignal<Mappa>): void {
-    if (attaccante.tipo == 'mischia'){
-      // Trova le coordinate dell'attaccante e dell'avversario
-      const coordAttaccante = this.coordinateCombattente(mappa(), attaccante.id);
-      const coordAvversario = this.coordinateCombattente(mappa(), avversario.id);
-  
-      if (!coordAttaccante || !coordAvversario) {
-        console.error("Coordinate non trovate per attaccante o avversario");
-        return;
-      }
-  
-      // Calcola la direzione del movimento (1 quadrato verso l'avversario)
-      const rigaAttaccante = this.convertiRigaInNumero(coordAttaccante.riga);
-      const rigaAvversario = this.convertiRigaInNumero(coordAvversario.riga);
-      const colonnaAttaccante = coordAttaccante.colonna;
-      const colonnaAvversario = coordAvversario.colonna;
-  
-      // Determina la direzione preferita (verso l'avversario)
-      const direzioneRigaPreferita = rigaAttaccante < rigaAvversario ? 1 : (rigaAttaccante > rigaAvversario ? -1 : 0);
-      const direzioneColonnaPreferita = colonnaAttaccante < colonnaAvversario ? 1 : (colonnaAttaccante > colonnaAvversario ? -1 : 0);
-  
-      // Genera le 3 celle adiacenti prioritarie (sinistra, destra, sopra/sotto)
-      const possibiliPosizioni = [
-        // 1. Direzione preferita (verso l'avversario)
-        {
-          riga: String.fromCharCode(65 + rigaAttaccante + direzioneRigaPreferita),
-          colonna: colonnaAttaccante + direzioneColonnaPreferita,
-        },
-        // 2. Alternativa orizzontale
-        {
-          riga: coordAttaccante.riga,
-          colonna: colonnaAttaccante + (direzioneColonnaPreferita !== 0 ? -direzioneColonnaPreferita : 1),
-        },
-        // 3. Alternativa verticale
-        {
-          riga: String.fromCharCode(65 + rigaAttaccante + (direzioneRigaPreferita !== 0 ? -direzioneRigaPreferita : 1)),
-          colonna: colonnaAttaccante,
-        },
-      ];
-  
-      // Trova la prima posizione valida e libera
-      let nuovaPosizione = null;
-      for (const pos of possibiliPosizioni) {
-        if (
-          mappa()[pos.riga] !== undefined &&
-          pos.colonna >= 0 &&
-          pos.colonna < mappa()[pos.riga].length &&
-          mappa()[pos.riga][pos.colonna] === ''
-        ) {
-          nuovaPosizione = pos;
-          break;
-        }
-      }
-  
-      // Se trovata una posizione valida, aggiorna la mappa
-      if (nuovaPosizione) {
-        const nuovaMappa = structuredClone(mappa());
-        nuovaMappa[coordAttaccante.riga][coordAttaccante.colonna] = '';
-        nuovaMappa[nuovaPosizione.riga][nuovaPosizione.colonna] = attaccante.id;
-        mappa.set(nuovaMappa);
-      }
-    } else if (attaccante.tipo == 'distanza') {
-      return;
-    }
-  }
-
-
-
-  // controlla se due giocatori sono vicini
-  sonoVicini(attaccante: Combattente, avversario: Combattente, mappa: Mappa): boolean {
+  sonoPortata(attaccante: Combattente, avversario: Combattente, mappa: Mappa): boolean {
     const coordAttaccante = this.coordinateCombattente(mappa, attaccante.id);
     const coordAvversario = this.coordinateCombattente(mappa, avversario.id);
 
@@ -359,10 +267,80 @@ export class CombattimentoService {
     const deltaRighe = Math.abs(rigaAttaccante - rigaAvversario);
     const deltaColonne = Math.abs(coordAttaccante.colonna - coordAvversario.colonna);
 
-    // Sono vicini se la distanza è <= 1 in entrambe le direzioni (8 celle circostanti)
-    // console.log(attaccante.id, {deltaRighe, deltaColonne});
-    return deltaRighe <= 1 && deltaColonne <= 1 
-        && (deltaRighe + deltaColonne > 0);
+    // Mischia: distanza <= 1 (8 celle circostanti)
+    if (attaccante.tipo === 'mischia') {
+      return deltaRighe <= 1 && deltaColonne <= 1 && (deltaRighe + deltaColonne > 0);
+    }
+    // Distanza: portata <= 6 quadrati (in linea d'aria, incluse diagonali)
+    else if (attaccante.tipo === 'distanza') {
+      const distanza = Math.sqrt(Math.pow(deltaRighe, 2) + Math.pow(deltaColonne, 2));      
+      return distanza <= 6;
+    }
+
+    return false;
+  }
+
+
+  movimento(attaccante: Combattente, avversario: Combattente, mappa: WritableSignal<Mappa>): void {
+    // Trova le coordinate dell'attaccante e dell'avversario
+    const coordAttaccante = this.coordinateCombattente(mappa(), attaccante.id);
+    const coordAvversario = this.coordinateCombattente(mappa(), avversario.id);
+
+    if (!coordAttaccante || !coordAvversario) {
+      console.error("Coordinate non trovate per attaccante o avversario");
+      return;
+    }
+
+    // Calcola la direzione del movimento (1 quadrato verso l'avversario)
+    const rigaAttaccante = this.convertiRigaInNumero(coordAttaccante.riga);
+    const rigaAvversario = this.convertiRigaInNumero(coordAvversario.riga);
+    const colonnaAttaccante = coordAttaccante.colonna;
+    const colonnaAvversario = coordAvversario.colonna;
+
+    // Determina la direzione preferita (verso l'avversario)
+    const direzioneRigaPreferita = rigaAttaccante < rigaAvversario ? 1 : (rigaAttaccante > rigaAvversario ? -1 : 0);
+    const direzioneColonnaPreferita = colonnaAttaccante < colonnaAvversario ? 1 : (colonnaAttaccante > colonnaAvversario ? -1 : 0);
+
+    // Genera le 3 celle adiacenti prioritarie (sinistra, destra, sopra/sotto)
+    const possibiliPosizioni = [
+      // 1. Direzione preferita (verso l'avversario)
+      {
+        riga: String.fromCharCode(65 + rigaAttaccante + direzioneRigaPreferita),
+        colonna: colonnaAttaccante + direzioneColonnaPreferita,
+      },
+      // 2. Alternativa orizzontale
+      {
+        riga: coordAttaccante.riga,
+        colonna: colonnaAttaccante + (direzioneColonnaPreferita !== 0 ? -direzioneColonnaPreferita : 1),
+      },
+      // 3. Alternativa verticale
+      {
+        riga: String.fromCharCode(65 + rigaAttaccante + (direzioneRigaPreferita !== 0 ? -direzioneRigaPreferita : 1)),
+        colonna: colonnaAttaccante,
+      },
+    ];
+
+    // Trova la prima posizione valida e libera
+    let nuovaPosizione = null;
+    for (const pos of possibiliPosizioni) {
+      if (
+        mappa()[pos.riga] !== undefined &&
+        pos.colonna >= 0 &&
+        pos.colonna < mappa()[pos.riga].length &&
+        mappa()[pos.riga][pos.colonna] === ''
+      ) {
+        nuovaPosizione = pos;
+        break;
+      }
+    }
+
+    // Se trovata una posizione valida, aggiorna la mappa
+    if (nuovaPosizione) {
+      const nuovaMappa = structuredClone(mappa());
+      nuovaMappa[coordAttaccante.riga][coordAttaccante.colonna] = '';
+      nuovaMappa[nuovaPosizione.riga][nuovaPosizione.colonna] = attaccante.id;
+      mappa.set(nuovaMappa);
+    }
   }
 
   private coordinateCombattente(mappa: Mappa, idCombattente: string)
@@ -383,3 +361,5 @@ export class CombattimentoService {
 
 
 }
+
+

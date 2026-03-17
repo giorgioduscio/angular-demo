@@ -35,5 +35,5 @@ Esempi:
 3. incantesimi: sezione attacchi ed incantesimi. aggiungere incantesimi
 
 # mappe
-- personaggi che infliggono danni agli avversari
-- personaggi che si muovono nella mappa
+- problema nel movimento 
+(9x9> a: gs1 x3 distanza > b: gs1 x3 > rosso in b3 > turno a)

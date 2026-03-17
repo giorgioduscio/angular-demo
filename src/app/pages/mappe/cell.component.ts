@@ -10,7 +10,11 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
   <div class="min-w-60px min-h-60px text-center">
     @if(combattente) {
       <div class="rounded p-2" [style.background]="color">
-        <h6 class="small">{{ combattente!.id }}</h6>
+        <h6 class="small text-nowrap">
+          {{ combattente!.id }}
+          <i class="bi" [class.bi-shield]="combattente.tipo=='mischia'" 
+                        [class.bi-arrow-bar-right]="combattente.tipo=='distanza'"></i>
+        </h6>
         <div class="text-nowrap">
           <i class="bi bi-heart me-1"></i>
           <small>{{ combattente!.puntiFerita }}</small>
@@ -20,6 +24,7 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
           <small>{{ combattente!.classeArmatura }}</small>
         </div>
       </div>
+
     } @else {
       <div class="text-black">
         {{ cellValue }}

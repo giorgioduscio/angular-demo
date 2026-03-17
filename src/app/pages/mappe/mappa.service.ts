@@ -66,7 +66,7 @@ export class MappaService {
     if (simbolo.length > 1) {
       for (const rowKey of Object.keys(mappaCorrente)) {
         for (let i = 0; i < mappaCorrente[rowKey].length; i++) {
-          if (mappaCorrente[rowKey][i] === simbolo) {
+          if (mappaCorrente[rowKey][i].toLowerCase() === simbolo.toLowerCase()) {
             mappaCorrente[rowKey][i] = '';
           }
         }
