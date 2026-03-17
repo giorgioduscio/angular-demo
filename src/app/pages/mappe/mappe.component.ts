@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toast } from '../../tools/feedbacksUI';
-import { CombattimentoService } from './logicaCombattimento.service';
+import { CombattimentoService } from './combattimento.service';
 import { MappaService } from './mappa.service';
 import { CellComponent } from './cell.component';
 
@@ -118,35 +118,42 @@ export class MappeComponent {
     // CREAZIONE SQUADRE E PERSONAGGI 
     const squadreMatch = comando.match(/^([a-zA-Z]):\s*(.+)$/i);
     if (squadreMatch) {
-      const prompt = comando.split(' ');
-      const nomeSquadra = prompt.find(p=> p.endsWith(':'))?.replace(':', '') ??'';
-      const gradoSfida = prompt.find(p=> p.startsWith('gs'))?.replace('gs', '') ??'';
-      const bonusIniziativa = Number(prompt
-            .find(p=> p.startsWith('+') || p.startsWith('-'))?? 0);
-      const ripetizioni = Number(prompt.find(p=> p.startsWith('x'))?.replace('x', '') ?? 1);
-      const classeArmatura =Number(prompt.find(p=> p.startsWith('ca'))?.replace('ca', '') ?? 0);
-      const nomeGiocatore = prompt.find(p=> !p.endsWith(':')
-                            && !p.startsWith('gs')
-                            && !p.startsWith('+')
-                            && !p.startsWith('-')
-                            && !p.startsWith('x')) ??"";
+      const [, nomeSquadra, prompt_stringa] = squadreMatch;
+      const prompt = prompt_stringa.split(' ');
+
+      // Funzione ausiliaria per estrarre parametri con prefisso
+      function extractParam(prefix: string, defaultValue: any = 0) {
+        const param = prompt.find(p => p.includes(prefix));
+        return param ? Number(param.replace(prefix, '')) || defaultValue : defaultValue;
+      };
+
+      // Estrazione parametri con logica semplificata
+      const gradoSfida = prompt.find(p => p.includes('gs'))?.replace('gs', '') || '';
+      const bonusIniziativa = extractParam('+') || extractParam('-', 0);
+      const ripetizioni = extractParam('x', 1);
+      const classeArmatura = extractParam('ca', 0);
+      const hp = extractParam('hp', 0);
+      const tipo = prompt.includes('distanza') ? 'distanza' : 'mischia';
+
+      // Estrazione nome giocatore: esclude tutti i token "riservati"
+      const reservedKeywords = ['distanza', 'mischia', 'gs', 'ca', 
+                                'hp', 'x', ':', '-', '+'];
+      const nomeGiocatore = prompt.find(p =>
+        !reservedKeywords.some(kw => p.includes(kw)) 
+      ) || '';
 
       if(!nomeGiocatore && !gradoSfida) return toast("un giocatore non può avere grado sfida", "danger");
+      if(nomeGiocatore && ripetizioni) return toast("un giocatore è unico", "danger");
       if(nomeGiocatore && !classeArmatura) return toast("un giocatore deve avere una classe armatura", "danger");
+      if(nomeGiocatore && !hp) return toast("un giocatore deve avere dei punti ferita", "danger");
+      if(nomeGiocatore && !tipo) return toast("un giocatore non ha tipo", "danger");
 
       for(let i = 0; i < ripetizioni; i++) {
         this.comb.addCombattente(nomeSquadra, bonusIniziativa,
-                          gradoSfida, nomeGiocatore, classeArmatura);
+          gradoSfida, nomeGiocatore, classeArmatura, hp, tipo);
       }
 
-      // Se ci sono almeno due squadre, esegui posizionamento
-      let squadreEsistenti: string[] = [];
-      this.comb.combattenti().forEach(combattente=>{
-        if(!squadreEsistenti.includes(combattente.squadra)) {
-          squadreEsistenti.push(combattente.squadra);
-        }
-      })
-
+      // esegui posizionamento
       this.eseguiComando('start');
       return;
     }
@@ -252,4 +259,5 @@ export class MappeComponent {
   }
 
 }
+
 

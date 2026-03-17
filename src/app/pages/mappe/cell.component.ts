@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, effect, Input, signal } from "@angular/core";
-import { Combattente, CombattimentoService } from "./logicaCombattimento.service";
+import { Combattente, CombattimentoService } from "./combattimento.service";
 
 @Component({
   selector: 'app-cell',

@@ -17,10 +17,8 @@ export interface Combattente {
 
 @Injectable({ providedIn: 'root' })
 export class CombattimentoService {
-  // Proprietà convertita in signal
-  combattenti = signal<Combattente[]>([]);
-
   constructor() {}
+  combattenti = signal<Combattente[]>([]);
 
   // Ottieni un combattente per ID
   getCombattenteById(idCombattente: string): Combattente | undefined {
@@ -68,12 +66,14 @@ export class CombattimentoService {
     gradoSfida: string,
     nomePersonaggio: string,
     classeArmatura: number,
+    puntiFerita: number,
     tipoCombettente: 'mischia' | 'distanza' = 'mischia'
   ): void {
     const numeroTurno = Math.floor(Math.random() * 20) + bonusIniziativa;
     const matchGradoSfida = statisticheGradoSfida.find(gs => gs.gradoSfida === gradoSfida);
     const nuovoNome = nomePersonaggio.trim() !== '' ? nomePersonaggio.trim() : this.getNomeRandom();
-
+    const nuoviHP = puntiFerita ? puntiFerita 
+                  : matchGradoSfida?.puntiFerita ?? 0;
     if (!nuovoNome || !nomeSquadra) {
       console.error("Errore", { nomeSquadra, nuovoNome });
       return;
@@ -82,7 +82,7 @@ export class CombattimentoService {
     const nuovoCombattente: Combattente = {
       id: nuovoNome,
       tipo: tipoCombettente,
-      puntiFerita: matchGradoSfida?.puntiFerita ?? 0,
+      puntiFerita: nuoviHP,
       danni: matchGradoSfida?.danniRound ?? 0,
       bonusAttacco: matchGradoSfida?.bonusAttacco ?? 0,
       classeArmatura: classeArmatura ? classeArmatura : matchGradoSfida?.classeArmatura ?? 10,
@@ -98,10 +98,11 @@ export class CombattimentoService {
   // Posiziona i combattenti su lati opposti della mappa
   posizionamento(mappa: Mappa, righe: number, colonne: number): void {
     if (!mappa || righe === 0 || colonne === 0) {
-      toast("Giocatore non inseribile nella mappa", "danger");
+      toast("Mappa non valida", "danger");
       return;
     }
 
+    // reset della mappa
     const lettereRighe = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
     for (let i = 0; i < righe; i++) {
       const letteraRiga = lettereRighe[i];
@@ -110,24 +111,28 @@ export class CombattimentoService {
       }
     }
 
+    // recupero le squadre
     const squadre = [...new Set(this.combattenti().map(c => c.squadra))];
-
     if (squadre.length === 0) {
       toast("Nessuna squadra da posizionare", "danger");
       return;
     }
 
+    // posizionamento delle squadre
     squadre.forEach((squadra, index) => {
       const combattentiSquadra = this.combattenti().filter(c => c.squadra === squadra);
       const isLeft = index % 2 === 0;
+      // distribuzione uniforme sulla colonna
       const step = Math.max(1, Math.floor(righe / combattentiSquadra.length));
 
       combattentiSquadra.forEach((combattente, indiceCombattente) => {
+        // calcolo la riga e la colonna
         const riga = String.fromCharCode(65 + indiceCombattente * step);
         const colonna = isLeft ? 0 : colonne - 1;
-
+        // se esiste riga e colonne sono nel range della mappa
         if (mappa[riga] && colonna >= 0 && colonna < mappa[riga].length) {
-          mappa[riga][colonna] = combattente.id;
+          // inserisce l'id del combattente nella mappa
+          mappa[riga][colonna] = combattente.id; 
         }
       });
     });
@@ -180,7 +185,7 @@ export class CombattimentoService {
     attaccante.target = bersaglio.id;
 
     console.log(
-      `${superaClasseArmatura ? 'COLPITO' : 'mancato'} \n`,
+      `${superaClasseArmatura ? 'X\tCOLPITO' : '-\tmancato'} \n`,
       `\t${attaccante.id} ->\t ${bersaglio.id} \n`,
       `\t(TPC=${tiroPerColpire}) \t (CA=${bersaglio.classeArmatura})`
     );
@@ -188,31 +193,32 @@ export class CombattimentoService {
 
   // Una squadra attacca l'altra
   turnoSquadra(idSquadra: string): void {
+    // 1) identifica attori
     let squadra: Combattente[] = [];
     let nemici: Combattente[] = [];
 
-    this.combattenti().forEach(combattente => {
+    for (const combattente of this.combattenti()) {
       if (combattente.squadra === idSquadra) {
         squadra.push(combattente);
       } else {
         nemici.push(combattente);
       }
-    });
+    }
 
     if (squadra.length === 0 || nemici.length === 0) {
       toast("Squadra o nemici non trovati", "danger");
       return;
     }
 
-    console.log("\n\nSQUADRA:", idSquadra);
-
-    squadra.forEach(attaccante => {
+    // esegue tiri per colpire
+    console.log(`\n\nTurno squadra '${idSquadra}'`);
+    for (const attaccante of squadra) {
       let nemicoPrescelto = this.getCombattenteById(attaccante.target);
       if (!nemicoPrescelto) {
         nemicoPrescelto = nemici[Math.floor(Math.random() * nemici.length)];
       }
 
       this.tiraPerColpire(attaccante, nemicoPrescelto);
-    });
+    }
   }
 }
