@@ -185,40 +185,101 @@ export class CombattimentoService {
     attaccante.target = bersaglio.id;
 
     console.log(
-      `${superaClasseArmatura ? 'X\tCOLPITO' : '-\tmancato'} \n`,
-      `\t${attaccante.id} ->\t ${bersaglio.id} \n`,
+      `${superaClasseArmatura ? 'X\tCOLPITO' : '*\tMancato'} \n`,
+      `\t${attaccante.id.substring(0, 7)} ->\t ${bersaglio.id} \n`,
       `\t(TPC=${tiroPerColpire}) \t (CA=${bersaglio.classeArmatura})`
     );
   }
 
   // Una squadra attacca l'altra
-  turnoSquadra(idSquadra: string): void {
-    // 1) identifica attori
-    let squadra: Combattente[] = [];
-    let nemici: Combattente[] = [];
-
-    for (const combattente of this.combattenti()) {
-      if (combattente.squadra === idSquadra) {
-        squadra.push(combattente);
-      } else {
-        nemici.push(combattente);
-      }
-    }
+  turnoSquadra(idSquadra: string, mappa: Mappa): void {
+    // 1) Identifica attori
+    const squadra = this.combattenti().filter(c => c.squadra === idSquadra);
+    const nemici = this.combattenti().filter(c => c.squadra !== idSquadra);
 
     if (squadra.length === 0 || nemici.length === 0) {
       toast("Squadra o nemici non trovati", "danger");
       return;
     }
 
-    // esegue tiri per colpire
+    // 2) Fase d'azione per ogni combattente della squadra
     console.log(`\n\nTurno squadra '${idSquadra}'`);
     for (const attaccante of squadra) {
-      let nemicoPrescelto = this.getCombattenteById(attaccante.target);
-      if (!nemicoPrescelto) {
-        nemicoPrescelto = nemici[Math.floor(Math.random() * nemici.length)];
-      }
-
+      // Sceglie il nemico 
+      const nemicoPrescelto = this.scegliNemico(attaccante, nemici, mappa);
+      // Attacca il nemico 
       this.tiraPerColpire(attaccante, nemicoPrescelto);
     }
   }
+
+  /*  Sceglie il nemico da attaccare
+    - dipende da: convertiRigaInNumero() e coordinateCombattente()
+  */
+  private scegliNemico(attaccante: Combattente, nemici: Combattente[], mappa?: Mappa): Combattente {
+    if(nemici.length === 0){
+      console.error("non risultano nemici disponibili");
+      return null as unknown as Combattente;
+    }
+
+    // 1) Se esiste già un target, lo cerco nella mappa
+    if (attaccante.target) {
+      const nemico = this.getCombattenteById(attaccante.target);
+      if (nemico) return nemico;
+    }
+
+    // 2) Nemico a caso
+    function nemicoCasuale() {
+      return nemici[Math.floor(Math.random() * nemici.length)];
+    }
+    // mappa non disponibile
+    if(!mappa) return nemicoCasuale();
+    
+    // Se non trovo le coordinate dell'attaccante 
+    const coordinateAttaccante = this.coordinateCombattente(mappa, attaccante.id);
+    if (!coordinateAttaccante) {
+      // ritorno un nemico random
+      console.warn(`${attaccante.id} non trova un avversario. Perciò sceglie casualmente`);
+      return nemicoCasuale();
+    }
+
+    // 3) Calcolo la distanza tra l'attaccante e ogni nemico
+    let nemicoPiuVicino = nemici[0];
+    let distanzaMinima = Infinity;
+
+    for (const nemico of nemici) {
+      const coordinateNemico = this.coordinateCombattente(mappa, nemico.id);
+      if (!coordinateNemico) continue;
+
+      const distanza = Math.sqrt(
+        Math.pow(coordinateNemico.colonna - coordinateAttaccante.colonna, 2) +
+        Math.pow(this.convertiRigaInNumero(coordinateNemico.riga) 
+                -this.convertiRigaInNumero(coordinateAttaccante.riga), 2)
+      );
+
+      if (distanza < distanzaMinima) {
+        distanzaMinima = distanza;
+        nemicoPiuVicino = nemico;
+      }
+    }
+
+    return nemicoPiuVicino;
+  }
+
+  private coordinateCombattente(mappa: Mappa, idCombattente: string)
+    : { riga: string; colonna: number } | null {
+    for (const [riga, colonne] of Object.entries(mappa)) {
+      const index = colonne.findIndex(id => id === idCombattente);
+      if (index !== -1) {
+        return { riga, colonna: index };
+      }
+    }
+    return null;
+  }
+
+  // 'A' -> 0, 'B' -> 1, etc.
+  private convertiRigaInNumero(riga: string): number {
+    return riga.charCodeAt(0) - 65; 
+  }
+
+
 }

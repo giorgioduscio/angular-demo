@@ -208,7 +208,7 @@ export class MappeComponent {
       const idSquadra = comando.split(" ")[1];
       if(!idSquadra) return toast("ID squadra non valido", "danger");
 
-      this.comb.turnoSquadra(idSquadra);
+      this.comb.turnoSquadra(idSquadra, this.mappa.mappa());
       return;
     }
 
