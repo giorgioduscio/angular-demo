@@ -198,32 +198,41 @@ export class MappeComponent {
       if(!idPersonaggio) return toast("ID personaggio non valido", "danger");
 
       this.comb.removeCombattente(idPersonaggio);
+      this.mappa.rimuoviSimbolo(idPersonaggio);
       return;
     }
 
     // SQUADRA ATTACCA AUTOMATICAMENTE
     // "turno idSquadra"
+    // FIX: incude il turno di un personaggio
     const turnoMatch = comando.startsWith("turno ");
     if (turnoMatch) {
       const idSquadra = comando.split(" ")[1];
       if(!idSquadra) return toast("ID squadra non valido", "danger");
 
-      console.log(`\n\nturno squadra '${idSquadra}'`);
+      console.log(`\n\nTurno squadra '${idSquadra}'`);
       const {membri, avversari} =this.comb.getMembriSquadra(idSquadra)
       for(const membro of membri) {
         const nemicoScelto = this.comb.scegliNemico(membro, avversari, this.mappa.mappa());
-        let sonoPortata = false;
-        const muovi = () => {
-          for (let i = 0; i < 6; i++) {
-            sonoPortata = this.comb.sonoPortata(membro, nemicoScelto, this.mappa.mappa());
-            if(sonoPortata) break;
-            this.comb.movimento(membro, nemicoScelto, this.mappa.mappa);
-          }
+        if(!nemicoScelto){ 
+          console.error(membro.id, "non trova nemico");
+          continue;
         }
-
-        muovi();
-        if(sonoPortata) this.comb.tiraPerColpire(membro, nemicoScelto);
-        // else muovi(); // azione scatto
+        
+        let sonoPortata = false;
+        let i =6
+        let haAttaccato = false;
+        const interval = setInterval(() => {
+          sonoPortata = this.comb.sonoPortata(membro, nemicoScelto, this.mappa.mappa());
+          if(!sonoPortata) this.comb.movimento(membro, nemicoScelto, this.mappa.mappa);
+          else {
+            this.comb.tiraPerColpire(membro, nemicoScelto);
+            haAttaccato = true;
+          }
+          // gestione intervallo
+          i--;
+          if(i <= 0 || haAttaccato) clearInterval(interval);
+        }, 500);
       }
       
       return;

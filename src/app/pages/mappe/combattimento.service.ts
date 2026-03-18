@@ -175,19 +175,18 @@ export class CombattimentoService {
   tiraPerColpire(attaccante: Combattente, bersaglio: Combattente): void {
     const tiroPerColpire = attaccante.bonusAttacco + Math.floor(Math.random() * 20);
     const superaClasseArmatura = tiroPerColpire >= bersaglio.classeArmatura;
+    const danni =attaccante.danni -Math.floor(Math.random() *8);
 
     if (superaClasseArmatura) {
-      this.vitalitaPersonaggio(bersaglio.id, -attaccante.danni);
-    } else {
-      toast(`${attaccante.id} manca ${bersaglio.id}`);
-    }
+      this.vitalitaPersonaggio(bersaglio.id, -danni);
+    } 
 
     attaccante.target = bersaglio.id;
 
     console.log(
-      `${superaClasseArmatura ? 'X\tCOLPITO' : '*\tMancato'} \n`,
-      `\t${attaccante.id.substring(0, 7)} ->\t ${bersaglio.id} \n`,
-      `\t(TPC=${tiroPerColpire}) \t (CA=${bersaglio.classeArmatura})`
+      `${superaClasseArmatura ? 'X' : '*'}\t`,
+      `${attaccante.id.substring(0, 7)} ${superaClasseArmatura ? 'COLPISCE' : 'manca'} ${bersaglio.id} \n`,
+      `\t(TPC=${tiroPerColpire}) \t\t (CA=${bersaglio.classeArmatura})`
     );
   }
 
@@ -202,53 +201,56 @@ export class CombattimentoService {
   /*  Sceglie il nemico da attaccare
     - dipende da: convertiRigaInNumero() e coordinateCombattente()
   */
-  scegliNemico(attaccante: Combattente, nemici: Combattente[], mappa?: Mappa): Combattente {
+  scegliNemico(attaccante: Combattente, nemici: Combattente[], mappa?: Mappa): Combattente | null {
     if(nemici.length === 0){
       console.error("non risultano nemici disponibili");
-      return null as unknown as Combattente;
+      return null;
     }
 
-    // 1) Se esiste già un target, lo cerco nella mappa
-    if (attaccante.target) {
-      const nemico = this.getCombattenteById(attaccante.target);
-      if (nemico) return nemico;
-    }
+    //  Se esiste già un target, lo cerca nella mappa
+        if (attaccante.target) {
+          const nemico = this.getCombattenteById(attaccante.target);
+          if (nemico) return nemico;
+        }
 
-    // 2) Nemico a caso
-    function nemicoCasuale() {
-      console.warn(`${attaccante.id} sceglie nemico casuale`, mappa ? "" : "MAPPA ASSENTE");
-      return nemici[Math.floor(Math.random() * nemici.length)];
-    }
-    // mappa non disponibile
-    if(!mappa) return nemicoCasuale();
-    
-    // Se non trovo le coordinate dell'attaccante 
-    const coordinateAttaccante = this.coordinateCombattente(mappa, attaccante.id);
-    if (!coordinateAttaccante) {
-      // ritorno un nemico random
-      console.warn(`${attaccante.id} non trova un avversario. Perciò sceglie casualmente`);
-      return nemicoCasuale();
-    }
+        // mappa non disponibile
+        if(!mappa){
+          console.error("mappa non disponibile");
+          return null;
+        }
+        
+        // coordinate dell'attaccante 
+        const coordinateAttaccante = this.coordinateCombattente(mappa, attaccante.id);
+        if (!coordinateAttaccante) {
+          console.error(`Coordinate di ${attaccante.id} non trovate`);
+          return null;
+        }
 
-    // 3) Calcolo la distanza tra l'attaccante e ogni nemico
-    let nemicoPiuVicino = nemici[0];
-    let distanzaMinima = Infinity;
+    //  Calcolo la distanza tra l'attaccante e ogni nemico
+        let nemicoPiuVicino = nemici[0];
+        let distanzaMinima = Infinity;
 
-    for (const nemico of nemici) {
-      const coordinateNemico = this.coordinateCombattente(mappa, nemico.id);
-      if (!coordinateNemico) continue;
+        for (const nemico of nemici) {
+          const coordinateNemico = this.coordinateCombattente(mappa, nemico.id);
+          if (!coordinateNemico) continue;
 
-      const distanza = Math.sqrt(
-        Math.pow(coordinateNemico.colonna - coordinateAttaccante.colonna, 2) +
-        Math.pow(this.convertiRigaInNumero(coordinateNemico.riga) 
-                -this.convertiRigaInNumero(coordinateAttaccante.riga), 2)
-      );
+          const distanza = Math.sqrt(
+            Math.pow(coordinateNemico.colonna - coordinateAttaccante.colonna, 2) +
+            Math.pow(this.convertiRigaInNumero(coordinateNemico.riga) 
+                    -this.convertiRigaInNumero(coordinateAttaccante.riga), 2)
+          );
 
-      if (distanza < distanzaMinima) {
-        distanzaMinima = distanza;
-        nemicoPiuVicino = nemico;
-      }
-    }
+          if (distanza < distanzaMinima) {
+            distanzaMinima = distanza;
+            nemicoPiuVicino = nemico;
+          }
+        }
+
+        if(!nemicoPiuVicino) {
+          console.error(attaccante.id, "non trova nemici vicini");
+          return null;
+        }
+        // console.log(`${attaccante.id} sceglie ${nemicoPiuVicino.id}`);
 
     return nemicoPiuVicino;
   }
@@ -258,6 +260,9 @@ export class CombattimentoService {
     const coordAvversario = this.coordinateCombattente(mappa, avversario.id);
 
     if (!coordAttaccante || !coordAvversario) {
+      console.error(`coordinate assenti\n`, 
+                    `${attaccante.id} (${coordAttaccante?.riga}-${coordAttaccante?.colonna})\n`, 
+                    `${avversario.id}(${coordAvversario?.riga}-${coordAvversario?.colonna})`);
       return false;
     }
 
@@ -280,73 +285,66 @@ export class CombattimentoService {
     return false;
   }
 
-
   movimento(attaccante: Combattente, avversario: Combattente, mappa: WritableSignal<Mappa>): void {
-    // Trova le coordinate dell'attaccante e dell'avversario
+    // trova coordinate
     const coordAttaccante = this.coordinateCombattente(mappa(), attaccante.id);
     const coordAvversario = this.coordinateCombattente(mappa(), avversario.id);
 
     if (!coordAttaccante || !coordAvversario) {
-      console.error("Coordinate non trovate per attaccante o avversario");
+      console.error(`Coordinate non trovate:
+        ${attaccante.id}: ${coordAttaccante?.riga}-${coordAttaccante?.colonna}
+        ${avversario.id}: ${coordAvversario?.riga}-${coordAvversario?.colonna}`);
       return;
     }
 
-    // Calcola la direzione del movimento (1 quadrato verso l'avversario)
     const rigaAttaccante = this.convertiRigaInNumero(coordAttaccante.riga);
-    const rigaAvversario = this.convertiRigaInNumero(coordAvversario.riga);
     const colonnaAttaccante = coordAttaccante.colonna;
+    const rigaAvversario = this.convertiRigaInNumero(coordAvversario.riga);
     const colonnaAvversario = coordAvversario.colonna;
 
-    // Determina la direzione preferita (verso l'avversario)
-    const direzioneRigaPreferita = rigaAttaccante < rigaAvversario ? 1 : (rigaAttaccante > rigaAvversario ? -1 : 0);
-    const direzioneColonnaPreferita = colonnaAttaccante < colonnaAvversario ? 1 : (colonnaAttaccante > colonnaAvversario ? -1 : 0);
-
-    // Genera le 3 celle adiacenti prioritarie (sinistra, destra, sopra/sotto)
-    const possibiliPosizioni = [
-      // 1. Direzione preferita (verso l'avversario)
-      {
-        riga: String.fromCharCode(65 + rigaAttaccante + direzioneRigaPreferita),
-        colonna: colonnaAttaccante + direzioneColonnaPreferita,
-      },
-      // 2. Alternativa orizzontale
-      {
-        riga: coordAttaccante.riga,
-        colonna: colonnaAttaccante + (direzioneColonnaPreferita !== 0 ? -direzioneColonnaPreferita : 1),
-      },
-      // 3. Alternativa verticale
-      {
-        riga: String.fromCharCode(65 + rigaAttaccante + (direzioneRigaPreferita !== 0 ? -direzioneRigaPreferita : 1)),
-        colonna: colonnaAttaccante,
-      },
+    // Direzioni possibili (8 celle adiacenti)
+    const direzioni = [
+      { dr: -1, dc: -1 }, { dr: -1, dc: 0 }, { dr: -1, dc: 1 },
+      { dr: 0, dc: -1 },                     { dr: 0, dc: 1 },
+      { dr: 1, dc: -1 },  { dr: 1, dc: 0 }, { dr: 1, dc: 1 }
     ];
 
-    // Trova la prima posizione valida e libera
-    let nuovaPosizione = null;
-    for (const pos of possibiliPosizioni) {
-      if (
+    // Genera tutte le posizioni adiacenti valide
+    const possibiliPosizioni = direzioni
+      .map(direzione => ({
+        riga: String.fromCharCode(65 + rigaAttaccante + direzione.dr),
+        colonna: colonnaAttaccante + direzione.dc,
+        // Ritorna il quadrato della distanza euclidea tra due punti
+        distanza: Math.sqrt(
+          Math.pow(rigaAttaccante + direzione.dr - rigaAvversario, 2) +
+          Math.pow(colonnaAttaccante + direzione.dc - colonnaAvversario, 2)
+        )
+      }))
+      .filter(pos =>
         mappa()[pos.riga] !== undefined &&
         pos.colonna >= 0 &&
         pos.colonna < mappa()[pos.riga].length &&
         mappa()[pos.riga][pos.colonna] === ''
-      ) {
-        nuovaPosizione = pos;
-        break;
-      }
-    }
+      )
+      .sort((a, b) => a.distanza - b.distanza); // Ordina per vicinanza all'avversario
 
-    // Se trovata una posizione valida, aggiorna la mappa
+    // Scegli la prima posizione valida (più vicina all'avversario)
+    const nuovaPosizione = possibiliPosizioni[0];
     if (nuovaPosizione) {
+      // console.log(`${attaccante.id} in ${nuovaPosizione.riga}${nuovaPosizione.colonna}`);
       const nuovaMappa = structuredClone(mappa());
       nuovaMappa[coordAttaccante.riga][coordAttaccante.colonna] = '';
       nuovaMappa[nuovaPosizione.riga][nuovaPosizione.colonna] = attaccante.id;
       mappa.set(nuovaMappa);
+    } else {
+      console.warn(`${attaccante.id} non può muoversi: tutte le celle adiacenti sono occupate.`);
     }
   }
 
   private coordinateCombattente(mappa: Mappa, idCombattente: string)
     : { riga: string; colonna: number } | null {
     for (const [riga, colonne] of Object.entries(mappa)) {
-      const index = colonne.findIndex(id => id === idCombattente);
+      const index = colonne.findIndex(id => id.toLowerCase() === idCombattente.toLowerCase());
       if (index !== -1) {
         return { riga, colonna: index };
       }
@@ -361,5 +359,6 @@ export class CombattimentoService {
 
 
 }
+
 
 

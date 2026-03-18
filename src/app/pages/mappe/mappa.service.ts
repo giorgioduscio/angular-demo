@@ -58,27 +58,49 @@ export class MappaService {
   // AGGIUNGE SIMBOLI
   setMappa(riga: string, colonna: number, simbolo: string): void {
     const mappaCorrente = this.mappa();
+    const nuovaMappa = JSON.parse(JSON.stringify(mappaCorrente));
     if (!mappaCorrente[riga] || colonna < 0 || colonna >= this.colonne()) {
       toast(`Posizione "${riga}${colonna + 1}" non valida!`, 'danger');
       return;
     }
 
+    // reset della stringa del giocatore
     if (simbolo.length > 1) {
       for (const rowKey of Object.keys(mappaCorrente)) {
         for (let i = 0; i < mappaCorrente[rowKey].length; i++) {
           if (mappaCorrente[rowKey][i].toLowerCase() === simbolo.toLowerCase()) {
-            mappaCorrente[rowKey][i] = '';
+            nuovaMappa[rowKey][i] = '';
           }
         }
       }
     }
 
-    // Crea una nuova copia della mappa per evitare mutazioni dirette
-    const nuovaMappa = { ...mappaCorrente };
-    nuovaMappa[riga][colonna] = simbolo;
+    // aggiunge simbolo | sposta giocatore 
+    const simboloDiverso = nuovaMappa[riga][colonna] !== simbolo;
+    const confermaSimbolo = nuovaMappa[riga][colonna].length <2;
+    if (simboloDiverso && confermaSimbolo) {
+      nuovaMappa[riga][colonna] = simbolo;
+    } else {
+      return console.error("stessa stringa o è un giocatore");
+    }
+    
     this.mappa.set(nuovaMappa);
 
     toast(`"${simbolo}" inserito in ${riga}${colonna + 1}!`, 'success');
+  }
+
+  rimuoviSimbolo(simbolo: string): void {
+    const mappaCorrente = this.mappa();
+    const nuovaMappa = JSON.parse(JSON.stringify(mappaCorrente));
+    for (const rowKey of Object.keys(mappaCorrente)) {
+      for (let i = 0; i < mappaCorrente[rowKey].length; i++) {
+        if (mappaCorrente[rowKey][i].toLowerCase() === simbolo.toLowerCase()) {
+          nuovaMappa[rowKey][i] = '';
+        }
+      }
+    }
+    this.mappa.set(nuovaMappa);
+    toast(`"${simbolo}" rimosso!`, 'success');
   }
 
   // SALVATAGGIO MAPPE
