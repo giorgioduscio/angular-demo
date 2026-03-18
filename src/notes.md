@@ -35,5 +35,7 @@ Esempi:
 3. incantesimi: sezione attacchi ed incantesimi. aggiungere incantesimi
 
 # mappe
-- problema nel movimento 
-(9x9> a: gs1 x3 distanza > b: gs1 x3 > rosso in b3 > turno a)
+- movimento: come si comporta se la strada è occupata?
+- TS nemici: se volessi tirare d20+5 per 10 volte?
+- lista turni
+- migliora tabella

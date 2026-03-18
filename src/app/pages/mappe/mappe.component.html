@@ -5,7 +5,7 @@
   </div>
 
   <!-- Header: strumenti -->
-  <div class="py-3 d-grid gap-2 responsive-200px">
+  <section class="py-3 d-grid gap-2 responsive-200px">
     <!-- Cronologia dei tiri -->
     <div *ngIf="tiri.length > 0">
       <h3>Cronologia dei tiri</h3>
@@ -29,7 +29,7 @@
         </span>
       </div>
     </div>
-  </div>
+  </section>
   <!-- Header: strumenti -->
 
   <!-- Main: Griglia della mappa -->
@@ -81,8 +81,8 @@
     <!-- placeholder -->
 
     <!-- TABELLA -->
-    <ng-template #mappaTemplate class="table-responsive">
-      <table class="w-min-content m-auto table table-sm table-primary table-borderless table-striped table-hover table-striped-columns">
+    <ng-template #mappaTemplate class="table-responsive border">
+      <table class="w-min-content m-auto table table-sm table-dark table-borderless table-striped table-hover table-striped-columns">
         <thead>
           <tr>
             <th></th>
@@ -98,15 +98,16 @@
           <!-- Righe della tabella -->
           <tr *ngFor="let rowKey of mappa_getRighe()">
             <!-- Intestazione della riga (lettera) -->
-            <th class="text-center p-2">{{ rowKey }}</th>
+            <th class="text-center align-middle p-2">{{ rowKey }}</th>
             <!-- Celle della riga -->
             <td *ngFor="let cellValue of mappa.mappa()[rowKey]; let j = index"
                 [class.table-warning]="cellValue === '-'"
-                [attr.data-cell]="rowKey + (j + 1)">
+                [attr.data-cell]="rowKey + (j + 1)"
+                class="align-middle">
               <app-cell [cellValue]="cellValue"></app-cell>
             </td>
             <!-- Intestazione della riga (lettera) -->
-            <th class="text-center p-2">{{ rowKey }}</th>
+            <th class="text-center align-middle p-2">{{ rowKey }}</th>
           </tr>
         </tbody>
         <tfoot>

@@ -7,20 +7,23 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
   standalone: true,
   imports: [CommonModule],
   template:`
-  <div class="min-w-60px min-h-60px text-center">
+  <div class="w-80px h-80px text-center">
     @if(combattente) {
-      <div class="rounded p-2" [style.background]="color">
-        <h6 class="small text-nowrap">
-          {{ combattente!.id }}
-          <i class="bi" [class.bi-shield]="combattente.tipo=='mischia'" 
-                        [class.bi-arrow-bar-right]="combattente.tipo=='distanza'"></i>
+      <div class="rounded py-2" [style.background]="color">
+        <h6 class="small d-grid cols-1fr-auto px-2">
+          <!-- <i class="bi" [class.bi-shield-fill]="combattente.tipo=='mischia'" 
+                        [class.bi-arrow-bar-right]="combattente.tipo=='distanza'"></i> -->
+          <span class="text-truncate">{{ combattente!.id }}</span>
+          <img [alt]="combattente.id" [src]="srcValue"
+                class="w-20px h-20px">
         </h6>
-        <div class="text-nowrap">
-          <i class="bi bi-heart me-1"></i>
-          <small>{{ combattente!.puntiFerita }}</small>
-        </div>
-        <div class="text-nowrap">
-          <i class="bi bi-shield-shaded me-1"></i>
+        <!-- STAT -->
+        <div class="d-grid cols-1fr-1fr-1fr-1fr">
+          <small class="bi bi-heart" 
+                 [class.allerta]="combattente!.puntiFerita < 10"></small>
+          <small [class.allerta]="combattente!.puntiFerita < 10">
+            {{ combattente.puntiFerita }}</small>
+          <small class="bi bi-shield-shaded ms-1"></small>
           <small>{{ combattente!.classeArmatura }}</small>
         </div>
       </div>
@@ -31,11 +34,18 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
       </div>
     }
   </div>
+  <style>
+    .allerta{
+      color: #ff7979ff;
+      font-weight: 900;
+    }
+  </style>
   `
 })
 export class CellComponent {
   @Input() cellValue: string = '';
   combattente :Combattente | undefined;
+  srcValue = '';
 
   constructor(private comb: CombattimentoService) {
     effect(()=>{
@@ -46,14 +56,18 @@ export class CellComponent {
   ngOnInit(): void {
     this.combattente = this.comb.getCombattenteById(this.cellValue);
     if (this.combattente) {
-      this.combattente!.id = this.combattente!.id.charAt(0).toUpperCase() + this.combattente!.id.slice(1);
-      this.color = this.setColor(this.combattente!.squadra);
+      this.combattente.id = this.combattente.id.charAt(0).toUpperCase() + this.combattente.id.slice(1);
+      this.color = this.setColor(this.combattente.squadra);
+      this.srcValue = this.combattente.tipo=='distanza' 
+                      ? "/assets/distanza.png"
+                      : "/assets/mischia.jpg";
     }
-    if (!this.combattente && this.cellValue.length > 1) console.warn(this.cellValue, "non trovato");
+    if (!this.combattente && this.cellValue.length > 1) 
+      console.warn(this.cellValue, "non trovato");
   }
 
   // Assegna un colore casuale a una squadra
-  color = ''; // Inizializza come stringa vuota
+  color = ''; 
   setColor(nomeSquadra: string): string {
     const range = {
       a: '#aa0000ff',
