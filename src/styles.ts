@@ -1,11 +1,11 @@
-
 function injectDynamicStyles() {
   // Proprietà standard (larghezza, altezza, ecc.)
   const standardProperties = ['w', 'h', 'max-w', 'min-w', 'max-h', 'min-h'];
 
   // Valori standard (misure in pixel e valori speciali)
   const standardValues = [
-    '40px', '60px', '80px', '100px', '150px', '200px', '300px', '400px',
+    '10px', '20px', '30px', '40px', '50px', '60px', '70px', '80px', '90px', 
+    '100px', '150px', '200px', '300px', '400px',
     '500px', '600px', '700px', '800px', '900px', '1000px', '1500px',
     '2000px', '2500px', '3000px', 'max-content', 'min-content', 'fit-content'
   ];
@@ -68,7 +68,7 @@ function injectDynamicStyles() {
       const className = `${prop}-${value}`;
       cssRules += `
         .${className} {
-          ${cssProperty}: ${value};
+          ${cssProperty}: ${value} !important;
         }
       `;
     }
@@ -86,10 +86,32 @@ function injectDynamicStyles() {
     `;
   }
 
+  // griglia flessibile
+  const steps = ['100px', '150px', '200px', '250px', '300px', '350px', '400px'];
+  steps.forEach(step => {
+    cssRules += `
+      .d-grid.responsive-${step} {
+        grid-template-columns: repeat(auto-fit, minmax(${step}, 1fr));
+      }
+    `;
+  });
+
+  // flex table
+  cssRules += `
+    .d-flex-table {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .d-flex-table > * {
+      flex: 1 1 auto;
+    }
+  `;
+  
   // Inietta lo stile nel DOM
   style.textContent = cssRules;
   document.head.appendChild(style);
 }
+
 
 export default function customStyle() {
   // Esegui la funzione per iniettare gli stili

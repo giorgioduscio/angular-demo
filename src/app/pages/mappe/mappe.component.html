@@ -5,10 +5,10 @@
   </div>
 
   <!-- Header: strumenti -->
-  <div class="py-3 d-grid gap-2" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+  <div class="py-3 d-grid gap-2 responsive-200px">
     <!-- Cronologia dei tiri -->
     <div *ngIf="tiri.length > 0">
-      <h3 class="h4">Cronologia dei tiri</h3>
+      <h3>Cronologia dei tiri</h3>
       <div class="overflow-x-auto">
         <div class="d-flex gap-2">
           <small *ngFor="let tiro of tiri"
@@ -35,8 +35,8 @@
   <!-- Main: Griglia della mappa -->
   <section class="py-3">
     <!-- Messaggio placeholder se la mappa non è stata generata -->
-    <div *ngIf="!mappa.righe() || !mappa.colonne(); else mappaTemplate" class="d-grid gap-2"
-          style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div *ngIf="!mappa.righe() || !mappa.colonne(); else mappaTemplate" 
+          class="d-flex-table gap-2">
       <!-- Contenuto placeholder -->
       <div class="text-bg-c2 p-2 border rounded">
         <h5>Mappe</h5>
