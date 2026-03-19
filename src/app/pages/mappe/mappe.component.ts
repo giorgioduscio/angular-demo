@@ -13,10 +13,11 @@ import { DiceService } from './dice.service';
   templateUrl: './mappe.component.html',
 })
 export class MappeComponent {
-  constructor(  public comb: CombattimentoService,
-                public mappa: MappaService, 
-                public dice: DiceService,
-              ) {
+  constructor(
+    public comb: CombattimentoService,
+    public mappa: MappaService,
+    public dice: DiceService,
+  ) {
     document.title = "Mappe";
   }
 
@@ -44,9 +45,9 @@ export class MappeComponent {
   }
 
   // Esegue un singolo comando
-  comandi= {
+  comandi = {
     tiro_dadi: {
-      pattern:  /^(\d*)d(\d+)([+-]\d*)?x?(\d*)$/i, //FIX: deve includere "d20","3d4","3d6+5","3d+5x10"
+      pattern: /^(\d*)d(\d+)([+-]\d*)?x?(\d*)$/i,
       execute: (comando: string) => {
         const match_tiro_dadi = comando.match(this.comandi.tiro_dadi.pattern);
         if (match_tiro_dadi) {
@@ -54,7 +55,7 @@ export class MappeComponent {
           const max = parseInt(match_tiro_dadi[2], 10);
           const modifier = match_tiro_dadi[3] ? parseInt(match_tiro_dadi[3], 10) : 0;
           const ripetizioni = match_tiro_dadi[4] ? parseInt(match_tiro_dadi[4], 10) : 1;
-          for (let i = 0; i < ripetizioni; i++){
+          for (let i = 0; i < ripetizioni; i++) {
             this.dice.setTiri(qta, max, modifier);
           }
         }
@@ -121,56 +122,84 @@ export class MappeComponent {
         }
       }
     },
-    creazione_squadre_personaggi: {
-      pattern: /^([a-zA-Z]):\s*(.+)$/i,
+    creazione_npc: {
+      pattern: (comando: string): boolean => {
+        return /^[a-zA-Z]:\s*gs\d+\/\d+(?:\s+x\d+)?(?:\s+distanza|\s+mischia)?$/i.test(comando);
+      },
       execute: (comando: string) => {
-        const squadreMatch = comando.match(/^([a-zA-Z]):\s*(.+)$/i);
-        if (squadreMatch) {
-          const [, nomeSquadra, prompt_stringa] = squadreMatch;
-          const prompt = prompt_stringa.split(' ');
+        const match = comando.match(/^([a-zA-Z]):\s*(gs\d+\/\d+(?:\s+x\d+)?(?:\s+distanza|\s+mischia)?)$/i);
+        if (!match) return;
 
-          function extractParam(prefix: string, defaultValue: any = 0) {
-            const param = prompt.find(p => p.includes(prefix));
-            return param ? Number(param.replace(prefix, '')) || defaultValue : defaultValue;
-          };
+        const [, nomeSquadra, promptStringa] = match;
+        const prompt = promptStringa.split(/\s+/);
 
-          const gradoSfida = prompt.find(p => p.includes('gs'))?.replace('gs', '') || '';
-          const bonusIniziativa = extractParam('+') || extractParam('-', 0);
-          const ripetizioni = extractParam('x', 1);
-          const classeArmatura = extractParam('ca', 0);
-          const hp = extractParam('hp', 0);
-          const tipo = prompt.includes('distanza') ? 'distanza' : 'mischia';
-
-          const reservedKeywords = ['distanza', 'mischia', 'gs', 'ca', 'hp', 'x', ':', '-', '+'];
-          const nomeGiocatore = prompt.find(p => !reservedKeywords.some(kw => p.includes(kw))) || '';
-
-          if (!nomeGiocatore && !gradoSfida) {
-            toast("Un giocatore non può avere grado sfida", "danger");
-            return;
-          }
-          if (nomeGiocatore && ripetizioni > 1) {
-            toast("Un giocatore è unico", "danger");
-            return;
-          }
-          if (nomeGiocatore && !classeArmatura) {
-            toast("Un giocatore deve avere una classe armatura", "danger");
-            return;
-          }
-          if (nomeGiocatore && !hp) {
-            toast("Un giocatore deve avere dei punti ferita", "danger");
-            return;
-          }
-          if (nomeGiocatore && !tipo) {
-            toast("Un giocatore non ha tipo", "danger");
-            return;
-          }
-
-          for (let i = 0; i < ripetizioni; i++) {
-            this.comb.addCombattente(nomeSquadra, bonusIniziativa, gradoSfida, nomeGiocatore, classeArmatura, hp, tipo);
-          }
-
-          this.eseguiComando('start');
+        // Estrazione grado sfida (es. "gs1/8")
+        const gsMatch = promptStringa.match(/gs(\d+)\/(\d+)/);
+        if (!gsMatch) {
+          toast("Formato grado sfida non valido", "danger");
+          return;
         }
+        const gradoSfida = `${gsMatch[1]}/${gsMatch[2]}`;
+
+        // Estrazione ripetizioni (es. "x3")
+        const xMatch = promptStringa.match(/x(\d+)/);
+        const ripetizioni = xMatch ? Number(xMatch[1]) : 1;
+
+        // Estrazione tipo (distanza/mischia)
+        let tipo: "mischia" | "distanza" = "mischia";
+        if (prompt.includes("distanza")) tipo = "distanza";
+
+        // Aggiungi NPC
+        for (let i = 0; i < ripetizioni; i++) {
+          this.comb.addCombattente(nomeSquadra, 0, gradoSfida, "", 0, 0, tipo);
+        }
+
+        this.eseguiComando('start');
+      }
+    },
+    creazione_giocatori: {
+      pattern: (comando: string): boolean => {
+        return /^[a-zA-Z]:\s*[a-zA-Z]+(?:\s+ca\d+)?(?:\s+hp\d+)?(?:\s+distanza|\s+mischia)?$/i.test(comando);
+      },
+      execute: (comando: string) => {
+        const match = comando.match(/^([a-zA-Z]):\s*([a-zA-Z]+(?:\s+ca\d+)?(?:\s+hp\d+)?(?:\s+distanza|\s+mischia)?)$/i);
+        if (!match) return;
+
+        const [, nomeSquadra, promptStringa] = match;
+        const prompt = promptStringa.split(/\s+/);
+
+        // Estrazione nome giocatore (es. "Luca")
+        const nomeGiocatore = prompt.find(p => !['ca', 'hp', 'distanza', 'mischia'].some(kw => p.startsWith(kw))) || '';
+
+        // Estrazione classe armatura (es. "ca17")
+        const caMatch = promptStringa.match(/ca(\d+)/);
+        const classeArmatura = caMatch ? Number(caMatch[1]) : 0;
+
+        // Estrazione punti ferita (es. "hp20")
+        const hpMatch = promptStringa.match(/hp(\d+)/);
+        const hp = hpMatch ? Number(hpMatch[1]) : 0;
+
+        // Estrazione tipo (distanza/mischia)
+        let tipo: "mischia" | "distanza" = "mischia";
+        if (prompt.includes("distanza")) tipo = "distanza";
+
+        // Validazioni
+        if (!nomeGiocatore) {
+          toast("Nome giocatore mancante", "danger");
+          return;
+        }
+        if (!classeArmatura) {
+          toast("Classe armatura mancante", "danger");
+          return;
+        }
+        if (!hp) {
+          toast("Punti ferita mancanti", "danger");
+          return;
+        }
+
+        // Aggiungi giocatore
+        this.comb.addCombattente(nomeSquadra, 0, "", nomeGiocatore, classeArmatura, hp, tipo);
+        this.eseguiComando('start');
       }
     },
     posizionamento: {
@@ -219,7 +248,7 @@ export class MappeComponent {
       }
     },
     turno: {
-      pattern: /^turno (\S+)$/i, // "turno <id>"
+      pattern: /^turno (\S+)$/i,
       execute: (comando: string) => {
         const parts = comando.split(" ");
         if (parts.length < 2) {
@@ -233,7 +262,6 @@ export class MappeComponent {
         // 1. Verifica se è un singolo personaggio (per nome/id)
         const personaggio = combattenti.find(c => c.id.toLowerCase() === id.toLowerCase());
         if (personaggio) {
-          // Trova un nemico casuale tra gli avversari
           const avversari = combattenti.filter(c => c.squadra !== personaggio.squadra);
           if (avversari.length === 0) {
             toast("Nessun avversario disponibile", "danger");
@@ -245,7 +273,6 @@ export class MappeComponent {
             return;
           }
 
-          // Logica di movimento/attacco (come nel codice originale, ma per un solo personaggio)
           let sonoPortata = false;
           let i = 6;
           let haAttaccato = false;
@@ -264,7 +291,7 @@ export class MappeComponent {
           return;
         }
 
-        // 2. Se non è un personaggio, tratta come squadra (logica originale)
+        // 2. Se non è un personaggio, tratta come squadra
         console.log(`\n\nTurno squadra '${id}'`);
         const { membri, avversari } = this.comb.getMembriSquadra(id);
         if (membri.length === 0) {
@@ -295,7 +322,7 @@ export class MappeComponent {
           }, 500);
         }
       }
-    },    
+    },
     reset: {
       pattern: /^reset$/i,
       execute: () => {
@@ -311,7 +338,14 @@ export class MappeComponent {
   eseguiComando(comando: string, input?: HTMLInputElement): void {
     let comandoTrovato = false;
     for (const [key, cmd] of Object.entries(this.comandi)) {
-      if (cmd.pattern.test(comando)) {
+      if (typeof cmd.pattern === 'function') {
+        if (cmd.pattern(comando)) {
+          cmd.execute(comando);
+          comandoTrovato = true;
+          if (input) input.value = '';
+          break;
+        }
+      } else if (cmd.pattern.test(comando)) {
         cmd.execute(comando);
         comandoTrovato = true;
         if (input) input.value = '';
@@ -323,5 +357,4 @@ export class MappeComponent {
       toast(`Comando "${comando}" non riconosciuto`, 'danger');
     }
   }
-
 }

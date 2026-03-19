@@ -199,7 +199,7 @@ export class CombattimentoService {
   tiraPerColpire(attaccante: Combattente, bersaglio: Combattente): void {
     const tiroPerColpire = attaccante.bonusAttacco + Math.floor(Math.random() * 20);
     const superaClasseArmatura = tiroPerColpire >= bersaglio.classeArmatura;
-    const danni =attaccante.danni -Math.floor(Math.random() *8);
+    const danni =(attaccante.danni);
 
     if (superaClasseArmatura) {
       this.vitalitaPersonaggio(bersaglio.id, -danni);

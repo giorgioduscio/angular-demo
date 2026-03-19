@@ -9,10 +9,10 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
   template:`
   <div class="w-80px h-80px text-center">
     @if(combattente) {
-      <div class="rounded py-2" [style.background]="color">
+      <div class="rounded py-2" 
+          [style.background]="color" 
+          [class.border]="feedback">
         <h6 class="small d-grid cols-1fr-auto px-2">
-          <!-- <i class="bi" [class.bi-shield-fill]="combattente.tipo=='mischia'" 
-                        [class.bi-arrow-bar-right]="combattente.tipo=='distanza'"></i> -->
           <span class="text-truncate">{{ combattente!.id }}</span>
           <img [alt]="combattente.id" [src]="srcValue"
                 class="w-20px h-20px">
@@ -46,10 +46,16 @@ export class CellComponent {
   @Input() cellValue: string = '';
   combattente :Combattente | undefined;
   srcValue = '';
+  feedback = false;
 
   constructor(private comb: CombattimentoService) {
     effect(()=>{
       this.combattente = this.comb.getCombattenteById(this.cellValue);
+
+      this.feedback =true
+      setTimeout(() => {
+        this.feedback =false
+      }, 500);
     })
   }
 

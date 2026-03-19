@@ -54,7 +54,8 @@
           <button class="w-100 btn d-flex align-items-center justify-content-between gap-2 rounded-0" 
                   (click)="eseguiComando('turno ' +combattente.id.toLowerCase())"
                   [class.border]="combattente.id === comb.giocatoreUltimoTurno"
-                  [style.background]="comb.getColoreSquadra(combattente.squadra)">
+                  [style.background]="comb.getColoreSquadra(combattente.squadra)"
+                  [disabled]="!combattente.bonusAttacco || !combattente.danni">
             <span>{{ combattente.id }}</span>
 
             <div class="d-flex justify-content-between align-items-center gap-2">
@@ -62,6 +63,8 @@
               <span class="d-none d-lg-inline">{{ combattente.puntiFerita }}</span>
               @if (combattente.id !== comb.giocatoreUltimoTurno) {
                 <i class="bi bi-caret-right"></i>
+              } @else {
+                <small class="bi bi-square-fill"></small>
               }
             </div>
           </button>
