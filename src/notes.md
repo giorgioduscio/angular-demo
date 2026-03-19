@@ -37,3 +37,4 @@ Esempi:
 # mappe
 - movimento: come si comporta se la strada è occupata?
 - autocomplete del prompt
+- pulsanti creazione npc

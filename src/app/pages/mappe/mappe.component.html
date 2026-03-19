@@ -16,8 +16,30 @@
     Pagina in sviluppo
   </div>
 
-  <!-- Header: strumenti -->
+  <!-- Header: mappe salvate, cronologia dadi -->
   <section class="py-3 d-grid gap-2 responsive-200px">
+    <!-- Mappe salvate -->
+    <div *ngIf="mappa.getNomi().length > 0">
+      <h3>Genera mappa</h3>
+      <div class="pb-3 d-flex gap-2 align-items-center overflow-x-auto">
+        <div class="btn-group">
+          <button class="btn btn-primary bi bi-house d-flex gap-2 align-items-center" 
+                  (click)="mappa.creaMappa(9, 9)">Stanza</button>
+          <button class="btn btn-primary bi bi-building d-flex gap-2 align-items-center" 
+                  (click)="mappa.creaMappa(12, 12)">Edificio</button>
+          <button class="btn btn-primary bi bi-tree-fill d-flex gap-2 align-items-center" 
+                  (click)="mappa.creaMappa(26, 12)">Piazza</button>
+        </div>
+
+        <button *ngFor="let nome of mappa.getNomi()"
+              class="btn btn-success text-nowrap"
+              (click)="mappa.caricaMappaSalvata(nome)">
+          <i class="bi bi-map me-2"></i>
+          <b>{{ nome }}</b>
+        </button>
+      </div>
+    </div>
+    
     <!-- Cronologia dei tiri -->
     <div *ngIf="dice.tiri.length > 0">
       <h3>Cronologia dei tiri</h3>
@@ -28,17 +50,6 @@
             {{ tiro }}
           </small>
         </div>
-      </div>
-    </div>
-    <!-- Mappe salvate -->
-    <div *ngIf="mappa.getNomi().length > 0">
-      <h3>Mappe salvate</h3>
-      <div class="pb-3 d-flex gap-2 align-items-center overflow-x-auto">
-        <span *ngFor="let nome of mappa.getNomi()"
-              class="border rounded p-2">
-          <i class="bi bi-map me-2"></i>
-          <b>{{ nome }}</b>
-        </span>
       </div>
     </div>
   </section>
@@ -171,10 +182,10 @@
 
   <!-- Footer: Input principale -->
   <div class="pt-5">
-    <div class="fixed-bottom p-1 shadow-lg text-bg-c1 z-1">
+    <div class="fixed-bottom p-1 shadow-lg z-1">
       <form (submit)="handlePrompt($event)"
             class="m-auto d-flex gap-2 min-w-250px max-w-400px">
-        <div class="w-100 border rounded p-1 d-flex align-items-center">
+        <div class="w-100 border rounded text-bg-c1 p-1 d-flex align-items-center">
           <label for="promptInput" class="visually-hidden">Prompt</label>
           <input id="promptInput" name="promptInput" type="text"
                  class="form-control border-0 shadow-none"

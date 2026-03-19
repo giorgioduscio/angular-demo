@@ -55,7 +55,7 @@ export class CellComponent {
       this.feedback =true
       setTimeout(() => {
         this.feedback =false
-      }, 500);
+      }, 800);
     })
   }
 
