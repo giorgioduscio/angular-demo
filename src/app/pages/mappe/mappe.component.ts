@@ -4,6 +4,7 @@ import { toast } from '../../tools/feedbacksUI';
 import { CombattimentoService } from './combattimento.service';
 import { MappaService } from './mappa.service';
 import { CellComponent } from './cell.component';
+import { DiceService } from './dice.service';
 
 @Component({
   selector: 'app-mappe',
@@ -12,10 +13,10 @@ import { CellComponent } from './cell.component';
   templateUrl: './mappe.component.html',
 })
 export class MappeComponent {
-  constructor(
-    public comb: CombattimentoService,
-    public mappa: MappaService
-  ) {
+  constructor(  public comb: CombattimentoService,
+                public mappa: MappaService, 
+                public dice: DiceService,
+              ) {
     document.title = "Mappe";
   }
 
@@ -23,7 +24,7 @@ export class MappeComponent {
   handlePrompt(e: Event): void {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const input = form.elements.namedItem('prompt') as HTMLInputElement;
+    const input = form.elements.namedItem('promptInput') as HTMLInputElement;
     if (!input) {
       console.error("Input non trovato");
       return;
@@ -45,14 +46,17 @@ export class MappeComponent {
   // Esegue un singolo comando
   comandi= {
     tiro_dadi: {
-      pattern: /^(\d*)d(\d+)([+-]\d+)?$/i,
+      pattern:  /^(\d*)d(\d+)([+-]\d*)?x?(\d*)$/i, //FIX: deve includere "d20","3d4","3d6+5","3d+5x10"
       execute: (comando: string) => {
-        const match_tiro_dadi = comando.match(/^(\d*)d(\d+)([+-]\d+)?$/i);
+        const match_tiro_dadi = comando.match(this.comandi.tiro_dadi.pattern);
         if (match_tiro_dadi) {
           const qta = match_tiro_dadi[1] ? parseInt(match_tiro_dadi[1], 10) : 1;
           const max = parseInt(match_tiro_dadi[2], 10);
           const modifier = match_tiro_dadi[3] ? parseInt(match_tiro_dadi[3], 10) : 0;
-          this.setTiri(qta, max, modifier);
+          const ripetizioni = match_tiro_dadi[4] ? parseInt(match_tiro_dadi[4], 10) : 1;
+          for (let i = 0; i < ripetizioni; i++){
+            this.dice.setTiri(qta, max, modifier);
+          }
         }
       }
     },
@@ -214,7 +218,7 @@ export class MappeComponent {
         this.mappa.rimuoviSimbolo(idPersonaggio);
       }
     },
-    squadra_attacca_manualmente: {
+    turno: {
       pattern: /^turno (\S+)$/i, // "turno <id>"
       execute: (comando: string) => {
         const parts = comando.split(" ");
@@ -256,6 +260,7 @@ export class MappeComponent {
             i--;
             if (i <= 0 || haAttaccato) clearInterval(interval);
           }, 500);
+          this.comb.giocatoreUltimoTurno = personaggio.id;
           return;
         }
 
@@ -319,33 +324,4 @@ export class MappeComponent {
     }
   }
 
-  // TIRI DEI DADI
-  tiri: string[] = [];
-  setTiri(qta: number, max: number, modifier: number): void {
-    let total = 0;
-    const rolls: number[] = [];
-
-    for (let i = 0; i < qta; i++) {
-      const roll = Math.floor(Math.random() * max) + 1;
-      rolls.push(roll);
-      total += roll;
-    }
-
-    total += modifier;
-    const modifierSign = modifier >= 0 ? `+${modifier}` : modifier;
-    const description = `${qta}d${max}${modifier !== 0 ? modifierSign : ''} = ${total}`;
-
-    this.tiri.unshift(description);
-    if (this.tiri.length > 10) {
-      this.tiri.pop();
-    }
-  }
-
-  // VISUALIZZAZIONE MAPPA
-  mappa_getColonne(): number[] {
-    return this.mappa.mappa_getColonne(this.mappa.colonne());
-  }
-  mappa_getRighe(): string[] {
-    return this.mappa.mappa_getRighe(this.mappa.mappa());
-  }
 }

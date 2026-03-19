@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { effect, Injectable, signal, WritableSignal } from '@angular/core';
 import { toast } from "../../tools/feedbacksUI";
 import { statisticheGradoSfida } from "./gradiSfida";
 import { Mappa } from "./mappa.service";
@@ -17,10 +17,18 @@ export interface Combattente {
 
 @Injectable({ providedIn: 'root' })
 export class CombattimentoService {
-  constructor() {}
+  constructor() {
+    effect(()=>{
+      // lista decrescente dei combattenti per numeroTurno
+      this.listaCombattenti = this.combattenti()
+        .sort((a, b) => b.numeroTurno - a.numeroTurno);
+    })
+  }
   combattenti = signal<Combattente[]>([]);
 
-  // Ottieni un combattente per ID
+  // Ottieni combattenti
+  listaCombattenti!:Combattente[];
+  giocatoreUltimoTurno='';
   getCombattenteById(idCombattente: string): Combattente | undefined {
     idCombattente = idCombattente.toLocaleLowerCase();
     return this.combattenti().find(c => c.id.toLocaleLowerCase() === idCombattente);
@@ -44,7 +52,23 @@ export class CombattimentoService {
   }
 
   // Ottieni un nome casuale per un combattente
-  getNomeRandom(): string {
+  private coloriSquadre={
+    a: '#aa0000ff',
+    b: '#009900ff',
+    c: '#0000ddff',
+    d: '#888800ff',
+    e: '#a100a1ff',
+    f: '#009494ff',
+    g: '#8c5b00ff',
+    h: '#800080',
+    i: '#b74357ff',
+    j: '#891616ff'
+  } as const;
+  getColoreSquadra(squadra: string): string {
+    return this.coloriSquadre[squadra as keyof typeof this.coloriSquadre];
+  }
+
+  private getNomeRandom(): string {
     const nomiDefault = [
       'Rosso', 'Blu', 'Giallo', 'Verde', 'Arancione', 'Viola', 'Nero', 'Bianco',
       'Marrone', 'Grigio', 'Celeste', 'Magenta', 'Ciano', 'Arancio', 'Indaco',
@@ -69,7 +93,7 @@ export class CombattimentoService {
     puntiFerita: number,
     tipoCombettente: 'mischia' | 'distanza' = 'mischia'
   ): void {
-    const numeroTurno = Math.floor(Math.random() * 20) + bonusIniziativa;
+    const numeroTurno = (Math.random() * 20) + bonusIniziativa;
     const matchGradoSfida = statisticheGradoSfida.find(gs => gs.gradoSfida === gradoSfida);
     const nuovoNome = nomePersonaggio.trim() !== '' ? nomePersonaggio.trim() : this.getNomeRandom();
     const nuoviHP = puntiFerita ? puntiFerita 

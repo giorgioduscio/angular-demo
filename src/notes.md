@@ -36,6 +36,4 @@ Esempi:
 
 # mappe
 - movimento: come si comporta se la strada è occupata?
-- TS nemici: se volessi tirare d20+5 per 10 volte?
-- lista turni
-- migliora tabella
+- autocomplete del prompt

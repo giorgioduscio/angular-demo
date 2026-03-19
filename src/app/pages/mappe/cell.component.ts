@@ -69,19 +69,7 @@ export class CellComponent {
   // Assegna un colore casuale a una squadra
   color = ''; 
   setColor(nomeSquadra: string): string {
-    const range = {
-      a: '#aa0000ff',
-      b: '#009900ff',
-      c: '#0000ddff',
-      d: '#888800ff',
-      e: '#a100a1ff',
-      f: '#009494ff',
-      g: '#8c5b00ff',
-      h: '#800080',
-      i: '#b74357ff',
-      j: '#891616ff'
-    };
-    const coloreSelezionato = range[nomeSquadra as keyof typeof range];
+    const coloreSelezionato = this.comb.getColoreSquadra(nomeSquadra);
     if (!coloreSelezionato) {
       console.error("Colore non trovato per la squadra:", nomeSquadra);
       return '#ccccccff'; // Colore di default

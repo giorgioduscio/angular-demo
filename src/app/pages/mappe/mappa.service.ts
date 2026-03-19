@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { effect, Injectable, signal } from '@angular/core';
 import { toast, agree } from '../../tools/feedbacksUI';
 
 export interface Mappa {
@@ -7,17 +7,21 @@ export interface Mappa {
 
 @Injectable({ providedIn: 'root' })
 export class MappaService {
-  // Proprietà convertite in signals
+  constructor() {
+    this.syncLocale();
+    effect(()=>{
+      this.mappa_colonne = this.mappa_getColonne(this.colonne());
+      this.mappa_righe = this.mappa_getRighe(this.mappa());
+    })
+  } 
+  
+  // CREAZIONE MAPPA
   righe = signal<number>(0);
   colonne = signal<number>(0);
   mappa = signal<Mappa>({});
-  mappeSalvate = signal<{ [key: string]: { mappa: Mappa; righe: number; colonne: number } }>({});
-
-  constructor() {
-    this.syncLocale();
-  }
-
-  // CREAZIONE MAPPA
+  mappa_colonne :number[] =[];
+  mappa_righe :string[] =[];
+  
   creaMappa(righe: number, colonne: number): void {
     // Gestisce input non validi
     if (righe <= 0 || colonne <= 0) {
@@ -104,6 +108,8 @@ export class MappaService {
   }
 
   // SALVATAGGIO MAPPE
+  mappeSalvate = signal<{ [key: string]: { mappa: Mappa; righe: number; colonne: number } }>({});
+
   // Ottiene le mappe salvate dal localStorage
   syncLocale(): void {
     const savedMappe = localStorage.getItem('mappe');
