@@ -203,7 +203,8 @@ export class CombattimentoService {
 
     if (superaClasseArmatura) {
       this.vitalitaPersonaggio(bersaglio.id, -danni);
-    } 
+      toast(`${attaccante.id} infligge ${danni} danni a ${bersaglio.id}`, "success");
+    } else toast(`${attaccante.id} manca ${bersaglio.id}`, "danger");
 
     attaccante.target = bersaglio.id;
 

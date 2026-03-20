@@ -1,4 +1,5 @@
 <div class="container">
+  <!-- pulsanti dadi -->
   <div class="position-relative d-none d-md-block">
     <div class="position-fixed top-2 end-0 z-1 pe-4">
       <!-- pulsanti dadi -->
@@ -87,48 +88,17 @@
     <div class="col-auto py-3">
       @if (!mappa.righe() || !mappa.colonne()) {
         <!-- Messaggio placeholder se la mappa non è stata generata -->
-        <div 
-              class="d-flex-table gap-2">
-          <!-- Contenuto placeholder -->
-          <div class="text-bg-c2 p-2 border rounded">
-            <h5>Mappe</h5>
-            <ul>
-              <li><strong>9x9</strong> per generare una mappa 9x9</li>
-              <li><strong>reset</strong> rimuove la mappa corrente</li>
-              <li><strong>mappa salva nome_mappa</strong> per salvare la mappa corrente</li>
-              <li><strong>mappa nome_mappa</strong> per caricare una mappa salvata</li>
-              <li><strong>mappa elimina nome_mappa</strong> per eliminare una mappa salvata</li>
-            </ul>
-          </div>
-    
-          <div class="text-bg-c2 p-2 border rounded">
-            <h5>Simboli</h5>
-            <ul>
-              <li><strong>- in b4</strong> per aggiungere il simbolo "-" nella cella b4</li>
-              <li><strong>Aldo in b4</strong> per SPOSTARE "Aldo" nella cella b4</li>
-            </ul>
-          </div>
-    
-          <div class="text-bg-c2 p-2 border rounded">
-            <h5>Dadi</h5>
-            <ul>
-              <li><strong>2d4</strong> per tirare 2 dadi da 4 facce</li>
-              <li><strong>d4+3</strong> per tirare 1 dado da 4 facce e aggiungere 3</li>
-              <li><strong>d20-5</strong> per tirare 1 dado da 20 facce e sottrarre 5</li>
-            </ul>
-          </div>
-    
-          <div class="text-bg-c2 p-2 border rounded">
-            <h5>Combattimento</h5>
-            <ul>
-              <li><strong>a: x3 gs1/2 +2</strong> assegna 3 npc di gf 1/2 alla squadra a con +2 all'iniziativa</li>
-              <li><strong>b: Elio +3 ca18 hp20</strong> aggiunge Elio alla squadra b con +3 all'iniziativa, 18 alla CA e 20 hp</li>
-              <li><strong>elio +20</strong> o <strong>elio -20</strong> aggiunge/sottrae 20 hp a Elio</li>
-              <li><strong>kaki attacca ciano</strong> l'npc Kaki attacca l'npc Ciano</li>
-              <li><strong>turno kaki</strong> L'npc 'Kaki' attacca aunomamente gli avversari</li>
-              <li><strong>turno a</strong> Gli npc della squadra a attaccano gli avversari</li>
-            </ul>
-          </div>
+        <div class="d-flex-table gap-2">
+          @for (sezione of esempi_sezioni; track sezione) {
+            <div class="text-bg-c2 p-2 shadow rounded">
+              <h4>{{ sezione }}</h4>
+              <ul>
+                @for (esempio of esempi_getBySection(sezione); track esempio) {
+                  <li><var>"{{ esempio.label }}"</var>: {{ esempio.description }}</li>
+                }
+              </ul>
+            </div>
+          }
         </div>
 
       } @else {
@@ -182,10 +152,19 @@
 
   <!-- Footer: Input principale -->
   <div class="pt-5">
-    <div class="fixed-bottom p-1 shadow-lg z-1">
+    <div class="fixed-bottom z-1  mx-auto min-w-250px max-w-400px text-bg-c1">
+      <div *ngIf="consigli_prompt.length" class="mx-auto p-1">
+        <ul class="m-0">
+          <li *ngFor="let consiglio of consigli_prompt">
+            <var class="mx-1">{{ consiglio.esempio }}</var>
+          </li>
+        </ul>
+      </div>
+
       <form (submit)="handlePrompt($event)"
-            class="m-auto d-flex gap-2 min-w-250px max-w-400px">
-        <div class="w-100 border rounded text-bg-c1 p-1 d-flex align-items-center">
+            (input)="consiglio_setPrompt($event)"
+            class="m-auto d-flex gap-2">
+        <div class="w-100 border rounded p-1 d-flex align-items-center">
           <label for="promptInput" class="visually-hidden">Prompt</label>
           <input id="promptInput" name="promptInput" type="text"
                  class="form-control border-0 shadow-none"
