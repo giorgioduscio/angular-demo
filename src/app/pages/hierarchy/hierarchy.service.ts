@@ -20,7 +20,7 @@ export class HierarchyService {
   todo_create(body: ListItem ={complete: false, title: randomCompiler.string() }) {
     const newItem = { ...body, key: Date.now().toString() };
     this.list.update(currentList => [...currentList, newItem]);
-    toast('Elemento aggiunto', 'success')
+    toast.success('Elemento aggiunto')
   }
 
   todo_read() {
@@ -33,9 +33,9 @@ export class HierarchyService {
   }
 
   async todo_delete(key: string) {
-    if(!await agree(`Eliminate l'elemento?`, 'Rimuovi', 'danger')) return;
+    if(!await agree.danger(`Eliminate l'elemento?`, 'Rimuovi')) return;
     this.list.update(currentList => currentList.filter(item => item.key !== key));
-    toast('Elemento rimosso', 'danger')
+    toast.danger('Elemento rimosso')
   }
 
   todo_update(item: ListItem, e: Event) {
@@ -54,7 +54,7 @@ export class HierarchyService {
       }
       return currentList;
     });
-    toast('Elemento aggiornato', 'primary')
+    toast.primary('Elemento aggiornato')
   }
   
 }

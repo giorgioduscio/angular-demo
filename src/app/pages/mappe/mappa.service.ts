@@ -33,13 +33,13 @@ export class MappaService {
   mappa_create(righe: number, colonne: number): void {
     // Gestisce input non validi
     if (righe <= 0 || colonne <= 0) {
-      toast('Dimensioni della mappa non valide', 'danger');
+      toast.danger('Dimensioni della mappa non valide');
       return;
     }
 
     const maxCelle = 26;
     if (righe > maxCelle || colonne > maxCelle) {
-      toast(`Il numero massimo di righe e colonne è ${maxCelle}`, 'danger');
+      toast.danger(`Il numero massimo di righe e colonne è ${maxCelle}`);
       return;
     }
 
@@ -58,7 +58,7 @@ export class MappaService {
     const mappaCorrente = this.mappa_value();
     const nuovaMappa = JSON.parse(JSON.stringify(mappaCorrente));
     if (!mappaCorrente[riga] || colonna < 0 || colonna >= this.mappa_colonne().length) {
-      toast(`Posizione "${riga}${colonna + 1}" non valida!`, 'danger');
+      toast.danger(`Posizione "${riga}${colonna + 1}" non valida!`);
       return;
     }
 
@@ -84,7 +84,7 @@ export class MappaService {
     
     this.mappa_value.set(nuovaMappa);
 
-    toast(`"${simbolo}" inserito in ${riga}${colonna + 1}!`, 'success');
+    toast.success(`"${simbolo}" inserito in ${riga}${colonna + 1}!`);
   }
 
   mappa_removeSymbol(simbolo: string): void {
@@ -98,7 +98,7 @@ export class MappaService {
       }
     }
     this.mappa_value.set(nuovaMappa);
-    toast(`"${simbolo}" rimosso!`, 'success');
+    toast.success(`"${simbolo}" rimosso!`);
   }
 
   // SALVATAGGIO MAPPE
@@ -135,11 +135,11 @@ export class MappaService {
       nomeMappa = 'mappa' + Date.now();
     }
     if (!nomeMappa) {
-      toast('Nome mappa non valido', 'danger');
+      toast.danger('Nome mappa non valido');
       return;
     }
 
-    if (this.storage_value()[nomeMappa] && !(await agree(`Mappa "${nomeMappa}" già esistente. Vuoi sovrascriverla?`))) {
+    if (this.storage_value()[nomeMappa] && !(await agree.warning(`Mappa "${nomeMappa}" già esistente. Vuoi sovrascriverla?`))) {
       return;
     }
 
@@ -154,21 +154,21 @@ export class MappaService {
 
     try {
       localStorage.setItem('mappe', JSON.stringify(mappeSalvateCorrenti));
-      toast(`Mappa "${nomeMappa}" salvata!`, 'success');
+      toast.success(`Mappa "${nomeMappa}" salvata!`);
     } catch (e) {
       console.error('Errore nel salvataggio della mappa:', e);
-      toast('Errore nel salvataggio della mappa', 'danger');
+      toast.danger('Errore nel salvataggio della mappa');
     }
   }
 
   // ELIMINA MAPPA
   async storage_removeMap(nomeMappa: string): Promise<void> {
     if (!this.storage_value()[nomeMappa]) {
-      toast(`Mappa "${nomeMappa}" non trovata`, 'danger');
+      toast.danger(`Mappa "${nomeMappa}" non trovata`);
       return;
     }
 
-    if (!(await agree(`Sei sicuro di voler eliminare la mappa "${nomeMappa}"?`, "Rimuovi", "danger"))) {
+    if (!(await agree.danger(`Sei sicuro di voler eliminare la mappa "${nomeMappa}"?`, "Rimuovi"))) {
       return;
     }
 
@@ -178,10 +178,10 @@ export class MappaService {
 
     try {
       localStorage.setItem('mappe', JSON.stringify(mappeSalvateCorrenti));
-      toast(`Mappa "${nomeMappa}" eliminata!`, 'success');
+      toast.success(`Mappa "${nomeMappa}" eliminata!`);
     } catch (e) {
       console.error('Errore nell\'eliminazione della mappa:', e);
-      toast('Errore nell\'eliminazione della mappa', 'danger');
+      toast.danger('Errore nell\'eliminazione della mappa');
     }
   }
 
@@ -189,12 +189,12 @@ export class MappaService {
   async mappa_syncStorage(nomeMappa: string): Promise<void> {
     const mappaSalvata = this.storage_getMapByName(nomeMappa);
     if (!mappaSalvata) {
-      toast(`Mappa "${nomeMappa}" non trovata`, 'danger');
+      toast.danger(`Mappa "${nomeMappa}" non trovata`);
       return;
     }
 
     // Basta impostare mappa_value, mappa_righe e mappa_colonne (computed) si aggiorneranno da sole
     this.mappa_value.set({ ...mappaSalvata.mappa });
-    toast(`Mappa "${nomeMappa}" caricata!`, 'success');
+    toast.success(`Mappa "${nomeMappa}" caricata!`);
   }
 }

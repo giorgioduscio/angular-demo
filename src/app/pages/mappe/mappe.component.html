@@ -21,7 +21,7 @@
   <!-- Main: Griglia della mappa -->
   <section class="row">
     <!-- strumenti -->
-    <aside class="pt-3 d-none d-md-block col-12 col-md-3 overflow-auto" style="height: 93vh;">
+    <aside class="pt-3 d-none d-lg-block col-md-3 overflow-auto" style="height: 93vh;">
       <!-- CRONOLOGIA TIRI -->
       <div *ngIf="diceService.tiri.length > 0">
         <ul><li> <h3>Cronologia tiri</h3> </li></ul>
@@ -137,7 +137,7 @@
     </aside>
         
     <!-- Mappa -->
-    <div class="col-12 col-md-9 py-3 overflow-auto" style="height: 93vh !important;">
+    <div class="col-12 col-lg-9 py-3 overflow-auto" style="height: 93vh !important;">
       @if (mappaService.mappa_isVoid()) {
         <!-- Messaggio placeholder se la mappa non è stata generata -->
         <div class="d-flex-table gap-2">

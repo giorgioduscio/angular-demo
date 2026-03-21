@@ -51,7 +51,7 @@ export class ProfileComponent {
   }
   //todo RESET
   async onResetLocalUser(){
-    if(!await agree('Uscire dal profilo?', 'Esci', 'danger')) return;
+    if(!await agree.danger('Uscire dal profilo?', 'Esci')) return;
     this.authService.resetLocalUser() 
   }
 

@@ -36,7 +36,7 @@ export class MappeComponent {
 
     const value: string = input.value.trim();
     if (!value) {
-      toast('Prompt vuoto', 'danger');
+      toast.danger('Prompt vuoto');
       return;
     }
 
@@ -179,7 +179,7 @@ export class MappeComponent {
       if (input) input.value = '';
       this.prompt_consiglio = [];
     } else {
-      toast(`Comando "${comando}" non riconosciuto`, 'danger');
+      toast.danger(`Comando "${comando}" non riconosciuto`);
     }
   }
 
@@ -250,7 +250,7 @@ export class MappeComponent {
     const attaccato = combattenti.find(c => c.id.toLowerCase() === idAttaccato);
     
     if (attaccante && attaccato) this.combatService.tiraPerColpire(attaccante, attaccato);
-    else toast("Contendenti non trovati", "danger");
+    else toast.danger("Contendenti non trovati");
   }
 
   private eseguiTurno(comando: string) {
@@ -263,7 +263,7 @@ export class MappeComponent {
     } else {
       const { membri, avversari } = this.combatService.getMembriSquadra(id);
       if (membri.length > 0) membri.forEach(m => this.avviaTurnoPersonaggio(m, avversari));
-      else toast(`Squadra o personaggio "${id}" non trovato`, "danger");
+      else toast.danger(`Squadra o personaggio "${id}" non trovato`);
     }
   }
 
@@ -378,7 +378,7 @@ export class MappeComponent {
 
     // 1. BLOCCO: Un NPC (GS) non può avere statistiche fisse da Giocatore (CA/HP)
     if (gs && (ca || hp)) {
-      return toast("Un NPC (GS) non può avere CA o HP personalizzati", "danger");
+      return toast.danger("Un NPC (GS) non può avere CA o HP personalizzati");
     }
 
     // 2. VALIDAZIONE COMBINAZIONI MINIME
@@ -386,7 +386,7 @@ export class MappeComponent {
     const isPGValido = squadra && nome && ca && hp;
 
     if (!isNPCValido && !isPGValido) {
-      return toast("Dati incompleti: inserisci (Squadra + GS) o (Squadra + Nome + CA + HP)", "danger");
+      return toast.danger("Dati incompleti: inserisci (Squadra + GS) o (Squadra + Nome + CA + HP)");
     }
 
     // 3. ESECUZIONE

@@ -36,7 +36,7 @@ export class CombattimentoService {
 
   // Rimuovi un combattente
   async rimuoviCombattente(combattenteId: string, showAgree = false): Promise<void> {
-    if(showAgree && !await agree(`Rimuovere ${combattenteId}?`, "Rimuovi", "danger")) return;
+    if(showAgree && !await agree.danger(`Rimuovere ${combattenteId}?`, "Rimuovi")) return;
 
     combattenteId = combattenteId.toLocaleLowerCase();
     const combattentiAggiornati = this.combattenti().filter(
@@ -51,7 +51,7 @@ export class CombattimentoService {
       console.error("Combattente non rimosso", test);
       return;
     }
-    toast(`${combattenteId} rimosso`, "success");
+    toast.success(`${combattenteId} rimosso`);
   }
 
   // Ottieni un nome casuale per un combattente
@@ -125,7 +125,7 @@ export class CombattimentoService {
   // Posiziona i combattenti su lati opposti della mappa
   posizionamento(mappa: Mappa, righe: number, colonne: number): void {
     if (!mappa || righe === 0 || colonne === 0) {
-      toast("Mappa non valida", "danger");
+      toast.danger("Mappa non valida");
       return;
     }
 
@@ -141,7 +141,7 @@ export class CombattimentoService {
     // recupero le squadre
     const squadre = [...new Set(this.combattenti().map(c => c.squadra))];
     if (squadre.length === 0) {
-      toast("Nessuna squadra da posizionare", "danger");
+      toast.danger("Nessuna squadra da posizionare");
       return;
     }
 
@@ -164,14 +164,14 @@ export class CombattimentoService {
       });
     });
 
-    toast("Combattenti posizionati con successo!", "success");
+    toast.success("Combattenti posizionati con successo!");
   }
 
   // Danneggia o guarisce un personaggio
   vitalitaPersonaggio(combattenteId: string, bonus: number): void {
     const combattente = this.getCombattenteById(combattenteId.toLocaleLowerCase());
     if (!combattente) {
-      toast("Combattente non trovato", "danger");
+      toast.danger("Combattente non trovato");
       return;
     }
 
@@ -190,11 +190,11 @@ export class CombattimentoService {
 
     if (combattenteAggiornato.puntiFerita <= 0) {
       this.rimuoviCombattente(combattenteId.toLocaleLowerCase());
-      return toast(`${combattenteAggiornato.id} sconfitto`, "danger");
+      return toast.danger(`${combattenteAggiornato.id} sconfitto`);
     }
 
     if (hpIniziali !== combattenteAggiornato.puntiFerita) {
-      toast(`HP ${combattenteAggiornato.id} aggiornati`, 'success');
+      toast.success(`HP ${combattenteAggiornato.id} aggiornati`);
     }
   }
 
@@ -206,8 +206,8 @@ export class CombattimentoService {
 
     if (superaClasseArmatura) {
       this.vitalitaPersonaggio(bersaglio.id, -danni);
-      toast(`${attaccante.id} infligge ${danni} danni a ${bersaglio.id}`, "success");
-    } else toast(`${attaccante.id} manca ${bersaglio.id}`, "danger");
+      toast.success(`${attaccante.id} infligge ${danni} danni a ${bersaglio.id}`);
+    } else toast.danger(`${attaccante.id} manca ${bersaglio.id}`);
 
     attaccante.target = bersaglio.id;
 

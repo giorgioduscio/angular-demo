@@ -160,7 +160,7 @@ export class UtentiComponent implements OnInit, OnDestroy {
 
   // IA: metodo per gestire la cancellazione di un utente con conferma
   async handleDelete(user: User) {
-    if (!await agree('Cancellare utente?', 'Rimuovi', 'danger')) return;
+    if (!await agree.danger('Cancellare utente?', 'Rimuovi')) return;
     this.usersService.deleteUser(user.id);
   }
 
@@ -179,20 +179,20 @@ export class UtentiComponent implements OnInit, OnDestroy {
     let isValid =true;
     if (key === 'email' && typeof newValue === 'string' && !newValue.trim().includes('@')) {
       isValid =false;
-      toast("Email non valida. Inserire '@'", 'danger');
+      toast.danger("Email non valida. Inserire '@'");
     }
     if(key=='username' && typeof newValue=='string' && newValue.trim().length<3){
       isValid =false;
-      toast("Inserire almeno tre caratteri", 'danger')
+      toast.danger("Inserire almeno tre caratteri")
     }
     if(!isValid) return input.classList.add('is-invalid');
     
     // feedback e salvataggio
     input.classList.remove('is-invalid')
-    if(!await agree('Aggiorare l\'utente?', 'Aggiorna')) 
+    if(!await agree.warning('Aggiorare l\'utente?', 'Aggiorna')) 
       return input.value =user[key] as string;
     this.usersService.patchUser(user.id, { ...user, [key]: newValue });
-    toast(`Campo ${key} aggiornato`, 'success');
+    toast.success(`Campo ${key} aggiornato`);
     input.classList.add('is-valid');
     setTimeout(()=> input.classList.remove('is-valid'), 2000);
   }

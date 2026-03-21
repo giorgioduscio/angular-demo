@@ -49,19 +49,19 @@ export class ListComponent implements OnInit {
     this.ls_set(this.list);
 
     formData.reset();
-    toast('Elemento aggiunto', 'primary');
+    toast.primary('Elemento aggiunto');
   }
 
   //  Elimina un elemento
   async handleDelete(index: number) {
-    if (!await agree('Eliminare l\'elemento?', 'Rimuovi', 'danger')) return;
+    if (!await agree.danger('Eliminare l\'elemento?', 'Rimuovi')) return;
     const id = this.list[index].id;
     if (!id) return console.error('Elemento non trovato');
 
     this.list = this.list.filter(item => item.id !== id);
     this.ls_set(this.list);
 
-    toast('Elemento eliminato', 'danger');
+    toast.danger('Elemento eliminato');
   }
 
   //  Aggiorna un elemento
@@ -81,6 +81,6 @@ export class ListComponent implements OnInit {
     this.list[itemIndex] = updatedItem;
     this.ls_set(this.list);
 
-    toast('Elemento aggiornato', 'success');
+    toast.success('Elemento aggiornato');
   }
 }

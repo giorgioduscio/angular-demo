@@ -31,7 +31,7 @@ export class DndComponent {
       document.title = `${this._character().nome_personaggio}`;
     });
 
-    setTimeout(() => toast('Inizializzazione scheda'), 1000);
+    setTimeout(() => toast.primary('Inizializzazione scheda'), 1000);
     this.checkScreenSize();
   }
 
@@ -211,16 +211,16 @@ export class DndComponent {
       }
       currentLevel[keys[keys.length - 1]] = nuovoValore; // Imposta il valore finale
       
-      toast('Aggiornamento dati', 'primary');
+      toast.primary('Aggiornamento dati');
       return personaggioNuovo;
     });
   }
 
   async reset(){
-    if(await agree('Resettare il personaggio?', 'Reset', 'danger')){
+    if(await agree.danger('Resettare il personaggio?', 'Reset')){
       this._character.set(inizializzaPersonaggio());
       local.set(this.character());
-      toast("Personaggio resettato", "danger")
+      toast.danger("Personaggio resettato")
     }
   }
 
@@ -228,7 +228,7 @@ export class DndComponent {
   async deleteFromList(listName: keyof PersonaggioDND, index: number) {
     if(index<0) return console.error('indice non valido', index);
     
-    if(await agree(`Confermi eliminazione da ${listName}?`, 'Elimina', 'danger')){
+    if(await agree.danger(`Confermi eliminazione da ${listName}?`, 'Elimina')){
       this._character.update(char => {
         const newChar = JSON.parse(JSON.stringify(char));
         if (Array.isArray(newChar[listName])) {
@@ -238,7 +238,7 @@ export class DndComponent {
         console.warn(newChar[listName].value || newChar[listName]);
         return newChar;
       });
-      toast('Eliminazione completata', 'danger');
+      toast.danger('Eliminazione completata');
     }
   }
 
@@ -300,7 +300,7 @@ export class DndComponent {
       }
       return nuovoPersonaggio;
     });
-    toast('Inserimento eseguito', 'success');
+    toast.success('Inserimento eseguito');
     form.reset();
   }
 
@@ -326,14 +326,14 @@ export class DndComponent {
   //  LOCALSTORAGE
       async copyCharacter() {
         await this.local.copy(this.character());
-        toast('Copiato negli appunti')
+        toast.success('Copiato negli appunti')
       }
       async pasteCharacter() {
         try {
           const pastedChar = await this.local.paste();
           if (pastedChar) {
             this._character.set(pastedChar);
-            toast('Personaggio impostato dagli appunti')
+            toast.success('Personaggio impostato dagli appunti')
           }
         } catch (error) {
           console.error("Failed to parse character from clipboard", error);

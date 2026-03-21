@@ -36,4 +36,3 @@ Esempi:
 # mappe
 - movimento: come si comporta se un muro occupa il suo cammino? rivedere logica di movimento
 - ? layout: risultato dadi in alto a destra
-- implementa toast e agree di bootstrap

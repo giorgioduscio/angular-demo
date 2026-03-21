@@ -19,7 +19,7 @@ export const local = {
     const requiredChars = ['{', '}', '[', ']', ':'];
     const hasRequiredChars = requiredChars.every(char => text.includes(char));
     if (!hasRequiredChars) {
-      toast("Il contenuto degli appunti non è un JSON valido.", "danger");
+      toast.danger("Il contenuto degli appunti non è un JSON valido.");
       return;
     }
     const result = JSON.parse(text);

@@ -1,9 +1,26 @@
-type ToastColor = "primary" | "secondary" | "danger" | "success";
+type ToastColor = "primary" | "secondary" | "danger" | "success" | "warning" | "info";
 
 // Funzione di utilità per mantenere la sintassi originale
-export function toast(message: string, color?: ToastColor): void {
-  ToastManager.getInstance().show(message, color);
-}
+export const toast = {
+  primary(messaggio: string) {
+    ToastManager.getInstance().show(messaggio, 'primary');
+  },
+  danger(messaggio: string) {
+    ToastManager.getInstance().show(messaggio, 'danger');
+  },
+  secondary(messaggio: string) {
+    ToastManager.getInstance().show(messaggio, 'secondary');
+  },
+  success(messaggio: string) {
+    ToastManager.getInstance().show(messaggio, 'success');
+  },
+  warning(messaggio: string) {
+    ToastManager.getInstance().show(messaggio, 'warning');
+  },
+  info(messaggio: string) {
+    ToastManager.getInstance().show(messaggio, 'info');
+  },
+} as const;
 
 class ToastManager {
   private static instance: ToastManager;
@@ -15,10 +32,12 @@ class ToastManager {
     secondary: '#6c757d',
     danger: '#dc3545',
     success: '#198754',
+    warning: '#ffc107',
+    info: '#0dcaf0'
   };
 
   // Costruttore privato per singleton
-  private constructor() {}
+  private constructor() { }
 
   // Metodo per ottenere l'istanza singleton
   public static getInstance(): ToastManager {
@@ -75,6 +94,54 @@ class ToastManager {
 
   // Mostra un toast
   public show(message: string, color: ToastColor = "secondary"): void {
+    const bootstrapGlobal = (window as any).bootstrap;
+    const isBootstrap5 = typeof bootstrapGlobal !== 'undefined' && bootstrapGlobal.Toast;
+
+    if (isBootstrap5) {
+      let container = document.getElementById('bs-toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'bs-toast-container';
+        container.className = 'toast-container position-fixed top-0 start-50 translate-middle-x p-3';
+        container.style.zIndex = '10001';
+        document.body.appendChild(container);
+      }
+
+      // Colori chiari di bootstrap richiedono testo scuro
+      const isLightColor = color === 'warning' || color === 'info';
+      const textColor = isLightColor ? 'text-dark' : 'text-white';
+      const closeBtnColor = isLightColor ? '' : 'btn-close-white';
+
+      const toastEl = document.createElement('div');
+      toastEl.className = `toast align-items-center ${textColor} bg-${color} border-0 mb-2`;
+      toastEl.setAttribute('role', 'alert');
+      toastEl.setAttribute('aria-live', 'assertive');
+      toastEl.setAttribute('aria-atomic', 'true');
+
+      toastEl.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body fs-6">
+            ${message}
+          </div>
+          <button type="button" class="btn-close ${closeBtnColor} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+
+      container.appendChild(toastEl);
+      const bsToast = new bootstrapGlobal.Toast(toastEl, { delay: 3000 });
+
+      toastEl.addEventListener('hidden.bs.toast', () => {
+        toastEl.remove();
+        if (container && container.childNodes.length === 0) {
+          container.remove();
+        }
+      }, { once: true });
+
+      bsToast.show();
+      return;
+    }
+
+    // FALLBACK: Logica custom
     this.injectStyle();
 
     const notificaEl = this.getToastElement();
@@ -93,23 +160,94 @@ class ToastManager {
           }
           this.releaseToastElement(notificaEl);
         }, 300);
-      }, 2000);
+      }, 3000);
     });
   }
 }
 
 
 //  funzione che imita confirm()
-export function agree(message:string, 
-  messaggioPulsante='Invio', 
-  colorePulsante: "primary" |"success" |"danger" ="primary") {
+export const agree = {
+  primary(message: string, btnText?: string) {
+    return executeAgree(message, btnText, 'primary');
+  },
+  success(message: string, btnText?: string) {
+    return executeAgree(message, btnText, 'success');
+  },
+  danger(message: string, btnText?: string) {
+    return executeAgree(message, btnText, 'danger');
+  },
+  warning(message: string, btnText?: string) {
+    return executeAgree(message, btnText, 'warning');
+  },
+  info(message: string, btnText?: string) {
+    return executeAgree(message, btnText, 'info');
+  },
+};
+
+function executeAgree(message: string,
+  messaggioPulsante = 'Invio',
+  colorePulsante: ToastColor = "primary"): Promise<boolean> {
   return new Promise((resolve) => {
 
-    //  STILE
+    // Rilevamento Bootstrap 5 (versione rilevata nel package.json)
+    const bootstrapGlobal = (window as any).bootstrap;
+    const isBootstrap5 = typeof bootstrapGlobal !== 'undefined' && bootstrapGlobal.Modal;
+
+    if (isBootstrap5) {
+      const modalId = `bs-agree-${Math.random().toString(36).slice(2, 9)}`;
+      const isLightColor = colorePulsante === 'warning' || colorePulsante === 'info';
+      const textColor = isLightColor ? 'text-dark' : 'text-white';
+      const closeBtnClass = isLightColor ? 'btn-close' : 'btn-close btn-close-white';
+
+      const html = `
+        <div class="modal fade" id="${modalId}" tabindex="-1" aria-modal="true" role="dialog">
+          <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content bg-${colorePulsante} ${textColor} border-0 shadow-lg">
+              <div class="modal-header border-0 pb-0">
+                <button type="button" class="${closeBtnClass} ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center py-4">
+                <p class="mb-0 fs-5 fw-medium">${message}</p>
+              </div>
+              <div class="modal-footer border-0 justify-content-between pb-4 pt-0">
+                <button type="button" class="btn ${isLightColor ? 'btn-dark' : 'btn-light'} btn-sm px-3" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn ${isLightColor ? 'btn-outline-dark' : 'btn-outline-light'} btn-sm px-3" id="${modalId}-ok">${messaggioPulsante}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', html);
+      const modalEl = document.getElementById(modalId)!;
+      const okBtn = document.getElementById(`${modalId}-ok`)!;
+      const bsModal = new bootstrapGlobal.Modal(modalEl);
+
+      let isConfirmed = false;
+
+      okBtn.onclick = () => {
+        isConfirmed = true;
+        bsModal.hide();
+      };
+
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        modalEl.remove();
+        resolve(isConfirmed);
+      }, { once: true });
+
+      bsModal.show();
+      return;
+    }
+
+    // FALLBACK: Logica custom originale se Bootstrap non è presente
     const colori = {
       primary: '#007bff',
-      success: '#28a745',
-      danger: '#dc3545'
+      secondary: '#6c757d',
+      danger: '#dc3545',
+      success: '#198754',
+      warning: '#ffc107',
+      info: '#0dcaf0'
     }
     if (!document.getElementById("agree-modal-style")) {
       const style = document.createElement("style");
@@ -124,7 +262,7 @@ export function agree(message:string,
           height: 100%;
           background-color: rgba(0, 0, 0, 0.5);
           justify-content: center;
-          padding-top: 50px; /* Imposta 50px di distanza dal bordo superiore */
+          padding-top: 50px;
           z-index: 10000;
           opacity: 0;
           visibility: hidden;
@@ -154,7 +292,7 @@ export function agree(message:string,
           gap: 10px;
         }
         .agree-modal-ok {
-          background-color: ${colori[colorePulsante]};
+          background-color: ${colori[colorePulsante as keyof typeof colori] || colori.primary};
           color: white;
           border: none;
           padding: 10px 20px;
@@ -176,8 +314,6 @@ export function agree(message:string,
       document.head.appendChild(style);
     }
 
-    //  HTML
-    // Aggiungi il modale al body
     document.body.insertAdjacentHTML("beforeend", `
       <div class="agree-modal" id="agree-modal">
         <div class="agree-modal-content">
@@ -190,27 +326,23 @@ export function agree(message:string,
       </div>
     `);
 
-    //  LOGICA
     const modal = document.getElementById("agree-modal");
     const okButton = document.getElementById("agree-ok");
     const cancelButton = document.getElementById("agree-cancel");
     if(!modal || !okButton || !cancelButton) 
       return console.error('elementi non trovati', modal, okButton, cancelButton);
 
-    // Mostra il modale con animazione fade-in
     setTimeout(() => {
       modal.classList.add("visible");
     }, 10);
 
-    // Funzione per rimuovere il modale con animazione fade-out
     const cleanup = () => {
       modal.classList.remove("visible");
       setTimeout(() => {
-        document.body.removeChild(modal);
-      }, 300); // Tempo uguale alla durata della transizione CSS
+        if (modal.parentNode) document.body.removeChild(modal);
+      }, 300);
     };
 
-    // Gestione dei clic
     okButton.onclick = () => {
       cleanup();
       resolve(true);
