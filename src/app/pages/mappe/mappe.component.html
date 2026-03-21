@@ -3,13 +3,13 @@
   <div class="position-relative d-none d-md-block">
     <div class="position-fixed top-2 end-0 z-1 p-2">
       <!-- pulsanti dadi -->
-      <button (click)="dice.setShowButtons()" 
+      <button (click)="diceService.setShowButtons()" 
               class="btn rounded-circle w-50px h-50px p-2"
-              [class.btn-primary]="dice.showButtons">
+              [class.btn-primary]="diceService.showButtons">
         <i class="bi bi-dice-6"></i>
       </button>
-      <div class="d-flex flex-column align-items-center gap-1 pt-2" *ngIf="dice.showButtons">
-        <button *ngFor="let set of dice.pulsantiDadi" 
+      <div class="d-flex flex-column align-items-center gap-1 pt-2" *ngIf="diceService.showButtons">
+        <button *ngFor="let set of diceService.pulsantiDadi" 
                 class="btn badge rounded-pill text-bg-{{set.color}}" 
                 (click)="eseguiComando(set.value)">
           {{ set.value }}
@@ -22,53 +22,53 @@
   <section class="row">
     <aside class="pt-3 d-none d-md-block col-12 col-md-3">
       <!-- MAPPE SALVATE -->
-      <div *ngIf="mappa.getNomi().length > 0">
+      <div *ngIf="mappaService.storage_getNames().length > 0">
         <h3>Genera mappa</h3>
         <div class="d-flex-table my-2 rounded overflow-hidden">
-          <button (click)="mappa.creaMappa(9, 9)" class="btn btn-primary rounded-0">
+          <button (click)="mappaService.mappa_create(9, 9)" class="btn btn-primary rounded-0">
             <i class="bi bi-house me-2"></i>Stanza 
           </button>
-          <button (click)="mappa.creaMappa(12, 12)" class="btn btn-primary rounded-0">
+          <button (click)="mappaService.mappa_create(12, 12)" class="btn btn-primary rounded-0">
             <i class="bi bi-building me-2"></i>Edificio
           </button>
-          <button (click)="mappa.creaMappa(26, 12)" class="btn btn-primary rounded-0">
+          <button (click)="mappaService.mappa_create(26, 12)" class="btn btn-primary rounded-0">
             <i class="bi bi-tree-fill me-2"></i>Piazza
           </button>
         </div>
         
         <div class="pb-3 d-flex-table gap-2 align-items-center">
-          <div *ngFor="let nome of mappa.getNomi()" class="btn-group"
+          <div *ngFor="let nome of mappaService.storage_getNames()" class="btn-group"
                 style="max-width: 100%;">
-            <button (click)="mappa.caricaMappaSalvata(nome)" 
+            <button (click)="mappaService.mappa_syncStorage(nome)" 
                     class="btn btn-secondary text-truncate text-nowrap">
               <i class="bi bi-map me-2"></i>
               <b class="">{{ nome }}</b>
             </button>
-            <button (click)="mappa.eliminaMappaSalvata(nome)" class="btn btn-danger max-w-40px bi bi-trash"></button>
+            <button (click)="mappaService.storage_removeMap(nome)" class="btn btn-danger max-w-40px bi bi-trash"></button>
           </div>
-          <button [disabled]="!mappa.colonne()" (click)="mappa.setMappeSalvate('random')" class="btn btn-success">Aggiungi <i class="bi bi-plus"></i></button>
+          <button [disabled]="mappaService.mappa_isVoid()" (click)="mappaService.storage_addMap('random')" class="btn btn-success">Aggiungi <i class="bi bi-plus"></i></button>
         </div>
       </div>
       <!-- LISTA COMBATTENTI -->
-      <div *ngIf="comb.combattenti().length" class="d-grid mb-3">
+      <div *ngIf="combatService.combattenti().length" class="d-grid mb-3">
         <h3>Combattenti</h3>
-        <div *ngFor="let combattente of comb.listaCombattenti; let i=index" 
+        <div *ngFor="let combattente of combatService.listaCombattenti; let i=index" 
              class="d-grid cols-auto-1fr overflow-hidden"
-             [style.background]="comb.getColoreSquadra(combattente.squadra)">
-          <button (click)="comb.rimuoviCombattente(combattente.id, true)" class="btn btn-danger rounded-0">
+             [style.background]="combatService.getColoreSquadra(combattente.squadra)">
+          <button (click)="combatService.rimuoviCombattente(combattente.id, true)" class="btn btn-danger rounded-0">
             <i class="bi bi-trash"></i>
           </button>
 
           <button class="btn d-flex align-items-center justify-content-between gap-2 rounded-0" 
                   (click)="eseguiComando('turno ' +combattente.id.toLowerCase())"
-                  [class.border]="combattente.id === comb.giocatoreUltimoTurno"
+                  [class.border]="combattente.id === combatService.giocatoreUltimoTurno"
                   [disabled]="!combattente.bonusAttacco || !combattente.danni">
             <span>{{ combattente.id }}</span>
   
             <div class="d-flex justify-content-between align-items-center gap-2">
               <i class="bi bi-heart d-none d-lg-inline"></i>
               <span class="d-none d-lg-inline">{{ combattente.puntiFerita }}</span>
-              @if (combattente.id !== comb.giocatoreUltimoTurno) {
+              @if (combattente.id !== combatService.giocatoreUltimoTurno) {
                 <i class="bi bi-caret-right"></i>
               } @else {
                 <small class="bi bi-square-fill"></small>
@@ -78,11 +78,11 @@
         </div>
       </div>
       <!-- CRONOLOGIA TIRI -->
-      <div *ngIf="dice.tiri.length > 0">
+      <div *ngIf="diceService.tiri.length > 0">
         <h3>Cronologia tiri</h3>
         <div class="">
           <div class="d-flex flex-wrap gap-2">
-            <small *ngFor="let tiro of dice.tiri"
+            <small *ngFor="let tiro of diceService.tiri"
                   class="badge rounded-pill text-bg-{{ tiro.color }} text-nowrap">
               {{ tiro.value }}
             </small>
@@ -93,14 +93,14 @@
         
     <!-- Mappa -->
     <div class="col-12 col-md-9 py-3">
-      @if (!mappa.righe() || !mappa.colonne()) {
+      @if (mappaService.mappa_isVoid()) {
         <!-- Messaggio placeholder se la mappa non è stata generata -->
         <div class="d-flex-table gap-2">
-          @for (sezione of esempi_sezioni; track sezione) {
+          @for (sezione of prompt_sezioni; track sezione) {
             <div class="text-bg-c2 p-2 shadow rounded">
               <h4>{{ sezione }}</h4>
               <ul>
-                @for (esempio of esempi_getBySection(sezione); track esempio) {
+                @for (esempio of prompt_getBySection(sezione); track esempio) {
                   <li><var>"{{ esempio.label }}"</var>: {{ esempio.description }}</li>
                 }
               </ul>
@@ -121,8 +121,8 @@
             <thead>
               <tr>
                 <th></th>
-                <!-- Intestazioni delle colonne (numeri) -->
-                <th *ngFor="let col of mappa.mappa_colonne; let i = index"
+                <!-- Intestazioni delle mappa_colonne (numeri) -->
+                <th *ngFor="let col of mappaService.mappa_colonne(); let i = index"
                   class="text-center w-60px">
                   {{ i + 1 }}
                 </th>
@@ -131,11 +131,11 @@
             </thead>
             <tbody>
               <!-- Righe della tabella -->
-              <tr *ngFor="let rowKey of mappa.mappa_righe">
+              <tr *ngFor="let rowKey of mappaService.mappa_righe()">
                 <!-- Intestazione della riga (lettera) -->
                 <th class="text-center align-middle p-2">{{ rowKey }}</th>
                 <!-- Celle della riga -->
-                <td *ngFor="let cellValue of mappa.mappa()[rowKey]; let j = index"
+                <td *ngFor="let cellValue of mappaService.mappa_value()[rowKey]; let j = index"
                     [class.table-warning]="cellValue === '-'"
                     [attr.data-cell]="rowKey + (j + 1)"
                     class="align-middle">
@@ -148,8 +148,8 @@
             <tfoot>
               <tr>
                 <th></th>
-                <!-- Intestazioni delle colonne (numeri) -->
-                <th *ngFor="let col of mappa.mappa_colonne; let i = index"
+                <!-- Intestazioni delle mappa_colonne (numeri) -->
+                <th *ngFor="let col of mappaService.mappa_colonne(); let i = index"
                   class="px-3 text-center">
                   {{ i + 1 }}
                 </th>
@@ -166,9 +166,9 @@
   <!-- Footer: Input principale -->
   <div class="pt-5">
     <div class="fixed-bottom z-1  mx-auto min-w-250px max-w-400px text-bg-c1">
-      <div *ngIf="consigli_prompt.length" class="mx-auto p-1">
+      <div *ngIf="prompt_consiglio.length" class="mx-auto p-1">
         <ul class="m-0">
-          <li *ngFor="let consiglio of consigli_prompt">
+          <li *ngFor="let consiglio of prompt_consiglio">
             @for(es of consiglio.esempio; track $index) {
               <small *ngIf="es!=', ' ; else virgola">{{ es }}</small>
               <ng-template #virgola>
@@ -180,7 +180,7 @@
       </div>
 
       <form (submit)="handlePrompt($event)"
-            (input)="consiglio_setPrompt($event)"
+            (input)="prompt_setConsiglio($event)"
             class="m-auto d-flex gap-2">
         <div class="w-100 border rounded p-1 d-flex align-items-center">
           <label for="promptInput" class="visually-hidden">Prompt</label>

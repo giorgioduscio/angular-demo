@@ -34,6 +34,6 @@ Esempi:
 3. incantesimi: sezione attacchi ed incantesimi. aggiungere incantesimi
 
 # mappe
-- movimento: come si comporta se la strada è occupata?
-- pulsanti creazione npc
-- layout: risultato dadi in alto a destra; aggiornamento pf personaggi
+- movimento: come si comporta se un muro occupa il suo cammino?
+- personaggi: pulsanti/form creazione npc e pg
+- ? layout: risultato dadi in alto a destra

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, effect, Input, signal } from "@angular/core";
+import { Component, effect, input, computed, signal } from "@angular/core";
 import { Combattente, CombattimentoService } from "./combattimento.service";
 
 @Component({
@@ -8,29 +8,29 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
   imports: [CommonModule],
   template:`
   <div class="w-80px h-80px text-center">
-    @if(combattente) {
+    @if(combattente()) {
       <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
-          [style.background]="color" 
-          [class.border]="feedback">
+          [style.background]="color()" 
+          [class.border]="feedback()">
         <h6 class="small d-grid cols-1fr-auto px-2">
-          <span class="text-truncate">{{ combattente!.id }}</span>
-          <img [alt]="combattente.id" [src]="srcValue"
+          <span class="text-truncate">{{ combattente()!.id }}</span>
+          <img [alt]="combattente()!.id" [src]="srcValue()"
                 class="w-20px h-20px">
         </h6>
         <!-- STAT -->
         <div class="d-grid cols-1fr-1fr-1fr-1fr">
           <small class="bi bi-heart" 
-                 [class.allerta]="combattente!.puntiFerita < 10"></small>
-          <small [class.allerta]="combattente!.puntiFerita < 10">
-            {{ combattente.puntiFerita }}</small>
+                 [class.allerta]="combattente()!.puntiFerita < 10"></small>
+          <small [class.allerta]="combattente()!.puntiFerita < 10">
+            {{ combattente()!.puntiFerita }}</small>
           <small class="bi bi-shield-shaded ms-1"></small>
-          <small>{{ combattente!.classeArmatura }}</small>
+          <small>{{ combattente()!.classeArmatura }}</small>
         </div>
       </div>
 
     } @else {
       <div>
-        {{ cellValue }}
+        {{ cellValue() }}
       </div>
     }
   </div>
@@ -43,43 +43,44 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
   `
 })
 export class CellComponent {
-  @Input() cellValue: string = '';
-  combattente :Combattente | undefined;
-  srcValue = '';
-  feedback = false;
+  // Input reattivo per il valore della cella
+  cellValue = input<string>('');
+  
+  // Combattente isolato tramite computed: reagisce solo se cambia questo specifico combattente
+  combattente = computed(() => {
+    const id = this.cellValue();
+    return this.comb.getCombattenteById(id);
+  });
+
+  // Colore della squadra calcolato in modo reattivo
+  color = computed(() => {
+    const c = this.combattente();
+    return c ? this.comb.getColoreSquadra(c.squadra) : '';
+  });
+
+  // Percorso immagine calcolato in modo reattivo
+  srcValue = computed(() => {
+    const c = this.combattente();
+    if (!c) return '';
+    return c.tipo === 'distanza' ? "/assets/distanza.png" : "/assets/mischia.jpg";
+  });
+
+  // Segnale per il feedback visivo (bordi che lampeggiano)
+  feedback = signal(false);
 
   constructor(private comb: CombattimentoService) {
-    effect(()=>{
-      this.combattente = this.comb.getCombattenteById(this.cellValue);
+    // Gestione del feedback: si attiva solo quando lo stato dello specifico combattente cambia
+    effect((onCleanup) => {
+      const c = this.combattente();
+      if (c) {
+        this.feedback.set(true);
+        const timer = setTimeout(() => {
+          this.feedback.set(false);
+        }, 800);
 
-      this.feedback =true
-      setTimeout(() => {
-        this.feedback =false
-      }, 800);
-    })
-  }
-
-  ngOnInit(): void {
-    this.combattente = this.comb.getCombattenteById(this.cellValue);
-    if (this.combattente) {
-      this.combattente.id = this.combattente.id.charAt(0).toUpperCase() + this.combattente.id.slice(1);
-      this.color = this.setColor(this.combattente.squadra);
-      this.srcValue = this.combattente.tipo=='distanza' 
-                      ? "/assets/distanza.png"
-                      : "/assets/mischia.jpg";
-    }
-    if (!this.combattente && this.cellValue.length > 1) 
-      console.warn(this.cellValue, "non trovato");
-  }
-
-  // Assegna un colore casuale a una squadra
-  color = ''; 
-  setColor(nomeSquadra: string): string {
-    const coloreSelezionato = this.comb.getColoreSquadra(nomeSquadra);
-    if (!coloreSelezionato) {
-      console.error("Colore non trovato per la squadra:", nomeSquadra);
-      return '#ccccccff'; // Colore di default
-    }
-    return coloreSelezionato;
+        // Cleanup del timer in caso di distruzione del componente o nuovo trigger
+        onCleanup(() => clearTimeout(timer));
+      }
+    }, { allowSignalWrites: true });
   }
 }

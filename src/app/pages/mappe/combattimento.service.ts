@@ -17,7 +17,7 @@ export interface Combattente {
 
 @Injectable({ providedIn: 'root' })
 export class CombattimentoService {
-  constructor(private mappa:MappaService) {
+  constructor(private mappaService:MappaService) {
     effect(()=>{
       // lista decrescente dei combattenti per numeroTurno
       this.listaCombattenti = this.combattenti()
@@ -44,7 +44,7 @@ export class CombattimentoService {
     );
 
     this.combattenti.set(combattentiAggiornati);
-    this.mappa.rimuoviSimbolo(combattenteId);
+    this.mappaService.mappa_removeSymbol(combattenteId);
 
     const test = combattentiAggiornati.find(c => c.id.toLocaleLowerCase() === combattenteId);
     if (test) {
