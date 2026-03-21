@@ -9,7 +9,7 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
   template:`
   <div class="w-80px h-80px text-center">
     @if(combattente) {
-      <div class="rounded py-2" 
+      <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
           [style.background]="color" 
           [class.border]="feedback">
         <h6 class="small d-grid cols-1fr-auto px-2">
@@ -29,7 +29,7 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
       </div>
 
     } @else {
-      <div class="text-black">
+      <div>
         {{ cellValue }}
       </div>
     }

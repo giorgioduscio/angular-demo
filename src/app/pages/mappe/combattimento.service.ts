@@ -1,7 +1,7 @@
 import { effect, Injectable, signal, WritableSignal } from '@angular/core';
-import { toast } from "../../tools/feedbacksUI";
+import { agree, toast } from "../../tools/feedbacksUI";
 import { statisticheGradoSfida } from "./gradiSfida";
-import { Mappa } from "./mappa.service";
+import { Mappa, MappaService } from "./mappa.service";
 
 export interface Combattente {
   id: string;
@@ -17,7 +17,7 @@ export interface Combattente {
 
 @Injectable({ providedIn: 'root' })
 export class CombattimentoService {
-  constructor() {
+  constructor(private mappa:MappaService) {
     effect(()=>{
       // lista decrescente dei combattenti per numeroTurno
       this.listaCombattenti = this.combattenti()
@@ -29,36 +29,39 @@ export class CombattimentoService {
   // Ottieni combattenti
   listaCombattenti!:Combattente[];
   giocatoreUltimoTurno='';
-  getCombattenteById(idCombattente: string): Combattente | undefined {
-    idCombattente = idCombattente.toLocaleLowerCase();
-    return this.combattenti().find(c => c.id.toLocaleLowerCase() === idCombattente);
+  getCombattenteById(combattenteId: string): Combattente | undefined {
+    combattenteId = combattenteId.toLocaleLowerCase();
+    return this.combattenti().find(c => c.id.toLocaleLowerCase() === combattenteId);
   }
 
   // Rimuovi un combattente
-  removeCombattente(idCombattente: string): void {
-    idCombattente = idCombattente.toLocaleLowerCase();
+  async rimuoviCombattente(combattenteId: string, showAgree = false): Promise<void> {
+    if(showAgree && !await agree(`Rimuovere ${combattenteId}?`, "Rimuovi", "danger")) return;
+
+    combattenteId = combattenteId.toLocaleLowerCase();
     const combattentiAggiornati = this.combattenti().filter(
-      c => c.id.toLocaleLowerCase() !== idCombattente
+      c => c.id.toLocaleLowerCase() !== combattenteId
     );
 
     this.combattenti.set(combattentiAggiornati);
+    this.mappa.rimuoviSimbolo(combattenteId);
 
-    const test = combattentiAggiornati.find(c => c.id.toLocaleLowerCase() === idCombattente);
+    const test = combattentiAggiornati.find(c => c.id.toLocaleLowerCase() === combattenteId);
     if (test) {
       console.error("Combattente non rimosso", test);
       return;
     }
-    toast(`${idCombattente} rimosso`, "success");
+    toast(`${combattenteId} rimosso`, "success");
   }
 
   // Ottieni un nome casuale per un combattente
   private coloriSquadre={
-    a: '#aa0000ff',
+    a: '#009494ff',
     b: '#009900ff',
     c: '#0000ddff',
     d: '#888800ff',
     e: '#a100a1ff',
-    f: '#009494ff',
+    f: '#aa0000ff',
     g: '#8c5b00ff',
     h: '#800080',
     i: '#b74357ff',
@@ -165,8 +168,8 @@ export class CombattimentoService {
   }
 
   // Danneggia o guarisce un personaggio
-  vitalitaPersonaggio(idCombattente: string, bonus: number): void {
-    const combattente = this.getCombattenteById(idCombattente.toLocaleLowerCase());
+  vitalitaPersonaggio(combattenteId: string, bonus: number): void {
+    const combattente = this.getCombattenteById(combattenteId.toLocaleLowerCase());
     if (!combattente) {
       toast("Combattente non trovato", "danger");
       return;
@@ -174,7 +177,7 @@ export class CombattimentoService {
 
     const hpIniziali = combattente.puntiFerita;
     const combattentiAggiornati = this.combattenti().map(c => {
-      if (c.id.toLocaleLowerCase() === idCombattente.toLocaleLowerCase()) {
+      if (c.id.toLocaleLowerCase() === combattenteId.toLocaleLowerCase()) {
         return { ...c, puntiFerita: c.puntiFerita + bonus };
       }
       return c;
@@ -182,11 +185,11 @@ export class CombattimentoService {
 
     this.combattenti.set(combattentiAggiornati);
 
-    const combattenteAggiornato = combattentiAggiornati.find(c => c.id.toLocaleLowerCase() === idCombattente.toLocaleLowerCase());
+    const combattenteAggiornato = combattentiAggiornati.find(c => c.id.toLocaleLowerCase() === combattenteId.toLocaleLowerCase());
     if (!combattenteAggiornato) return;
 
     if (combattenteAggiornato.puntiFerita <= 0) {
-      this.removeCombattente(idCombattente.toLocaleLowerCase());
+      this.rimuoviCombattente(combattenteId.toLocaleLowerCase());
       return toast(`${combattenteAggiornato.id} sconfitto`, "danger");
     }
 
@@ -366,10 +369,10 @@ export class CombattimentoService {
     }
   }
 
-  private coordinateCombattente(mappa: Mappa, idCombattente: string)
+  private coordinateCombattente(mappa: Mappa, combattenteId: string)
     : { riga: string; colonna: number } | null {
     for (const [riga, colonne] of Object.entries(mappa)) {
-      const index = colonne.findIndex(id => id.toLowerCase() === idCombattente.toLowerCase());
+      const index = colonne.findIndex(id => id.toLowerCase() === combattenteId.toLowerCase());
       if (index !== -1) {
         return { riga, colonna: index };
       }

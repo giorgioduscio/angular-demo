@@ -1,75 +1,70 @@
 <div class="container">
   <!-- pulsanti dadi -->
   <div class="position-relative d-none d-md-block">
-    <div class="position-fixed top-2 end-0 z-1 pe-4">
+    <div class="position-fixed top-2 end-0 z-1 p-2">
       <!-- pulsanti dadi -->
-      <div class="d-grid cols-1fr-1fr-1fr gap-2 w-150px">
+      <button (click)="dice.setShowButtons()" 
+              class="btn rounded-circle w-50px h-50px p-2"
+              [class.btn-primary]="dice.showButtons">
+        <i class="bi bi-dice-6"></i>
+      </button>
+      <div class="d-flex flex-column align-items-center gap-1 pt-2" *ngIf="dice.showButtons">
         <button *ngFor="let set of dice.pulsantiDadi" 
-                class="btn btn-{{dice.getColorPulsantiDadi(set)}} p-1" 
-                (click)="eseguiComando(set)">
-          {{ set }}</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="my-3 alert alert-warning">
-    <i class="bi bi-exclamation-triangle text-dark"></i>
-    Pagina in sviluppo
-  </div>
-
-  <!-- Header: mappe salvate, cronologia dadi -->
-  <section class="py-3 d-grid gap-2 responsive-200px">
-    <!-- Mappe salvate -->
-    <div *ngIf="mappa.getNomi().length > 0">
-      <h3>Genera mappa</h3>
-      <div class="pb-3 d-flex gap-2 align-items-center overflow-x-auto">
-        <div class="btn-group">
-          <button class="btn btn-primary bi bi-house d-flex gap-2 align-items-center" 
-                  (click)="mappa.creaMappa(9, 9)">Stanza</button>
-          <button class="btn btn-primary bi bi-building d-flex gap-2 align-items-center" 
-                  (click)="mappa.creaMappa(12, 12)">Edificio</button>
-          <button class="btn btn-primary bi bi-tree-fill d-flex gap-2 align-items-center" 
-                  (click)="mappa.creaMappa(26, 12)">Piazza</button>
-        </div>
-
-        <button *ngFor="let nome of mappa.getNomi()"
-              class="btn btn-success text-nowrap"
-              (click)="mappa.caricaMappaSalvata(nome)">
-          <i class="bi bi-map me-2"></i>
-          <b>{{ nome }}</b>
+                class="btn badge rounded-pill text-bg-{{set.color}}" 
+                (click)="eseguiComando(set.value)">
+          {{ set.value }}
         </button>
       </div>
     </div>
-    
-    <!-- Cronologia dei tiri -->
-    <div *ngIf="dice.tiri.length > 0">
-      <h3>Cronologia dei tiri</h3>
-      <div class="overflow-x-auto">
-        <div class="d-flex gap-2">
-          <small *ngFor="let tiro of dice.tiri"
-                class="p-2 border rounded text-nowrap">
-            {{ tiro }}
-          </small>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- Header: strumenti -->
+  </div>
 
   <!-- Main: Griglia della mappa -->
   <section class="row">
-    <aside *ngIf="comb.combattenti().length" 
-           class="d-none d-md-block col-12 col-md-3">
-      <h3>Combattenti</h3>
-      <ol>
-        <li *ngFor="let combattente of comb.listaCombattenti; let i=index">
-          <button class="w-100 btn d-flex align-items-center justify-content-between gap-2 rounded-0" 
+    <aside class="pt-3 d-none d-md-block col-12 col-md-3">
+      <!-- MAPPE SALVATE -->
+      <div *ngIf="mappa.getNomi().length > 0">
+        <h3>Genera mappa</h3>
+        <div class="d-flex-table my-2 rounded overflow-hidden">
+          <button (click)="mappa.creaMappa(9, 9)" class="btn btn-primary rounded-0">
+            <i class="bi bi-house me-2"></i>Stanza 
+          </button>
+          <button (click)="mappa.creaMappa(12, 12)" class="btn btn-primary rounded-0">
+            <i class="bi bi-building me-2"></i>Edificio
+          </button>
+          <button (click)="mappa.creaMappa(26, 12)" class="btn btn-primary rounded-0">
+            <i class="bi bi-tree-fill me-2"></i>Piazza
+          </button>
+        </div>
+        
+        <div class="pb-3 d-flex-table gap-2 align-items-center">
+          <div *ngFor="let nome of mappa.getNomi()" class="btn-group"
+                style="max-width: 100%;">
+            <button (click)="mappa.caricaMappaSalvata(nome)" 
+                    class="btn btn-secondary text-truncate text-nowrap">
+              <i class="bi bi-map me-2"></i>
+              <b class="">{{ nome }}</b>
+            </button>
+            <button (click)="mappa.eliminaMappaSalvata(nome)" class="btn btn-danger max-w-40px bi bi-trash"></button>
+          </div>
+          <button [disabled]="!mappa.colonne()" (click)="mappa.setMappeSalvate('random')" class="btn btn-success">Aggiungi <i class="bi bi-plus"></i></button>
+        </div>
+      </div>
+      <!-- LISTA COMBATTENTI -->
+      <div *ngIf="comb.combattenti().length" class="d-grid mb-3">
+        <h3>Combattenti</h3>
+        <div *ngFor="let combattente of comb.listaCombattenti; let i=index" 
+             class="d-grid cols-auto-1fr overflow-hidden"
+             [style.background]="comb.getColoreSquadra(combattente.squadra)">
+          <button (click)="comb.rimuoviCombattente(combattente.id, true)" class="btn btn-danger rounded-0">
+            <i class="bi bi-trash"></i>
+          </button>
+
+          <button class="btn d-flex align-items-center justify-content-between gap-2 rounded-0" 
                   (click)="eseguiComando('turno ' +combattente.id.toLowerCase())"
                   [class.border]="combattente.id === comb.giocatoreUltimoTurno"
-                  [style.background]="comb.getColoreSquadra(combattente.squadra)"
                   [disabled]="!combattente.bonusAttacco || !combattente.danni">
             <span>{{ combattente.id }}</span>
-
+  
             <div class="d-flex justify-content-between align-items-center gap-2">
               <i class="bi bi-heart d-none d-lg-inline"></i>
               <span class="d-none d-lg-inline">{{ combattente.puntiFerita }}</span>
@@ -80,12 +75,24 @@
               }
             </div>
           </button>
-        </li>
-      </ol>
+        </div>
+      </div>
+      <!-- CRONOLOGIA TIRI -->
+      <div *ngIf="dice.tiri.length > 0">
+        <h3>Cronologia tiri</h3>
+        <div class="">
+          <div class="d-flex flex-wrap gap-2">
+            <small *ngFor="let tiro of dice.tiri"
+                  class="badge rounded-pill text-bg-{{ tiro.color }} text-nowrap">
+              {{ tiro.value }}
+            </small>
+          </div>
+        </div>
+      </div>
     </aside>
         
     <!-- Mappa -->
-    <div class="col-auto py-3">
+    <div class="col-12 col-md-9 py-3">
       @if (!mappa.righe() || !mappa.colonne()) {
         <!-- Messaggio placeholder se la mappa non è stata generata -->
         <div class="d-flex-table gap-2">
@@ -101,8 +108,14 @@
           }
         </div>
 
+      <!-- TABELLA -->
       } @else {
-        <!-- TABELLA -->
+        <div class="d-flex my-3">
+          <button class="btn btn-secondary" (click)="eseguiComando('reset')">
+            <i class="bi bi-arrow-left"></i>
+            Indietro
+          </button>
+        </div>
         <div class="table-responsive">
           <table class="w-min-content m-auto table table-sm table-dark table-borderless table-striped table-hover table-striped-columns">
             <thead>
@@ -156,7 +169,12 @@
       <div *ngIf="consigli_prompt.length" class="mx-auto p-1">
         <ul class="m-0">
           <li *ngFor="let consiglio of consigli_prompt">
-            <var class="mx-1">{{ consiglio.esempio }}</var>
+            @for(es of consiglio.esempio; track $index) {
+              <small *ngIf="es!=', ' ; else virgola">{{ es }}</small>
+              <ng-template #virgola>
+                <span class="mx-2"> / </span>
+              </ng-template>
+            }
           </li>
         </ul>
       </div>

@@ -214,8 +214,8 @@ export class MappeComponent {
       execute: (comando: string) => {
         const parts = comando.split(' ');
         if (parts.length === 2 && (parts[1].includes('-') || parts[1].includes('+'))) {
-          const [idCombattente, quantita] = parts;
-          this.comb.vitalitaPersonaggio(idCombattente, Number(quantita));
+          const [combattenteId, quantita] = parts;
+          this.comb.vitalitaPersonaggio(combattenteId, Number(quantita));
         }
       }
     },
@@ -246,8 +246,7 @@ export class MappeComponent {
           toast("ID personaggio non valido", "danger");
           return;
         }
-        this.comb.removeCombattente(idPersonaggio);
-        this.mappa.rimuoviSimbolo(idPersonaggio);
+        this.comb.rimuoviCombattente(idPersonaggio);
       }
     },
     turno: {
@@ -357,7 +356,7 @@ export class MappeComponent {
   }
 
   // consiglio prompt
-  consigli_prompt : {esempio:string, descrizione:string}[] = [];
+  consigli_prompt : {esempio:string[], descrizione:string}[] = [];
   // condizioni dalla più specifica alla più generica
   esempi_prompt :{show:(s:string)=> boolean, label:string, description:string, section:string}[] = [
     { show:(s:string)=> !isNaN(parseInt(s[0])),
@@ -455,7 +454,7 @@ export class MappeComponent {
       if(this.consigli_prompt.length>2) break;
       if (element.show(value)) {
         this.consigli_prompt.push({
-          esempio: element.label, 
+          esempio: element.label.split('"'), 
           descrizione: element.description
         });
       }

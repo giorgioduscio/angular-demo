@@ -137,6 +137,9 @@ export class MappaService {
 
   // SALVA MAPPA
   async setMappeSalvate(nomeMappa: string): Promise<void> {
+    if(nomeMappa==='random'){
+      nomeMappa = 'mappa' + Date.now();
+    }
     if (!nomeMappa) {
       toast('Nome mappa non valido', 'danger');
       return;

@@ -25,7 +25,6 @@ Esempi:
 - prova ad aggiungere un iframe
 3) inserire audio o video
 
-
 ## dnd
 2. inserire le schede dei diversi personaggi che l'utente ha salvato
 2. guida equipaggiamento
@@ -37,3 +36,4 @@ Esempi:
 # mappe
 - movimento: come si comporta se la strada è occupata?
 - pulsanti creazione npc
+- layout: risultato dadi in alto a destra; aggiornamento pf personaggi
