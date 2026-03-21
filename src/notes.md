@@ -34,6 +34,6 @@ Esempi:
 3. incantesimi: sezione attacchi ed incantesimi. aggiungere incantesimi
 
 # mappe
-- movimento: come si comporta se un muro occupa il suo cammino?
-- personaggi: pulsanti/form creazione npc e pg
+- movimento: come si comporta se un muro occupa il suo cammino? rivedere logica di movimento
 - ? layout: risultato dadi in alto a destra
+- implementa toast e agree di bootstrap

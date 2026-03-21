@@ -5,6 +5,8 @@ import { CombattimentoService } from './combattimento.service';
 import { MappaService } from './mappa.service';
 import { CellComponent } from './cell.component';
 import { DiceService } from './dice.service';
+import { statisticheGradoSfida } from './gradiSfida';
+import { FormField } from '../login/validation';
 
 @Component({
   selector: 'app-mappe',
@@ -19,6 +21,7 @@ export class MappeComponent {
     public diceService: DiceService,
   ) {
     document.title = "Mappe";
+    this.form_reset()
   }
 
   // Gestisce l'input del prompt principale
@@ -64,6 +67,12 @@ export class MappeComponent {
       execute: (comando: string) => {
         const match = comando.match(/^(\d+)x(\d+)$/i);
         if (match) this.mappaService.mappa_create(parseInt(match[1], 10), parseInt(match[2], 10));
+      // Posizionamento automatico sulla mappa
+      this.combatService.posizionamento(
+        this.mappaService.mappa_value(), 
+        this.mappaService.mappa_righe().length, 
+        this.mappaService.mappa_colonne().length
+      );
       }
     },
     {
@@ -109,11 +118,11 @@ export class MappeComponent {
     {
       section: 'Dadi',
       description: 'Tira i dadi (es. 2d6+2)',
-      label: '"d100", "2d4+2", "d20-1"',
-      pattern: (s: string) => /^(\d*)d(\d+)([+-]\d*)?x?(\d*)$/i.test(s),
+      label: '"d100", "2d4+2", "d20-1", "d20 x3"',
+      pattern: (s: string) => /^(\d*)d(\d+)([+-]\d*)?\s*x?\s*(\d*)$/i.test(s),
       show: (s: string) => s[0] === 'd' || (!isNaN(parseInt(s[0])) && s.toLowerCase().includes('d')),
       execute: (comando: string) => {
-        const match = comando.match(/^(\d*)d(\d+)([+-]\d*)??x?(\d*)$/i);
+        const match = comando.match(/^(\d*)d(\d+)([+-]\d*)?\s*x?\s*(\d*)$/i);
         if (match) {
           const qta = match[1] ? parseInt(match[1], 10) : 1;
           const ripetizioni = match[4] ? parseInt(match[4], 10) : 1;
@@ -127,9 +136,9 @@ export class MappeComponent {
     {
       section: 'Combattimento',
       description: 'Aggiunge NPC o Giocatori alla squadra',
-      label: '"a: gs1/2", "b: Mario ca15 hp25 +2"',
-      pattern: (s: string) => s.includes(':') && (s.includes('gs') || (s.includes('ca') && s.includes('hp'))),
-      show: (s: string) => s.includes(':'),
+      label: '"a gs1/2", "b Mario ca15 hp25 +2"',
+      pattern: (s: string) => s.includes('gs') || (s.includes('ca') && s.includes('hp')),
+      show: (s: string) => s.includes('gs') || s.includes('ca') || s.includes('hp'),
       execute: (comando: string) => {
         if (comando.includes('gs')) this.eseguiCreazioneNPC(comando);
         else this.eseguiCreazioneGiocatore(comando);
@@ -204,7 +213,7 @@ export class MappeComponent {
   // METODI DI SUPPORTO PRIVATI (Estratti per pulizia)
   private eseguiCreazioneNPC(comando: string) {
     const prompt = comando.split(" ");
-    const nomeSquadra = prompt[0].replace(":", "").trim();
+    const nomeSquadra = prompt[0].trim();
     const gradoSfida = prompt.find(s => s.startsWith("gs"))?.replace("gs", "") || "1";
     let ripetizioni = Number(prompt.find(s => s.startsWith("x"))?.replace("x", "")) || 1;
     const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
@@ -217,8 +226,10 @@ export class MappeComponent {
 
   private eseguiCreazioneGiocatore(comando: string) {
     const prompt = comando.split(' ');
-    const nomeSquadra = prompt[0].replace(":", "").trim();
-    let nomeGiocatore = prompt.find(p => !p.includes(':') && !p.startsWith('ca') && !p.startsWith('hp') && !['mischia', 'distanza'].includes(p)) || 'Eroe';
+    const nomeSquadra = prompt[0].trim();
+    
+    // Il nome giocatore è la prima parola dopo la squadra che non sia una parola chiave (ca, hp, mischia, distanza)
+    let nomeGiocatore = prompt.find((p, i) => i > 0 && !p.startsWith('ca') && !p.startsWith('hp') && !['mischia', 'distanza'].includes(p)) || 'Eroe';
     nomeGiocatore = nomeGiocatore.charAt(0).toUpperCase() + nomeGiocatore.slice(1);
     
     const ca = Number(prompt.find(p => p.startsWith('ca'))?.replace('ca', '')) || 10;
@@ -278,5 +289,123 @@ export class MappeComponent {
     }, 500);
   }
 
+
+  // FORM INSERIMENTO COMBATTENTI
+  gs = statisticheGradoSfida
+  form :FormField[] =[]
+  form_reset(){
+    this.form = [
+      {
+        type: 'select',
+        key: 'gs',
+        label: 'Grado sfida (solo npc)',
+        value: '',
+        options: this.gs.map(gs => ({ value: gs.gradoSfida, label: gs.gradoSfida }))
+      },
+      {
+        type: 'text',
+        key: 'nome',
+        label: 'Nome',
+        value: '',
+        placeholder:'es: Eduard, Saruman, Optimus'
+      },
+      {
+        type: 'number',
+        key: 'iniziativa',
+        label: 'Iniziativa',
+        value: '',
+        placeholder:'es: 3, -1, 2'
+      },
+      {
+        type: 'number',
+        key: 'ca',
+        label: 'Classe armatura (solo pg)',
+        value: '',
+        placeholder:'es: 10, 15, 20'
+      },
+      {
+        type: 'number',
+        key: 'hp',
+        label: 'Punti ferita (solo pg)',
+        value: '',
+        placeholder:'es: 10, 15, 20'
+      },
+      {
+        type: 'radio',
+        key: 'squadra',
+        label: 'Squadra',
+        value: 'a',
+        options: [
+          { value: 'a', label: 'A' },
+          { value: 'b', label: 'B' },
+        ]
+      },
+      {
+        type: 'radio',
+        key: 'tipo',
+        label: 'Tipo',
+        value: 'mischia',
+        options: [
+          { value: 'mischia', label: 'Mischia' },
+          { value: 'distanza', label: 'A distanza' }
+        ]
+      },
+    ]
+  }
+
+  handleChange(e:Event){
+    // recupera e sanifica il valore cambiato
+    const {type, value, name} = e.target as HTMLInputElement;
+    let newValue = type === 'number' ? Number(value) : value;
+    const field = this.form.find(f => f.key === name);
+    if(!field) return console.error("Campo non trovato");
+    
+    // assegna al form
+    if(name=='nome') newValue = value.charAt(0).toUpperCase() + value.slice(1);
+    field.value = newValue;
+  }
+  
+  handleSubmit(e: Event) {
+    e.preventDefault();
+
+    // Mappa i valori del form in un oggetto comodo
+    const nc: { [k: string]: any } = {};
+    for (const field of this.form) {
+      nc[field.key] = field.value;
+    }
+
+    const { squadra, gs, nome, ca, hp, iniziativa, tipo } = nc;
+
+    // 1. BLOCCO: Un NPC (GS) non può avere statistiche fisse da Giocatore (CA/HP)
+    if (gs && (ca || hp)) {
+      return toast("Un NPC (GS) non può avere CA o HP personalizzati", "danger");
+    }
+
+    // 2. VALIDAZIONE COMBINAZIONI MINIME
+    const isNPCValido = squadra && gs;
+    const isPGValido = squadra && nome && ca && hp;
+
+    if (!isNPCValido && !isPGValido) {
+      return toast("Dati incompleti: inserisci (Squadra + GS) o (Squadra + Nome + CA + HP)", "danger");
+    }
+
+    // 3. ESECUZIONE
+    this.combatService.addCombattente(
+      squadra,
+      iniziativa || 0,
+      isNPCValido ? gs : "",
+      nome || "",
+      isPGValido ? ca : 0,
+      isPGValido ? hp : 0,
+      tipo
+    );
+
+    // Posizionamento automatico sulla mappa
+    this.combatService.posizionamento(
+      this.mappaService.mappa_value(), 
+      this.mappaService.mappa_righe().length, 
+      this.mappaService.mappa_colonne().length
+    );
+  }
 
 }

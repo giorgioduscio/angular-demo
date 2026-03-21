@@ -6,6 +6,7 @@ export interface StatisticheGradoSfida {
   bonusAttacco: number;
   danniRound: number;
   dadiDanni: number;
+  bonusIniziativa: number; 
   classeDifficolta_tiriSalvezza: number;
 }
 
@@ -14,10 +15,11 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     gradoSfida: "0",
     bonusCompetenza: +2,
     classeArmatura: 12,
-    puntiFerita: 4, // Arrotondato per eccesso da 3.5
+    puntiFerita: 4,
     bonusAttacco: 2,
-    danniRound: 1, // Arrotondato per eccesso da 0.5
+    danniRound: 1,
     dadiDanni: 0,
+    bonusIniziativa: 0, 
     classeDifficolta_tiriSalvezza: 13
   },
   {
@@ -26,18 +28,20 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 13,
     puntiFerita: 21,
     bonusAttacco: 3,
-    danniRound: 3, // Arrotondato per eccesso da 2.5
+    danniRound: 3,
     dadiDanni: 1,
+    bonusIniziativa: +1,
     classeDifficolta_tiriSalvezza: 13
   },
   {
     gradoSfida: "1/4",
     bonusCompetenza: +2,
     classeArmatura: 13,
-    puntiFerita: 43, // Arrotondato per eccesso da 42.5
+    puntiFerita: 43,
     bonusAttacco: 3,
-    danniRound: 5, // Arrotondato per eccesso da 4.5
+    danniRound: 5,
     dadiDanni: 2,
+    bonusIniziativa: +1,
     classeDifficolta_tiriSalvezza: 13
   },
   {
@@ -46,8 +50,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 13,
     puntiFerita: 60,
     bonusAttacco: 3,
-    danniRound: 8, // Arrotondato per eccesso da 7
+    danniRound: 8,
     dadiDanni: 2,
+    bonusIniziativa: +2,
     classeDifficolta_tiriSalvezza: 13
   },
   {
@@ -56,8 +61,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 13,
     puntiFerita: 78,
     bonusAttacco: 3,
-    danniRound: 12, // Arrotondato per eccesso da 11.5
+    danniRound: 12,
     dadiDanni: 2,
+    bonusIniziativa: +2,
     classeDifficolta_tiriSalvezza: 13
   },
   {
@@ -66,8 +72,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 13,
     puntiFerita: 93,
     bonusAttacco: 3,
-    danniRound: 18, // Arrotondato per eccesso da 17.5
+    danniRound: 18,
     dadiDanni: 2,
+    bonusIniziativa: +3,
     classeDifficolta_tiriSalvezza: 13
   },
   {
@@ -76,8 +83,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 13,
     puntiFerita: 108,
     bonusAttacco: 4,
-    danniRound: 24, // Arrotondato per eccesso da 23.5
+    danniRound: 24,
     dadiDanni: 3,
+    bonusIniziativa: +3,
     classeDifficolta_tiriSalvezza: 13
   },
   {
@@ -86,8 +94,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 14,
     puntiFerita: 123,
     bonusAttacco: 5,
-    danniRound: 30, // Arrotondato per eccesso da 29.5
+    danniRound: 30,
     dadiDanni: 4,
+    bonusIniziativa: +4,
     classeDifficolta_tiriSalvezza: 14
   },
   {
@@ -96,8 +105,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 15,
     puntiFerita: 138,
     bonusAttacco: 6,
-    danniRound: 36, // Arrotondato per eccesso da 35.5
+    danniRound: 36,
     dadiDanni: 6,
+    bonusIniziativa: +4,
     classeDifficolta_tiriSalvezza: 15
   },
   {
@@ -106,8 +116,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 15,
     puntiFerita: 153,
     bonusAttacco: 6,
-    danniRound: 42, // Arrotondato per eccesso da 41.5
+    danniRound: 42,
     dadiDanni: 6,
+    bonusIniziativa: +5,
     classeDifficolta_tiriSalvezza: 15
   },
   {
@@ -116,8 +127,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 15,
     puntiFerita: 168,
     bonusAttacco: 6,
-    danniRound: 48, // Arrotondato per eccesso da 47.5
+    danniRound: 48,
     dadiDanni: 5,
+    bonusIniziativa: +5,
     classeDifficolta_tiriSalvezza: 15
   },
   {
@@ -126,8 +138,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 16,
     puntiFerita: 183,
     bonusAttacco: 7,
-    danniRound: 54, // Arrotondato per eccesso da 53.5
+    danniRound: 54,
     dadiDanni: 6,
+    bonusIniziativa: +6,
     classeDifficolta_tiriSalvezza: 16
   },
   {
@@ -136,8 +149,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 16,
     puntiFerita: 198,
     bonusAttacco: 7,
-    danniRound: 60, // Arrotondato per eccesso da 59.5
+    danniRound: 60,
     dadiDanni: 6,
+    bonusIniziativa: +6,
     classeDifficolta_tiriSalvezza: 16
   },
   {
@@ -146,8 +160,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 17,
     puntiFerita: 213,
     bonusAttacco: 7,
-    danniRound: 66, // Arrotondato per eccesso da 65.5
+    danniRound: 66,
     dadiDanni: 7,
+    bonusIniziativa: +7,
     classeDifficolta_tiriSalvezza: 16
   },
   {
@@ -156,8 +171,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 17,
     puntiFerita: 228,
     bonusAttacco: 8,
-    danniRound: 72, // Arrotondato per eccesso da 71.5
+    danniRound: 72,
     dadiDanni: 7,
+    bonusIniziativa: +7,
     classeDifficolta_tiriSalvezza: 17
   },
   {
@@ -166,8 +182,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 17,
     puntiFerita: 243,
     bonusAttacco: 9,
-    danniRound: 78, // Arrotondato per eccesso da 77.5
+    danniRound: 78,
     dadiDanni: 8,
+    bonusIniziativa: +8,
     classeDifficolta_tiriSalvezza: 17
   },
   {
@@ -176,8 +193,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 18,
     puntiFerita: 258,
     bonusAttacco: 9,
-    danniRound: 84, // Arrotondato per eccesso da 83.5
+    danniRound: 84,
     dadiDanni: 8,
+    bonusIniziativa: +8,
     classeDifficolta_tiriSalvezza: 18
   },
   {
@@ -186,8 +204,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 18,
     puntiFerita: 273,
     bonusAttacco: 9,
-    danniRound: 90, // Arrotondato per eccesso da 89.5
+    danniRound: 90,
     dadiDanni: 9,
+    bonusIniziativa: +9,
     classeDifficolta_tiriSalvezza: 18
   },
   {
@@ -196,8 +215,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 18,
     puntiFerita: 288,
     bonusAttacco: 9,
-    danniRound: 96, // Arrotondato per eccesso da 95.5
+    danniRound: 96,
     dadiDanni: 9,
+    bonusIniziativa: +9,
     classeDifficolta_tiriSalvezza: 18
   },
   {
@@ -206,8 +226,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 18,
     puntiFerita: 303,
     bonusAttacco: 9,
-    danniRound: 102, // Arrotondato per eccesso da 101.5
+    danniRound: 102,
     dadiDanni: 10,
+    bonusIniziativa: +10,
     classeDifficolta_tiriSalvezza: 18
   },
   {
@@ -216,8 +237,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 318,
     bonusAttacco: 10,
-    danniRound: 108, // Arrotondato per eccesso da 107.5
+    danniRound: 108,
     dadiDanni: 10,
+    bonusIniziativa: +10,
     classeDifficolta_tiriSalvezza: 19
   },
   {
@@ -226,8 +248,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 333,
     bonusAttacco: 10,
-    danniRound: 114, // Arrotondato per eccesso da 113.5
+    danniRound: 114,
     dadiDanni: 11,
+    bonusIniziativa: +11,
     classeDifficolta_tiriSalvezza: 19
   },
   {
@@ -236,8 +259,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 348,
     bonusAttacco: 10,
-    danniRound: 120, // Arrotondato per eccesso da 119.5
+    danniRound: 120,
     dadiDanni: 11,
+    bonusIniziativa: +11,
     classeDifficolta_tiriSalvezza: 19
   },
   {
@@ -246,8 +270,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 378,
     bonusAttacco: 10,
-    danniRound: 132, // Arrotondato per eccesso da 131.5
+    danniRound: 132,
     dadiDanni: 12,
+    bonusIniziativa: +12,
     classeDifficolta_tiriSalvezza: 19
   },
   {
@@ -256,8 +281,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 423,
     bonusAttacco: 11,
-    danniRound: 150, // Arrotondato per eccesso da 149.5
+    danniRound: 150,
     dadiDanni: 14,
+    bonusIniziativa: +12,
     classeDifficolta_tiriSalvezza: 20
   },
   {
@@ -266,8 +292,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 468,
     bonusAttacco: 11,
-    danniRound: 168, // Arrotondato per eccesso da 167.5
+    danniRound: 168,
     dadiDanni: 15,
+    bonusIniziativa: +13,
     classeDifficolta_tiriSalvezza: 20
   },
   {
@@ -276,8 +303,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 513,
     bonusAttacco: 11,
-    danniRound: 185, // Arrotondato per eccesso da 184.5
+    danniRound: 185,
     dadiDanni: 16,
+    bonusIniziativa: +13,
     classeDifficolta_tiriSalvezza: 20
   },
   {
@@ -286,8 +314,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 558,
     bonusAttacco: 12,
-    danniRound: 204, // Arrotondato per eccesso da 203.5
+    danniRound: 204,
     dadiDanni: 18,
+    bonusIniziativa: +14,
     classeDifficolta_tiriSalvezza: 21
   },
   {
@@ -296,8 +325,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 603,
     bonusAttacco: 12,
-    danniRound: 222, // Arrotondato per eccesso da 221.5
+    danniRound: 222,
     dadiDanni: 20,
+    bonusIniziativa: +14,
     classeDifficolta_tiriSalvezza: 21
   },
   {
@@ -306,8 +336,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 648,
     bonusAttacco: 12,
-    danniRound: 240, // Arrotondato per eccesso da 239.5
+    danniRound: 240,
     dadiDanni: 21,
+    bonusIniziativa: +15,
     classeDifficolta_tiriSalvezza: 21
   },
   {
@@ -316,8 +347,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 693,
     bonusAttacco: 13,
-    danniRound: 258, // Arrotondato per eccesso da 257.5
+    danniRound: 258,
     dadiDanni: 23,
+    bonusIniziativa: +15,
     classeDifficolta_tiriSalvezza: 22
   },
   {
@@ -326,8 +358,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 738,
     bonusAttacco: 13,
-    danniRound: 276, // Arrotondato per eccesso da 275.5
+    danniRound: 276,
     dadiDanni: 24,
+    bonusIniziativa: +16,
     classeDifficolta_tiriSalvezza: 22
   },
   {
@@ -336,8 +369,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 783,
     bonusAttacco: 13,
-    danniRound: 294, // Arrotondato per eccesso da 293.5
+    danniRound: 294,
     dadiDanni: 26,
+    bonusIniziativa: +16,
     classeDifficolta_tiriSalvezza: 22
   },
   {
@@ -346,8 +380,9 @@ export const statisticheGradoSfida: StatisticheGradoSfida[] = [
     classeArmatura: 19,
     puntiFerita: 828,
     bonusAttacco: 14,
-    danniRound: 312, // Arrotondato per eccesso da 311.5
+    danniRound: 312,
     dadiDanni: 27,
+    bonusIniziativa: +17,
     classeDifficolta_tiriSalvezza: 23
   }
 ] as const;

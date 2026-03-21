@@ -11,7 +11,7 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
     @if(combattente()) {
       <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
           [style.background]="color()" 
-          [class.border]="feedback()">
+          [class.subisceDanno]="feedback()">
         <h6 class="small d-grid cols-1fr-auto px-2">
           <span class="text-truncate">{{ combattente()!.id }}</span>
           <img [alt]="combattente()!.id" [src]="srcValue()"
@@ -38,6 +38,9 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
     .allerta{
       color: #ff7979ff;
       font-weight: 900;
+    }
+    .subisceDanno{
+      box-shadow: 0 0 10px #ff7979ff;
     }
   </style>
   `
@@ -68,18 +71,35 @@ export class CellComponent {
   // Segnale per il feedback visivo (bordi che lampeggiano)
   feedback = signal(false);
 
+  // Variabili per il monitoraggio dello stato precedente
+  private ultimoId: string | undefined;
+  private ultimoHP: number | undefined;
+
   constructor(private comb: CombattimentoService) {
-    // Gestione del feedback: si attiva solo quando lo stato dello specifico combattente cambia
+    // Gestione del feedback: si attiva solo quando il personaggio subisce danno
     effect((onCleanup) => {
       const c = this.combattente();
-      if (c) {
-        this.feedback.set(true);
-        const timer = setTimeout(() => {
-          this.feedback.set(false);
-        }, 800);
+      const idAttuale = this.cellValue();
 
-        // Cleanup del timer in caso di distruzione del componente o nuovo trigger
-        onCleanup(() => clearTimeout(timer));
+      if (c) {
+        const hpAttuali = c.puntiFerita;
+        
+        // Attiva il feedback solo se:
+        // 1. È lo stesso personaggio della lettura precedente
+        // 2. I suoi HP sono diminuiti (danno)
+        if (this.ultimoId === idAttuale && this.ultimoHP !== undefined && hpAttuali < this.ultimoHP) {
+          this.feedback.set(true);
+          const timer = setTimeout(() => this.feedback.set(false), 800);
+          onCleanup(() => clearTimeout(timer));
+        }
+
+        // Sincronizza lo stato per il prossimo cambiamento
+        this.ultimoHP = hpAttuali;
+        this.ultimoId = idAttuale;
+      } else {
+        // Se la cella è vuota, resetta il monitoraggio
+        this.ultimoHP = undefined;
+        this.ultimoId = undefined;
       }
     }, { allowSignalWrites: true });
   }

@@ -26,6 +26,10 @@ export class MappaService {
     return keys.length > 0 ? Array.from({ length: this.mappa_value()[keys[0]].length }, (_, i) => i) : [];
   });
   
+  mappa_reset(){
+    this.mappa_value.set({});
+  }
+
   mappa_create(righe: number, colonne: number): void {
     // Gestisce input non validi
     if (righe <= 0 || colonne <= 0) {
@@ -47,7 +51,6 @@ export class MappaService {
     }
 
     this.mappa_value.set(nuovaMappa);
-    toast(`Mappa ${righe}x${colonne} creata!`, 'success');
   }
 
   // AGGIUNGE SIMBOLI

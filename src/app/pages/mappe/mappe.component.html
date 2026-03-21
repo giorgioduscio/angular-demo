@@ -20,18 +20,32 @@
 
   <!-- Main: Griglia della mappa -->
   <section class="row">
-    <aside class="pt-3 d-none d-md-block col-12 col-md-3">
+    <!-- strumenti -->
+    <aside class="pt-3 d-none d-md-block col-12 col-md-3 overflow-auto" style="height: 93vh;">
+      <!-- CRONOLOGIA TIRI -->
+      <div *ngIf="diceService.tiri.length > 0">
+        <ul><li> <h3>Cronologia tiri</h3> </li></ul>
+        <div class="">
+          <div class="d-flex flex-wrap gap-2">
+            <small *ngFor="let tiro of diceService.tiri"
+                  class="badge rounded-pill text-bg-{{ tiro.color }} text-nowrap">
+              {{ tiro.value }}
+            </small>
+          </div>
+        </div>
+      </div>
+
       <!-- MAPPE SALVATE -->
       <div *ngIf="mappaService.storage_getNames().length > 0">
-        <h3>Genera mappa</h3>
+        <ul><li> <h3>Genera mappa</h3> </li></ul>
         <div class="d-flex-table my-2 rounded overflow-hidden">
-          <button (click)="mappaService.mappa_create(9, 9)" class="btn btn-primary rounded-0">
+          <button (click)="eseguiComando('9x9')" class="btn btn-primary rounded-0">
             <i class="bi bi-house me-2"></i>Stanza 
           </button>
-          <button (click)="mappaService.mappa_create(12, 12)" class="btn btn-primary rounded-0">
+          <button (click)="eseguiComando('12x12')" class="btn btn-primary rounded-0">
             <i class="bi bi-building me-2"></i>Edificio
           </button>
-          <button (click)="mappaService.mappa_create(26, 12)" class="btn btn-primary rounded-0">
+          <button (click)="eseguiComando('26x12')" class="btn btn-primary rounded-0">
             <i class="bi bi-tree-fill me-2"></i>Piazza
           </button>
         </div>
@@ -49,11 +63,13 @@
           <button [disabled]="mappaService.mappa_isVoid()" (click)="mappaService.storage_addMap('random')" class="btn btn-success">Aggiungi <i class="bi bi-plus"></i></button>
         </div>
       </div>
+      
       <!-- LISTA COMBATTENTI -->
-      <div *ngIf="combatService.combattenti().length" class="d-grid mb-3">
-        <h3>Combattenti</h3>
+      <div class="d-grid mb-3">
+        <ul><li> <h3>Combattenti</h3> </li></ul>
+        <!-- LISTA COMBATTENTI -->
         <div *ngFor="let combattente of combatService.listaCombattenti; let i=index" 
-             class="d-grid cols-auto-1fr overflow-hidden"
+             class="d-grid cols-auto-1fr"
              [style.background]="combatService.getColoreSquadra(combattente.squadra)">
           <button (click)="combatService.rimuoviCombattente(combattente.id, true)" class="btn btn-danger rounded-0">
             <i class="bi bi-trash"></i>
@@ -76,23 +92,52 @@
             </div>
           </button>
         </div>
-      </div>
-      <!-- CRONOLOGIA TIRI -->
-      <div *ngIf="diceService.tiri.length > 0">
-        <h3>Cronologia tiri</h3>
-        <div class="">
-          <div class="d-flex flex-wrap gap-2">
-            <small *ngFor="let tiro of diceService.tiri"
-                  class="badge rounded-pill text-bg-{{ tiro.color }} text-nowrap">
-              {{ tiro.value }}
-            </small>
+
+        <!-- NUOVO COMBATTENTE -->
+        <form (change)="handleChange($event)" (submit)="handleSubmit($event)">
+          <div class="d-flex-table gap-2 my-2">
+            <div *ngFor="let field of form; let i = index">
+              <label [for]="field.key">{{ field.label }}</label>
+              
+              @if (field.type=='select') {
+                <select [name]="field.key" [id]="field.key" 
+                        class="form-control bg-dark">
+                  <option value="">Seleziona</option>
+                  <option *ngFor="let option of field.options" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+  
+              }@else if (field.type=='radio') {
+                <div class="d-flex flex-wrap gap-2">
+                  <div *ngFor="let opt of field.options">
+                    <input type="radio" [name]="field.key" id="radio"
+                           [value]="opt.value" class="form-check-input me-2" 
+                           [checked]="opt.value === field.value"/>
+                    <label [for]="field.key">{{ opt.label }}</label>
+                  </div>
+                </div>
+                
+              }@else{
+                <input [type]="field.type" [name]="field.key" [id]="field.key" 
+                       class="form-control"
+                       [value]="field.value"
+                       [placeholder]="field.placeholder"
+                />
+              }
+            </div>
           </div>
-        </div>
+
+          <div>
+            <button type="submit" class="btn btn-primary">Applica</button>
+            <button (click)="form_reset()" type="button" class="btn btn-danger mx-2">Reset</button>
+          </div>
+        </form>
       </div>
     </aside>
         
     <!-- Mappa -->
-    <div class="col-12 col-md-9 py-3">
+    <div class="col-12 col-md-9 py-3 overflow-auto" style="height: 93vh !important;">
       @if (mappaService.mappa_isVoid()) {
         <!-- Messaggio placeholder se la mappa non è stata generata -->
         <div class="d-flex-table gap-2">
@@ -111,7 +156,7 @@
       <!-- TABELLA -->
       } @else {
         <div class="d-flex my-3">
-          <button class="btn btn-secondary" (click)="eseguiComando('reset')">
+          <button class="btn btn-secondary" (click)="mappaService.mappa_reset()">
             <i class="bi bi-arrow-left"></i>
             Indietro
           </button>
@@ -164,7 +209,7 @@
   </section>
 
   <!-- Footer: Input principale -->
-  <div class="pt-5">
+  <div class="pt-5 pt-md-0">
     <div class="fixed-bottom z-1  mx-auto min-w-250px max-w-400px text-bg-c1">
       <div *ngIf="prompt_consiglio.length" class="mx-auto p-1">
         <ul class="m-0">
