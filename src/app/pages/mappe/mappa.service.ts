@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import { toast, agree } from '../../tools/feedbacksUI';
 
 export interface Mappa {
@@ -9,10 +9,32 @@ export interface Mappa {
 export class MappaService {
   constructor() {
     this.storage_sync();
+    effect(() => {
+      this.saveCurrentMapToStorage(this.mappa_value());
+    });
   } 
   
   // STATO PUBBLICO (Segnali Calcolati)
-  mappa_value = signal<Mappa>({});
+  mappa_value = signal<Mappa>(this.loadCurrentMapFromStorage());
+  
+  private readonly STORAGE_KEY_ATTUALE = 'mappa_attuale';
+  private saveCurrentMapToStorage(data: Mappa): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY_ATTUALE, JSON.stringify(data));
+    } catch (e) {
+      console.error("Errore salvataggio Mappa Attuale:", e);
+    }
+  }
+
+  private loadCurrentMapFromStorage(): Mappa {
+    try {
+      const saved = localStorage.getItem(this.STORAGE_KEY_ATTUALE);
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      console.error("Errore caricamento Mappa Attuale:", e);
+      return {};
+    }
+  }
   mappa_isVoid = computed(() => 
     this.mappa_righe().length === 0 || 
     this.mappa_colonne().length === 0);

@@ -17,14 +17,38 @@ export interface Combattente {
 
 @Injectable({ providedIn: 'root' })
 export class CombattimentoService {
+  private readonly STORAGE_KEY = 'combattenti_data';
+
   constructor(private mappaService:MappaService) {
     effect(()=>{
+      const current = this.combattenti();
+      // Persistenza automatica
+      this.saveToStorage(current);
+      
       // lista decrescente dei combattenti per numeroTurno
-      this.listaCombattenti = this.combattenti()
+      this.listaCombattenti = [...current]
         .sort((a, b) => b.numeroTurno - a.numeroTurno);
     })
   }
-  combattenti = signal<Combattente[]>([]);
+  combattenti = signal<Combattente[]>(this.loadFromStorage());
+
+  private saveToStorage(data: Combattente[]): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.error("Errore salvataggio LocalStorage:", e);
+    }
+  }
+
+  private loadFromStorage(): Combattente[] {
+    try {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error("Errore caricamento LocalStorage:", e);
+      return [];
+    }
+  }
 
   // Ottieni combattenti
   listaCombattenti!:Combattente[];
