@@ -75,7 +75,16 @@ export class CombattimentoService {
       console.error("Combattente non rimosso", test);
       return;
     }
-    toast.success(`${combattenteId} rimosso`);
+  }
+  
+  async rimuoviTuttiCombattenti(): Promise<void> {
+    if(!await agree.danger("Rimuovere tutti i combattenti?", "Rimuovi tutti")) return;
+
+    for(const combattente of this.combattenti()) {
+      await this.rimuoviCombattente(combattente.id, false);
+      this.mappaService.mappa_removeSymbol(combattente.id);
+    }
+    toast.success("Tutti i combattenti rimossi");
   }
 
   // Ottieni un nome casuale per un combattente
@@ -147,7 +156,11 @@ export class CombattimentoService {
   }
 
   // Posiziona i combattenti su lati opposti della mappa
-  posizionamento(mappa: Mappa, righe: number, colonne: number): void {
+  posizionamento(): void {
+    const mappa = this.mappaService.mappa_value()
+    const righe = this.mappaService.mappa_righe().length
+    const colonne = this.mappaService.mappa_colonne().length
+
     if (!mappa || righe === 0 || colonne === 0) {
       toast.danger("Mappa non valida");
       return;
@@ -157,8 +170,8 @@ export class CombattimentoService {
     const lettereRighe = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
     for (let i = 0; i < righe; i++) {
       const letteraRiga = lettereRighe[i];
-      if (mappa[letteraRiga]) {
-        mappa[letteraRiga].fill('');
+      if (mappa.value[letteraRiga].length>1) {
+        mappa.value[letteraRiga].fill('');
       }
     }
 
@@ -181,9 +194,9 @@ export class CombattimentoService {
         const riga = String.fromCharCode(65 + indiceCombattente * step);
         const colonna = isLeft ? 0 : colonne - 1;
         // se esiste riga e colonne sono nel range della mappa
-        if (mappa[riga] && colonna >= 0 && colonna < mappa[riga].length) {
+        if (mappa.value[riga] && colonna >= 0 && colonna < mappa.value[riga].length) {
           // inserisce l'id del combattente nella mappa
-          mappa[riga][colonna] = combattente.id; 
+          mappa.value[riga][colonna] = combattente.id; 
         }
       });
     });
@@ -373,10 +386,10 @@ export class CombattimentoService {
         )
       }))
       .filter(pos =>
-        mappa()[pos.riga] !== undefined &&
+        mappa().value[pos.riga] !== undefined &&
         pos.colonna >= 0 &&
-        pos.colonna < mappa()[pos.riga].length &&
-        mappa()[pos.riga][pos.colonna] === ''
+        pos.colonna < mappa().value[pos.riga].length &&
+        mappa().value[pos.riga][pos.colonna] === ''
       )
       .sort((a, b) => a.distanza - b.distanza); // Ordina per vicinanza all'avversario
 
@@ -385,8 +398,8 @@ export class CombattimentoService {
     if (nuovaPosizione) {
       // console.log(`${attaccante.id} in ${nuovaPosizione.riga}${nuovaPosizione.colonna}`);
       const nuovaMappa = structuredClone(mappa());
-      nuovaMappa[coordAttaccante.riga][coordAttaccante.colonna] = '';
-      nuovaMappa[nuovaPosizione.riga][nuovaPosizione.colonna] = attaccante.id;
+      nuovaMappa.value[coordAttaccante.riga][coordAttaccante.colonna] = '';
+      nuovaMappa.value[nuovaPosizione.riga][nuovaPosizione.colonna] = attaccante.id;
       mappa.set(nuovaMappa);
     } else {
       console.warn(`${attaccante.id} non può muoversi: tutte le celle adiacenti sono occupate.`);
@@ -395,7 +408,7 @@ export class CombattimentoService {
 
   private coordinateCombattente(mappa: Mappa, combattenteId: string)
     : { riga: string; colonna: number } | null {
-    for (const [riga, colonne] of Object.entries(mappa)) {
+    for (const [riga, colonne] of Object.entries(mappa.value)) {
       const index = colonne.findIndex(id => id.toLowerCase() === combattenteId.toLowerCase());
       if (index !== -1) {
         return { riga, colonna: index };

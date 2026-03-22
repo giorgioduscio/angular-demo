@@ -202,19 +202,23 @@ function executeAgree(message: string,
 
       const html = `
         <div class="modal fade" id="${modalId}" tabindex="-1" aria-modal="true" role="dialog">
-          <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-            <div class="modal-content bg-${colorePulsante} ${textColor} border-0 shadow-lg">
+          <div class="modal-dialog modal-sm modal-dialog" role="document">
+
+            <div class="modal-content text-bg-dark border-0 shadow-lg">
               <div class="modal-header border-0 pb-0">
-                <button type="button" class="${closeBtnClass} ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn btn-dark ms-auto" data-bs-dismiss="modal" aria-label="Close">
+                  <i class="bi bi-x-lg"></i>
+                </button>
               </div>
               <div class="modal-body text-center py-4">
                 <p class="mb-0 fs-5 fw-medium">${message}</p>
               </div>
               <div class="modal-footer border-0 justify-content-between pb-4 pt-0">
-                <button type="button" class="btn ${isLightColor ? 'btn-dark' : 'btn-light'} btn-sm px-3" data-bs-dismiss="modal">Annulla</button>
-                <button type="button" class="btn ${isLightColor ? 'btn-outline-dark' : 'btn-outline-light'} btn-sm px-3" id="${modalId}-ok">${messaggioPulsante}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-${colorePulsante}" id="${modalId}-ok">${messaggioPulsante}</button>
               </div>
             </div>
+
           </div>
         </div>
       `;

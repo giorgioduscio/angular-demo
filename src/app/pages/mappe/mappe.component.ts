@@ -68,11 +68,7 @@ export class MappeComponent {
         const match = comando.match(/^(\d+)x(\d+)$/i);
         if (match) this.mappaService.mappa_create(parseInt(match[1], 10), parseInt(match[2], 10));
       // Posizionamento automatico sulla mappa
-      this.combatService.posizionamento(
-        this.mappaService.mappa_value(), 
-        this.mappaService.mappa_righe().length, 
-        this.mappaService.mappa_colonne().length
-      );
+      this.combatService.posizionamento();
       }
     },
     {
@@ -83,7 +79,7 @@ export class MappeComponent {
       show: (s: string) => "reset ".includes(s.toLowerCase()) || s.toLowerCase().startsWith('reset'),
       execute: () => {
         this.combatService.combattenti.set([]);
-        this.mappaService.mappa_value.set({});
+        this.mappaService.mappa_reset();
       }
     },
     {
@@ -103,6 +99,21 @@ export class MappeComponent {
       }
     },
     // --- SIMBOLI ---
+    {
+      section: 'Simboli',
+      description: 'pulisce la cella indicata',
+      label: '"clear b4", "clear c6"',
+      pattern: (s: string) => /^clear ([a-zA-Z])\s*(\d+)$/i.test(s),
+      show: (s: string) => "clear".startsWith(s),
+      execute: (comando: string) => {
+        const match = comando.match(/^clear ([a-zA-Z])\s*(\d+)$/i);
+        if(!match) return console.error("match non trovato");
+        
+        const riga =match[1];
+        const colonna = parseInt(match[2], 10) - 1
+        this.mappaService.mappa_setCell(riga, colonna, "")
+      }
+    },
     {
       section: 'Simboli',
       description: 'Aggiunge un simbolo o sposta un personaggio',
@@ -166,7 +177,7 @@ export class MappeComponent {
       label: '"start"',
       pattern: (s: string) => s.toLowerCase() === 'start',
       show: (s: string) => "start".startsWith(s.toLowerCase()),
-      execute: () => this.combatService.posizionamento(this.mappaService.mappa_value(), this.mappaService.mappa_righe().length, this.mappaService.mappa_colonne().length)
+      execute: () => this.combatService.posizionamento()
     }
   ];
 
@@ -221,7 +232,7 @@ export class MappeComponent {
     for (let i = 0; i < ripetizioni; i++) {
       this.combatService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
     }
-    this.combatService.posizionamento(this.mappaService.mappa_value(), this.mappaService.mappa_righe().length, this.mappaService.mappa_colonne().length);
+    this.combatService.posizionamento();
   }
 
   private eseguiCreazioneGiocatore(comando: string) {
@@ -238,7 +249,7 @@ export class MappeComponent {
     const iniziativa = Number(prompt.find(p => /^[+-]\d+$/.test(p))) || 0;
 
     this.combatService.addCombattente(nomeSquadra, iniziativa, "", nomeGiocatore, ca, hp, tipo);
-    this.combatService.posizionamento(this.mappaService.mappa_value(), this.mappaService.mappa_righe().length, this.mappaService.mappa_colonne().length);
+    this.combatService.posizionamento();
   }
 
   private eseguiAttacco(comando: string) {
@@ -401,11 +412,7 @@ export class MappeComponent {
     );
 
     // Posizionamento automatico sulla mappa
-    this.combatService.posizionamento(
-      this.mappaService.mappa_value(), 
-      this.mappaService.mappa_righe().length, 
-      this.mappaService.mappa_colonne().length
-    );
+    this.combatService.posizionamento();
   }
 
 }

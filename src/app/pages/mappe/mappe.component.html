@@ -37,7 +37,7 @@
 
       <!-- MAPPE SALVATE -->
       <div *ngIf="mappaService.storage_getNames().length > 0">
-        <ul><li> <h3>Genera mappa</h3> </li></ul>
+        <h3> <i class="bi bi-map"></i> Genera mappa</h3>
         <div class="d-flex-table my-2 rounded overflow-hidden">
           <button (click)="eseguiComando('9x9')" class="btn btn-primary rounded-0">
             <i class="bi bi-house me-2"></i>Stanza 
@@ -60,14 +60,17 @@
             </button>
             <button (click)="mappaService.storage_removeMap(nome)" class="btn btn-danger max-w-40px bi bi-trash"></button>
           </div>
-          <button [disabled]="mappaService.mappa_isVoid()" (click)="mappaService.storage_addMap('random')" class="btn btn-success">Aggiungi <i class="bi bi-plus"></i></button>
         </div>
       </div>
       
       <!-- LISTA COMBATTENTI -->
       <div class="d-grid mb-3">
-        <ul><li> <h3>Combattenti</h3> </li></ul>
+        <h3> <i class="bi bi-person"></i> Combattenti</h3>
         <!-- LISTA COMBATTENTI -->
+        <button class="btn btn-danger rounded-0" 
+                (click)="combatService.rimuoviTuttiCombattenti()"
+                *ngIf="combatService.combattenti().length"
+                >Rimuovi tutti</button>
         <div *ngFor="let combattente of combatService.listaCombattenti; let i=index" 
              class="d-grid cols-auto-1fr"
              [style.background]="combatService.getColoreSquadra(combattente.squadra)">
@@ -155,11 +158,18 @@
 
       <!-- TABELLA -->
       } @else {
-        <div class="d-flex my-3">
-          <button class="btn btn-secondary" (click)="mappaService.mappa_reset()">
-            <i class="bi bi-arrow-left"></i>
-            Indietro
-          </button>
+        <div class="position-relative pb-5">
+          <div class="position-fixed top-1 start-3 d-flex gap-1">
+            <button class="btn btn-secondary" (click)="mappaService.mappa_reset()">
+              <i class="bi bi-arrow-left"></i>
+              Indietro
+            </button>
+            <button class="btn btn-success" (click)="mappaService.storage_addMap()">
+              <i class="bi bi-save"></i>
+              Salva
+            </button>
+            <small class="m-0 p-2 alert alert-info d-none d-md-block">Celle con più caratteri vengono interpretate come giocatori</small>
+          </div>
         </div>
         <div class="table-responsive">
           <table class="w-min-content m-auto table table-sm table-dark table-borderless table-striped table-hover table-striped-columns">
@@ -180,8 +190,7 @@
                 <!-- Intestazione della riga (lettera) -->
                 <th class="text-center align-middle p-2">{{ rowKey }}</th>
                 <!-- Celle della riga -->
-                <td *ngFor="let cellValue of mappaService.mappa_value()[rowKey]; let j = index"
-                    [class.table-warning]="cellValue === '-'"
+                <td *ngFor="let cellValue of mappaService.mappa_value().value[rowKey]; let j = index"
                     [attr.data-cell]="rowKey + (j + 1)"
                     class="align-middle">
                   <app-cell [cellValue]="cellValue"></app-cell>
