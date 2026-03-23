@@ -24,8 +24,8 @@
     <aside class="pt-3 d-none d-lg-block col-md-3 overflow-auto" style="height: 93vh;">
       <!-- CRONOLOGIA TIRI -->
       <div *ngIf="diceService.tiri.length > 0">
-        <ul><li> <h3>Cronologia tiri</h3> </li></ul>
-        <div class="">
+        <h3><i class="bi bi-dice-5"></i> Cronologia tiri</h3>
+        <div class="mb-3">
           <div class="d-flex flex-wrap gap-2">
             <small *ngFor="let tiro of diceService.tiri"
                   class="badge rounded-pill text-bg-{{ tiro.color }} text-nowrap">
@@ -36,7 +36,7 @@
       </div>
 
       <!-- MAPPE SALVATE -->
-      <div *ngIf="mappaService.storage_getNames().length > 0">
+      <div>
         <h3> <i class="bi bi-map"></i> Genera mappa</h3>
         <div class="d-flex-table my-2 rounded overflow-hidden">
           <button (click)="eseguiComando('9x9')" class="btn btn-primary rounded-0">
@@ -53,10 +53,9 @@
         <div class="pb-3 d-flex-table gap-2 align-items-center">
           <div *ngFor="let nome of mappaService.storage_getNames()" class="btn-group"
                 style="max-width: 100%;">
-            <button (click)="mappaService.mappa_syncStorage(nome)" 
+            <button (click)="eseguiComando('mappa ' + nome)" 
                     class="btn btn-secondary text-truncate text-nowrap">
-              <i class="bi bi-map me-2"></i>
-              <b class="">{{ nome }}</b>
+              <b>{{ nome }}</b>
             </button>
             <button (click)="mappaService.storage_removeMap(nome)" class="btn btn-danger max-w-40px bi bi-trash"></button>
           </div>
@@ -141,8 +140,8 @@
         
     <!-- Mappa -->
     <div class="col-12 col-lg-9 py-3 overflow-auto" style="height: 93vh !important;">
+      <!-- Messaggio placeholder se la mappa non è stata generata -->
       @if (mappaService.mappa_isVoid()) {
-        <!-- Messaggio placeholder se la mappa non è stata generata -->
         <div class="d-flex-table gap-2">
           @for (sezione of prompt_sezioni; track sezione) {
             <div class="text-bg-c2 p-2 shadow rounded">
@@ -158,17 +157,26 @@
 
       <!-- TABELLA -->
       } @else {
-        <div class="position-relative pb-5">
-          <div class="position-fixed top-1 start-3 d-flex gap-1">
-            <button class="btn btn-secondary" (click)="mappaService.mappa_reset()">
+        <div class="position-relative pb-2">
+          <div class="d-flex gap-2">
+            <button class="btn btn-dark text-nowrap" 
+                    (click)="mappaService.mappa_reset()"
+                    role="button">
               <i class="bi bi-arrow-left"></i>
               Indietro
             </button>
-            <button class="btn btn-success" (click)="mappaService.storage_addMap()">
-              <i class="bi bi-save"></i>
-              Salva
-            </button>
-            <small class="m-0 p-2 alert alert-info d-none d-md-block">Celle con più caratteri vengono interpretate come giocatori</small>
+
+            <form (submit)="mappaService.submit($event)"
+                  class="input-group">
+              <input type="text" name="mapName" id="mapName"
+                    class="form-control max-w-200px"
+                    aria-label="Nome della mappa"
+                    [value]="mappaService.mappa_value().id">
+              <button type="submit" class="btn btn-success text-nowrap">
+                <i class="bi bi-save"></i>
+                Salva
+              </button>
+            </form>
           </div>
         </div>
         <div class="table-responsive">
@@ -220,6 +228,7 @@
   <!-- Footer: Input principale -->
   <div class="pt-5 pt-md-0">
     <div class="fixed-bottom z-1  mx-auto min-w-250px max-w-400px text-bg-c1">
+      <!-- Consigli di input -->
       <div *ngIf="prompt_consiglio.length" class="mx-auto p-1">
         <ul class="m-0">
           <li *ngFor="let consiglio of prompt_consiglio">
@@ -233,10 +242,11 @@
         </ul>
       </div>
 
+      <!-- Input principale -->
       <form (submit)="handlePrompt($event)"
             (input)="prompt_setConsiglio($event)"
             class="m-auto d-flex gap-2">
-        <div class="w-100 border rounded p-1 d-flex align-items-center">
+        <div class="w-100 border rounded mb-1 p-1 d-flex align-items-center">
           <label for="promptInput" class="visually-hidden">Prompt</label>
           <input id="promptInput" name="promptInput" type="text"
                  class="form-control border-0 shadow-none"

@@ -145,6 +145,15 @@ export class MappaService {
     toast.success(`"${simbolo}" inserito in ${riga}${colonna + 1}!`);
   }
 
+  submit(e:Event){
+    e.preventDefault();
+    const form =e.target as HTMLFormElement
+    const input =form.querySelector('input');
+    if(!input) return console.error('input non trovato');
+    
+    this.storage_addMap(input?.value || 'random')
+  }
+
   mappa_removeSymbol(simbolo: string): void {
     const mappaCorrente = this.mappa_value();
     const nuovaMappa = JSON.parse(JSON.stringify(mappaCorrente)) as Mappa;
@@ -198,39 +207,24 @@ export class MappaService {
     const currentMap = this.mappa_value();
     const storage = this.storage_value();
     
-    let keyToSave = currentMap.id;
-    let isUpdate = false;
+    // Priorità al nome fornito (se non 'random' e non vuoto).
+    // Altrimenti usiamo l'ID attuale o ne generiamo uno nuovo.
+    const keyToSave = (nomeMappa !== 'random' && nomeMappa.trim() !== '') 
+      ? nomeMappa 
+      : (currentMap.id || 'mappa' + Date.now().toString().slice(-6));
 
-    // Se l'ID attuale esiste già nello storage, aggiorniamo quello (comportamento "Salva")
-    if (keyToSave && storage[keyToSave]) {
-      isUpdate = true;
-    } else {
-      // Altrimenti usiamo il nome fornito o generiamo uno nuovo (comportamento "Salva come")
-      if (nomeMappa === 'random') {
-        keyToSave = 'mappa' + Date.now().toString().slice(-6);
-      } else {
-        keyToSave = nomeMappa;
-      }
-    }
+    const isUpdate = currentMap.id === keyToSave && !!storage[keyToSave];
+    const isOverwriting = currentMap.id !== keyToSave && !!storage[keyToSave];
 
-    if (!keyToSave) {
-      toast.danger('Nome mappa non valido');
+    // Conferma per sovrascrittura di una mappa esistente diversa da quella corrente
+    if (isOverwriting && !(await agree.warning(`Mappa "${keyToSave}" già esistente. Vuoi sovrascriverla?`))) {
       return;
     }
 
-    // Se stiamo creando/sovrascrivendo un nome specifico (e non è un update automatico), chiediamo conferma
-    if (!isUpdate && storage[keyToSave] && 
-      !(await agree.warning(`Mappa "${keyToSave}" già esistente. Vuoi sovrascriverla?`))) {
-      return;
-    }
-
-    // Aggiorniamo l'ID della mappa per allinearlo alla chiave di salvataggio
     const mapToSave: Mappa = { ...currentMap, id: keyToSave };
     
-    // Aggiorniamo il segnale della mappa corrente se l'ID è cambiato (es. salvataggio di una nuova mappa)
-    if (currentMap.id !== keyToSave) {
-      this.mappa_value.set(mapToSave);
-    }
+    // Aggiorniamo sempre il segnale per garantire la coerenza dell'ID mostrato nell'interfaccia
+    this.mappa_value.set(mapToSave);
 
     const mappeSalvateCorrenti = { ...storage };
     mappeSalvateCorrenti[keyToSave] = {
@@ -283,6 +277,5 @@ export class MappaService {
     }
 
     this.mappa_value.set(JSON.parse(JSON.stringify(mappaSalvata.mappa)));
-    toast.success(`Mappa "${nomeMappa}" caricata!`);
   }
 }

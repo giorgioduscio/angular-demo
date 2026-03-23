@@ -178,7 +178,7 @@ export class CombattimentoService {
     // recupero le squadre
     const squadre = [...new Set(this.combattenti().map(c => c.squadra))];
     if (squadre.length === 0) {
-      toast.danger("Nessuna squadra da posizionare");
+      console.error("Nessuna squadra da posizionare");
       return;
     }
 
