@@ -7,24 +7,26 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
   standalone: true,
   imports: [CommonModule],
   template:`
-  <div class="w-80px h-80px text-center">
+  <div class="w-20px h-20px m-auto">
     @if(combattente()) {
       <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
           [style.background]="color()" 
           [class.subisceDanno]="feedback()">
-        <h6 class="small d-grid cols-1fr-auto px-2">
-          <span class="text-truncate">{{ combattente()!.id }}</span>
+        <!-- NOME -->
+        <h6 class="m-0 text-nowrap d-flex align-items-center justify-content-center"
+            style="rotate: -30deg;">
+          <span>{{ combattente()!.id }}</span>
           <img [alt]="combattente()!.id" [src]="srcValue()"
                 class="w-20px h-20px">
         </h6>
         <!-- STAT -->
-        <div class="d-grid cols-1fr-1fr-1fr-1fr">
-          <small class="bi bi-heart" 
-                 [class.allerta]="combattente()!.puntiFerita < 10"></small>
-          <small [class.allerta]="combattente()!.puntiFerita < 10">
+        <div class="text-nowrap">
+          <small class="bi bi-heart-fill" 
+                 [class.pocaVita]="combattente()!.puntiFerita < 10"></small>
+          <small [class.pocaVita]="combattente()!.puntiFerita < 10">
             {{ combattente()!.puntiFerita }}</small>
-          <small class="bi bi-shield-shaded ms-1"></small>
-          <small>{{ combattente()!.classeArmatura }}</small>
+          <!-- <small class="bi bi-shield-shaded ms-1"></small>
+          <small>{{ combattente()!.classeArmatura }}</small> -->
         </div>
       </div>
 
@@ -35,7 +37,7 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
     }
   </div>
   <style>
-    .allerta{
+    .pocaVita{
       color: #ff7979ff;
       font-weight: 900;
     }

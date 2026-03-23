@@ -223,11 +223,12 @@ export class CombattimentoService {
     this.combattenti.set(combattentiAggiornati);
 
     const combattenteAggiornato = combattentiAggiornati.find(c => c.id.toLocaleLowerCase() === combattenteId.toLocaleLowerCase());
-    if (!combattenteAggiornato) return;
+    if (!combattenteAggiornato) return console.error(combattente.id +" non trovato");
+    
 
     if (combattenteAggiornato.puntiFerita <= 0) {
       this.rimuoviCombattente(combattenteId.toLocaleLowerCase());
-      return toast.danger(`${combattenteAggiornato.id} sconfitto`);
+      return toast.danger(`${combattenteAggiornato.id} eliminato`);
     }
 
     if (hpIniziali !== combattenteAggiornato.puntiFerita) {
@@ -243,7 +244,6 @@ export class CombattimentoService {
 
     if (superaClasseArmatura) {
       this.vitalitaPersonaggio(bersaglio.id, -danni);
-      toast.success(`${attaccante.id} infligge ${danni} danni a ${bersaglio.id}`);
     } else toast.danger(`${attaccante.id} manca ${bersaglio.id}`);
 
     attaccante.target = bersaglio.id;

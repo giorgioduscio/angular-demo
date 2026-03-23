@@ -1,27 +1,8 @@
 <div class="container">
-  <!-- pulsanti dadi -->
-  <div class="position-relative d-none d-md-block">
-    <div class="position-fixed top-2 end-0 z-1 p-2">
-      <!-- pulsanti dadi -->
-      <button (click)="diceService.setShowButtons()" 
-              class="btn rounded-circle w-50px h-50px p-2"
-              [class.btn-primary]="diceService.showButtons">
-        <i class="bi bi-dice-6"></i>
-      </button>
-      <div class="d-flex flex-column align-items-center gap-1 pt-2" *ngIf="diceService.showButtons">
-        <button *ngFor="let set of diceService.pulsantiDadi" 
-                class="btn badge rounded-pill text-bg-{{set.color}}" 
-                (click)="eseguiComando(set.value)">
-          {{ set.value }}
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Main: Griglia della mappa -->
   <section class="row">
     <!-- strumenti -->
-    <aside class="pt-3 d-none d-lg-block col-md-3 overflow-auto" style="height: 93vh;">
+    <aside class="pt-3 d-none d-lg-block col-md-3 overflow-auto" style="height: 92.5vh;">
       <!-- CRONOLOGIA TIRI -->
       <div *ngIf="diceService.tiri.length > 0">
         <h3><i class="bi bi-dice-5"></i> Cronologia tiri</h3>
@@ -50,7 +31,7 @@
           </button>
         </div>
         
-        <div class="pb-3 d-flex-table gap-2 align-items-center">
+        <div class="d-flex-table gap-2 align-items-center">
           <div *ngFor="let nome of mappaService.storage_getNames()" class="btn-group"
                 style="max-width: 100%;">
             <button (click)="eseguiComando('mappa ' + nome)" 
@@ -63,7 +44,7 @@
       </div>
       
       <!-- LISTA COMBATTENTI -->
-      <div class="d-grid mb-3">
+      <div class="d-grid my-3">
         <h3> <i class="bi bi-person"></i> Combattenti</h3>
         <!-- LISTA COMBATTENTI -->
         <button class="btn btn-danger rounded-0" 
@@ -139,7 +120,7 @@
     </aside>
         
     <!-- Mappa -->
-    <div class="col-12 col-lg-9 py-3 overflow-auto" style="height: 93vh !important;">
+    <div class="col-12 col-lg py-3 overflow-auto pb-5" style="height: 92.5vh;">
       <!-- Messaggio placeholder se la mappa non è stata generata -->
       @if (mappaService.mappa_isVoid()) {
         <div class="d-flex-table gap-2">
@@ -159,7 +140,7 @@
       } @else {
         <div class="position-relative pb-2">
           <div class="d-flex gap-2">
-            <button class="btn btn-dark text-nowrap" 
+            <button class="btn btn-outline-light text-nowrap" 
                     (click)="mappaService.mappa_reset()"
                     role="button">
               <i class="bi bi-arrow-left"></i>
@@ -171,14 +152,16 @@
               <input type="text" name="mapName" id="mapName"
                     class="form-control max-w-200px"
                     aria-label="Nome della mappa"
+                    placeholder="Inserisci nome della mappa"
                     [value]="mappaService.mappa_value().id">
-              <button type="submit" class="btn btn-success text-nowrap">
+              <button type="submit" class="btn btn-outline-light text-nowrap">
                 <i class="bi bi-save"></i>
                 Salva
               </button>
             </form>
           </div>
         </div>
+        
         <div class="table-responsive">
           <table class="w-min-content m-auto table table-sm table-dark table-borderless table-striped table-hover table-striped-columns">
             <thead>
@@ -200,7 +183,7 @@
                 <!-- Celle della riga -->
                 <td *ngFor="let cellValue of mappaService.mappa_value().value[rowKey]; let j = index"
                     [attr.data-cell]="rowKey + (j + 1)"
-                    class="align-middle">
+                    class="align-middle p-0">
                   <app-cell [cellValue]="cellValue"></app-cell>
                 </td>
                 <!-- Intestazione della riga (lettera) -->
@@ -222,6 +205,26 @@
         </div>
         <!-- TABELLA -->
       }
+    </div>
+
+    <!-- pulsanti dadi -->
+    <div class="col-1 d-none d-md-block">
+      <div class="d-flex flex-column align-items-center">
+        <!-- pulsanti dadi -->
+        <button (click)="diceService.setShowButtons()" 
+                class="btn rounded-circle w-50px h-50px p-2"
+                [class.btn-primary]="diceService.showButtons">
+          <i class="bi bi-dice-6"></i>
+        </button>
+        <div class="d-flex flex-column align-items-center gap-1 pt-2" 
+             *ngIf="diceService.showButtons">
+          <button *ngFor="let set of diceService.pulsantiDadi" 
+                  class="btn badge rounded-pill text-bg-{{set.color}}" 
+                  (click)="eseguiComando(set.value)">
+            {{ set.value }}
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -258,5 +261,5 @@
       </form>
     </div>
   </div>
-  <!-- Footer: Input principale -->
+
 </div>
