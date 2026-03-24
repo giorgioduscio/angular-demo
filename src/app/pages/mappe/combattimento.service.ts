@@ -155,50 +155,112 @@ export class CombattimentoService {
     this.combattenti.update(combattenti => [...combattenti, nuovoCombattente]);
   }
 
-  // Posiziona i combattenti su lati opposti della mappa
+  /** Posiziona tutti i combattenti sulla mappa, distribuendo le squadre in angoli opposti.
+   * La logica è suddivisa in passaggi chiari:
+   * 1. Validazione mappa e dati.
+   * 2. Reset delle celle occupate.
+   * 3. Distribuzione delle squadre negli angoli.
+   * 4. Posizionamento compatto dei combattenti per squadra.
+   */
   posizionamento(): void {
-    const mappa = this.mappaService.mappa_value()
-    const righe = this.mappaService.mappa_righe().length
-    const colonne = this.mappaService.mappa_colonne().length
+    const mappa = this.mappaService.mappa_value();
+    const righe = this.mappaService.mappa_righe().length;
+    const colonne = this.mappaService.mappa_colonne().length;
 
+    // 1. Validazione mappa e dati
     if (!mappa || righe === 0 || colonne === 0) {
       toast.danger("Mappa non valida");
       return;
     }
 
-    // reset della mappa
-    const lettereRighe = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
-    for (let i = 0; i < righe; i++) {
-      const letteraRiga = lettereRighe[i];
-      if (mappa.value[letteraRiga].length>1) {
-        mappa.value[letteraRiga].fill('');
-      }
-    }
-
-    // recupero le squadre
     const squadre = [...new Set(this.combattenti().map(c => c.squadra))];
     if (squadre.length === 0) {
       console.error("Nessuna squadra da posizionare");
       return;
     }
 
-    // posizionamento delle squadre
-    squadre.forEach((squadra, index) => {
-      const combattentiSquadra = this.combattenti().filter(c => c.squadra === squadra);
-      const isLeft = index % 2 === 0;
-      // distribuzione uniforme sulla colonna
-      const step = Math.max(1, Math.floor(righe / combattentiSquadra.length));
+    // 2. Reset delle celle occupate
+    for (const [riga, colonne] of Object.entries(mappa.value)) {
+      if (colonne.some(id => id !== '')) {
+        mappa.value[riga].fill('');
+      }
+    }
 
-      combattentiSquadra.forEach((combattente, indiceCombattente) => {
-        // calcolo la riga e la colonna
-        const riga = String.fromCharCode(65 + indiceCombattente * step);
-        const colonna = isLeft ? 0 : colonne - 1;
-        // se esiste riga e colonne sono nel range della mappa
-        if (mappa.value[riga] && colonna >= 0 && colonna < mappa.value[riga].length) {
-          // inserisce l'id del combattente nella mappa
-          mappa.value[riga][colonna] = combattente.id; 
+    // 3. Definisco i 4 angoli della mappa
+    const angoli = [
+      { riga: 0, colonna: 0 },               // Alto-sinistra
+      { riga: 0, colonna: colonne - 1 },     // Alto-destra
+      { riga: righe - 1, colonna: colonne - 1 }, // Basso-destra
+      { riga: righe - 1, colonna: 0 }       // Basso-sinistra
+    ];
+
+    // 4. Posiziono ogni squadra in un angolo diverso
+    squadre.forEach((squadra, index) => {
+      const angolo = angoli[index % 4];
+      const combattentiSquadra = this.combattenti().filter(c => c.squadra === squadra);
+
+      // Posiziono i combattenti in modo compatto intorno all'angolo
+      let rigaCorrente = angolo.riga;
+      let colonnaCorrente = angolo.colonna;
+
+      for (const combattente of combattentiSquadra) {
+        let posizioneTrovata = false;
+
+        // Direzioni preferenziali per posizionare i combattenti (orizzontale/verticale)
+        const direzioni = [
+          { dr: 0, dc: 1 },  // Destra
+          { dr: 1, dc: 0 },  // Sotto
+          { dr: 0, dc: -1 }, // Sinistra
+          { dr: -1, dc: 0 }  // Sopra
+        ];
+
+        // Cerco la prima posizione valida adiacente
+        for (const direzione of direzioni) {
+          const nuovaRiga = rigaCorrente + direzione.dr;
+          const nuovaColonna = colonnaCorrente + direzione.dc;
+          const letteraRiga = String.fromCharCode(65 + nuovaRiga);
+
+          if (
+            mappa.value[letteraRiga] !== undefined &&
+            nuovaColonna >= 0 &&
+            nuovaColonna < mappa.value[letteraRiga].length &&
+            mappa.value[letteraRiga][nuovaColonna] === ''
+          ) {
+            mappa.value[letteraRiga][nuovaColonna] = combattente.id;
+            rigaCorrente = nuovaRiga;
+            colonnaCorrente = nuovaColonna;
+            posizioneTrovata = true;
+            break;
+          }
         }
-      });
+
+        // Se non trova una posizione adiacente, cerco in un raggio 3x3 intorno all'angolo
+        if (!posizioneTrovata) {
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              const nuovaRiga = angolo.riga + dr;
+              const nuovaColonna = angolo.colonna + dc;
+              const letteraRiga = String.fromCharCode(65 + nuovaRiga);
+
+              if (
+                mappa.value[letteraRiga] !== undefined &&
+                nuovaColonna >= 0 &&
+                nuovaColonna < mappa.value[letteraRiga].length &&
+                mappa.value[letteraRiga][nuovaColonna] === ''
+              ) {
+                mappa.value[letteraRiga][nuovaColonna] = combattente.id;
+                posizioneTrovata = true;
+                break;
+              }
+            }
+            if (posizioneTrovata) break;
+          }
+        }
+
+        if (!posizioneTrovata) {
+          console.warn(`Impossibile posizionare ${combattente.id} vicino all'angolo (${angolo.riga},${angolo.colonna})`);
+        }
+      }
     });
 
     toast.success("Combattenti posizionati con successo!");

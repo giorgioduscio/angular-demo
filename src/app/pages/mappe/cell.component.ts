@@ -11,22 +11,20 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
     @if(combattente()) {
       <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
           [style.background]="color()" 
-          [class.subisceDanno]="feedback()">
+          [class.subisceDanno]="feedback()"
+           style="rotate: 15deg;">
         <!-- NOME -->
-        <h6 class="m-0 text-nowrap d-flex align-items-center justify-content-center"
-            style="rotate: -30deg;">
+        <h6 class="m-0 d-flex align-items-center justify-content-center">
           <span>{{ combattente()!.id }}</span>
-          <img [alt]="combattente()!.id" [src]="srcValue()"
-                class="w-20px h-20px">
         </h6>
         <!-- STAT -->
-        <div class="text-nowrap">
-          <small class="bi bi-heart-fill" 
-                 [class.pocaVita]="combattente()!.puntiFerita < 10"></small>
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="bi bi-heart me-1 text-secondary" 
+              [class.pocaVita]="combattente()!.puntiFerita < 10"></i>
           <small [class.pocaVita]="combattente()!.puntiFerita < 10">
-            {{ combattente()!.puntiFerita }}</small>
-          <!-- <small class="bi bi-shield-shaded ms-1"></small>
-          <small>{{ combattente()!.classeArmatura }}</small> -->
+                 {{ combattente()!.puntiFerita }}</small>
+          <img [alt]="combattente()!.id" [src]="srcValue()"
+                class="w-20px h-20px">
         </div>
       </div>
 

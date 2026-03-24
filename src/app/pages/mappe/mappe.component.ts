@@ -67,8 +67,9 @@ export class MappeComponent {
       execute: (comando: string) => {
         const match = comando.match(/^(\d+)x(\d+)$/i);
         if (match) this.mappaService.mappa_create(parseInt(match[1], 10), parseInt(match[2], 10));
-      // Posizionamento automatico sulla mappa
-      this.combatService.posizionamento();
+        // Posizionamento automatico sulla mappa
+        if(this.combatService.combattenti().length) 
+          this.combatService.posizionamento();
       }
     },
     {
@@ -151,6 +152,10 @@ export class MappeComponent {
       pattern: (s: string) => s.includes('gs') || (s.includes('ca') && s.includes('hp')),
       show: (s: string) => s.includes('gs') || s.includes('ca') || s.includes('hp'),
       execute: (comando: string) => {
+        const squadre = [...new Set(this.combatService.combattenti().map(c => c.squadra))];
+        // massimo quattro squadre
+        if (squadre.length >= 4) return toast.danger("Limite squadre raggiunto");
+        
         if (comando.includes('gs')) this.eseguiCreazioneNPC(comando);
         else this.eseguiCreazioneGiocatore(comando);
       }
@@ -232,7 +237,8 @@ export class MappeComponent {
     for (let i = 0; i < ripetizioni; i++) {
       this.combatService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
     }
-    this.combatService.posizionamento();
+    if(this.mappaService.mappa_value()) 
+      this.combatService.posizionamento();
   }
 
   private eseguiCreazioneGiocatore(comando: string) {
@@ -412,7 +418,8 @@ export class MappeComponent {
     );
 
     // Posizionamento automatico sulla mappa
-    this.combatService.posizionamento();
+    if(this.mappaService.mappa_value())
+      this.combatService.posizionamento();
   }
 
 }
