@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toast } from '../../tools/feedbacksUI';
-import { CombattimentoService } from './combattimento.service';
+import { CombattimentoService } from './combat.service';
 import { MappaService } from './mappa.service';
-import { CellComponent } from './cell.component';
 import { DiceService } from './dice.service';
 import { statisticheGradoSfida } from './gradiSfida';
 import { FormField } from '../login/validation';
+import { CellComponent } from './cell.component';
+import { FightersService } from './fighters.service';
 
 @Component({
   selector: 'app-mappe',
@@ -17,6 +18,7 @@ import { FormField } from '../login/validation';
 export class MappeComponent {
   constructor(
     public combatService: CombattimentoService,
+    public fightersService: FightersService,
     public mappaService: MappaService,
     public diceService: DiceService,
   ) {
@@ -68,7 +70,7 @@ export class MappeComponent {
         const match = comando.match(/^(\d+)x(\d+)$/i);
         if (match) this.mappaService.mappa_create(parseInt(match[1], 10), parseInt(match[2], 10));
         // Posizionamento automatico sulla mappa
-        if(this.combatService.combattenti().length) 
+        if(this.fightersService.combattenti().length) 
           this.combatService.posizionamento();
       }
     },
@@ -79,7 +81,7 @@ export class MappeComponent {
       pattern: (s: string) => /^reset$/i.test(s),
       show: (s: string) => "reset ".includes(s.toLowerCase()) || s.toLowerCase().startsWith('reset'),
       execute: () => {
-        this.combatService.combattenti.set([]);
+        this.fightersService.combattenti.set([]);
         this.mappaService.mappa_reset();
       }
     },
@@ -152,7 +154,7 @@ export class MappeComponent {
       pattern: (s: string) => s.includes('gs') || (s.includes('ca') && s.includes('hp')),
       show: (s: string) => s.includes('gs') || s.includes('ca') || s.includes('hp'),
       execute: (comando: string) => {
-        const squadre = [...new Set(this.combatService.combattenti().map(c => c.squadra))];
+        const squadre = [...new Set(this.fightersService.combattenti().map(c => c.squadra))];
         if (squadre.length >= 4) {
           toast.danger("Limite squadre raggiunto");
           return;
@@ -168,7 +170,7 @@ export class MappeComponent {
           const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
 
           for (let i = 0; i < ripetizioni; i++) {
-            this.combatService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
+            this.fightersService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
           }
           
         // Logica per Giocatore
@@ -181,7 +183,7 @@ export class MappeComponent {
           const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
           const iniziativa = Number(prompt.find(p => /^[+-]\d+$/.test(p))) || 0;
 
-          this.combatService.addCombattente(nomeSquadra, iniziativa, "", nomeGiocatore, ca, hp, tipo);
+          this.fightersService.addCombattente(nomeSquadra, iniziativa, "", nomeGiocatore, ca, hp, tipo);
         }
 
         // Posizionamento automatico sulla mappa (centralizzato)
@@ -199,10 +201,10 @@ export class MappeComponent {
       execute: (comando: string) => {
         if (comando.includes(' attacca ')) this.eseguiAttacco(comando);
         else if (comando.startsWith('turno ')) this.eseguiTurno(comando);
-        else if (comando.startsWith('rimuovi ')) this.combatService.rimuoviCombattente(comando.split(' ')[1]);
+        else if (comando.startsWith('rimuovi ')) this.fightersService.rimuoviCombattente(comando.split(' ')[1]);
         else {
           const parts = comando.split(' ');
-          this.combatService.vitalitaPersonaggio(parts[0], Number(parts[1]));
+          this.fightersService.vitalitaPersonaggio(parts[0], Number(parts[1]));
         }
       }
     },
@@ -265,7 +267,7 @@ export class MappeComponent {
     const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
 
     for (let i = 0; i < ripetizioni; i++) {
-      this.combatService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
+      this.fightersService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
     }
     if(this.mappaService.mappa_value()) 
       this.combatService.posizionamento();
@@ -284,7 +286,7 @@ export class MappeComponent {
     const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
     const iniziativa = Number(prompt.find(p => /^[+-]\d+$/.test(p))) || 0;
 
-    this.combatService.addCombattente(nomeSquadra, iniziativa, "", nomeGiocatore, ca, hp, tipo);
+    this.fightersService.addCombattente(nomeSquadra, iniziativa, "", nomeGiocatore, ca, hp, tipo);
     this.combatService.posizionamento();
   }
 
@@ -292,7 +294,7 @@ export class MappeComponent {
     const parts = comando.toLowerCase().split(' attacca ');
     const idAttaccante = parts[0].trim();
     const idAttaccato = parts[1].trim();
-    const combattenti = this.combatService.combattenti();
+    const combattenti = this.fightersService.combattenti();
     const attaccante = combattenti.find(c => c.id.toLowerCase() === idAttaccante);
     const attaccato = combattenti.find(c => c.id.toLowerCase() === idAttaccato);
     
@@ -302,7 +304,7 @@ export class MappeComponent {
 
   private eseguiTurno(comando: string) {
     const id = comando.replace('turno ', '').trim();
-    const combattenti = this.combatService.combattenti();
+    const combattenti = this.fightersService.combattenti();
     const personaggio = combattenti.find(c => c.id.toLowerCase() === id.toLowerCase());
 
     if (personaggio) {
@@ -315,7 +317,7 @@ export class MappeComponent {
   }
 
   private avviaTurnoPersonaggio(p: any, avversari?: any[]) {
-    const targets = avversari || this.combatService.combattenti().filter(c => c.squadra !== p.squadra);
+    const targets = avversari || this.fightersService.combattenti().filter(c => c.squadra !== p.squadra);
     const nemico = this.combatService.scegliNemico(p, targets, this.mappaService.mappa_value());
     if (!nemico) return;
 
@@ -331,7 +333,7 @@ export class MappeComponent {
       passi--;
       if (passi <= 0 || haAttaccato) {
         clearInterval(interval);
-        this.combatService.giocatoreUltimoTurno = p.id;
+        this.fightersService.giocatoreUltimoTurno = p.id;
       }
     }, 500);
   }
@@ -437,7 +439,7 @@ export class MappeComponent {
     }
 
     // 3. ESECUZIONE
-    this.combatService.addCombattente(
+    this.fightersService.addCombattente(
       squadra,
       iniziativa || 0,
       isNPCValido ? gs : "",

@@ -48,21 +48,21 @@
         <h3> <i class="bi bi-person"></i> Combattenti</h3>
 
         <button class="btn btn-danger rounded-0" 
-                (click)="combatService.rimuoviTuttiCombattenti()"
-                *ngIf="combatService.combattenti().length"
+                (click)="fightersService.rimuoviTuttiCombattenti()"
+                *ngIf="fightersService.combattenti().length"
         >Rimuovi tutti</button>
 
-        <div *ngFor="let combattente of combatService.listaCombattenti; let i=index" 
+        <div *ngFor="let combattente of fightersService.listaCombattenti; let i=index" 
              class="d-grid cols-auto-1fr"
-             [style.background]="combatService.getColoreSquadra(combattente.squadra)">
+             [style.background]="fightersService.getColoreSquadra(combattente.squadra)">
           <!-- pulsante eliminazione -->
-          <button (click)="combatService.rimuoviCombattente(combattente.id, true)" class="btn btn-danger rounded-0">
+          <button (click)="fightersService.rimuoviCombattente(combattente.id, true)" class="btn btn-danger rounded-0">
             <i class="bi bi-trash"></i>
           </button>
 
           <button class="btn d-flex align-items-center justify-content-between gap-2 rounded-0" 
                   (click)="eseguiComando('turno ' +combattente.id.toLowerCase())"
-                  [class.border]="combattente.id === combatService.giocatoreUltimoTurno"
+                  [class.border]="combattente.id === fightersService.giocatoreUltimoTurno"
                   [disabled]="!combattente.npc">
             <span>{{ combattente.id }}</span>
   
@@ -70,7 +70,7 @@
               <i class="bi bi-heart d-none d-lg-inline"></i>
               <span class="d-none d-lg-inline">{{ combattente.puntiFerita }}</span>
               @if (!combattente.npc) {
-              }@else if (combattente.id !== combatService.giocatoreUltimoTurno) {
+              }@else if (combattente.id !== fightersService.giocatoreUltimoTurno) {
                 <i class="bi bi-caret-right"></i>
               } @else {
                 <small class="bi bi-square-fill"></small>

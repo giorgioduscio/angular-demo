@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, effect, input, computed, signal } from "@angular/core";
-import { Combattente, CombattimentoService } from "./combattimento.service";
+import { FightersService } from "./fighters.service";
 
 @Component({
   selector: 'app-cell',
@@ -46,36 +46,7 @@ import { Combattente, CombattimentoService } from "./combattimento.service";
   `
 })
 export class CellComponent {
-  // Input reattivo per il valore della cella
-  cellValue = input<string>('');
-  
-  // Combattente isolato tramite computed: reagisce solo se cambia questo specifico combattente
-  combattente = computed(() => {
-    const id = this.cellValue();
-    return this.comb.getCombattenteById(id);
-  });
-
-  // Colore della squadra calcolato in modo reattivo
-  color = computed(() => {
-    const c = this.combattente();
-    return c ? this.comb.getColoreSquadra(c.squadra) : '';
-  });
-
-  // Percorso immagine calcolato in modo reattivo
-  srcValue = computed(() => {
-    const c = this.combattente();
-    if (!c) return '';
-    return c.tipo === 'distanza' ? "/assets/distanza.png" : "/assets/mischia.jpg";
-  });
-
-  // Segnale per il feedback visivo (bordi che lampeggiano)
-  feedback = signal(false);
-
-  // Variabili per il monitoraggio dello stato precedente
-  private ultimoId: string | undefined;
-  private ultimoHP: number | undefined;
-
-  constructor(private comb: CombattimentoService) {
+  constructor(private fightersService: FightersService) {
     // Gestione del feedback: si attiva solo quando il personaggio subisce danno
     effect((onCleanup) => {
       const c = this.combattente();
@@ -103,4 +74,34 @@ export class CellComponent {
       }
     }, { allowSignalWrites: true });
   }
+
+  // Input reattivo per il valore della cella
+  cellValue = input<string>('');
+  
+  // Combattente isolato tramite computed: reagisce solo se cambia questo specifico combattente
+  combattente = computed(() => {
+    const id = this.cellValue();
+    return this.fightersService.getCombattenteById(id);
+  });
+
+  // Colore della squadra calcolato in modo reattivo
+  color = computed(() => {
+    const c = this.combattente();
+    return c ? this.fightersService.getColoreSquadra(c.squadra) : '';
+  });
+
+  // Percorso immagine calcolato in modo reattivo
+  srcValue = computed(() => {
+    const c = this.combattente();
+    if (!c) return '';
+    return c.tipo === 'distanza' ? "/assets/distanza.png" : "/assets/mischia.jpg";
+  });
+
+  // Segnale per il feedback visivo (bordi che lampeggiano)
+  feedback = signal(false);
+
+  // Variabili per il monitoraggio dello stato precedente
+  private ultimoId: string | undefined;
+  private ultimoHP: number | undefined;
+
 }
