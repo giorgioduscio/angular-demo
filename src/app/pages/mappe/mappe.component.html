@@ -46,14 +46,16 @@
       <!-- LISTA COMBATTENTI -->
       <div class="d-grid my-3">
         <h3> <i class="bi bi-person"></i> Combattenti</h3>
-        <!-- LISTA COMBATTENTI -->
+
         <button class="btn btn-danger rounded-0" 
                 (click)="combatService.rimuoviTuttiCombattenti()"
                 *ngIf="combatService.combattenti().length"
-                >Rimuovi tutti</button>
+        >Rimuovi tutti</button>
+
         <div *ngFor="let combattente of combatService.listaCombattenti; let i=index" 
              class="d-grid cols-auto-1fr"
              [style.background]="combatService.getColoreSquadra(combattente.squadra)">
+          <!-- pulsante eliminazione -->
           <button (click)="combatService.rimuoviCombattente(combattente.id, true)" class="btn btn-danger rounded-0">
             <i class="bi bi-trash"></i>
           </button>
@@ -61,13 +63,14 @@
           <button class="btn d-flex align-items-center justify-content-between gap-2 rounded-0" 
                   (click)="eseguiComando('turno ' +combattente.id.toLowerCase())"
                   [class.border]="combattente.id === combatService.giocatoreUltimoTurno"
-                  [disabled]="!combattente.bonusAttacco || !combattente.danni">
+                  [disabled]="!combattente.npc">
             <span>{{ combattente.id }}</span>
   
             <div class="d-flex justify-content-between align-items-center gap-2">
               <i class="bi bi-heart d-none d-lg-inline"></i>
               <span class="d-none d-lg-inline">{{ combattente.puntiFerita }}</span>
-              @if (combattente.id !== combatService.giocatoreUltimoTurno) {
+              @if (!combattente.npc) {
+              }@else if (combattente.id !== combatService.giocatoreUltimoTurno) {
                 <i class="bi bi-caret-right"></i>
               } @else {
                 <small class="bi bi-square-fill"></small>

@@ -153,11 +153,41 @@ export class MappeComponent {
       show: (s: string) => s.includes('gs') || s.includes('ca') || s.includes('hp'),
       execute: (comando: string) => {
         const squadre = [...new Set(this.combatService.combattenti().map(c => c.squadra))];
-        // massimo quattro squadre
-        if (squadre.length >= 4) return toast.danger("Limite squadre raggiunto");
-        
-        if (comando.includes('gs')) this.eseguiCreazioneNPC(comando);
-        else this.eseguiCreazioneGiocatore(comando);
+        if (squadre.length >= 4) {
+          toast.danger("Limite squadre raggiunto");
+          return;
+        }
+
+        const prompt = comando.split(" ");
+        const nomeSquadra = prompt[0].trim();
+
+        // Logica per NPC
+        if (comando.includes('gs')) {
+          const gradoSfida = prompt.find(s => s.startsWith("gs"))?.replace("gs", "") || "1";
+          const ripetizioni = Number(prompt.find(s => s.startsWith("x"))?.replace("x", "")) || 1;
+          const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
+
+          for (let i = 0; i < ripetizioni; i++) {
+            this.combatService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
+          }
+          
+        // Logica per Giocatore
+        } else {
+          let nomeGiocatore = prompt.find((p, i) => i > 0 && !p.startsWith('ca') && !p.startsWith('hp') && !['mischia', 'distanza'].includes(p)) || 'Eroe';
+          nomeGiocatore = nomeGiocatore.charAt(0).toUpperCase() + nomeGiocatore.slice(1);
+
+          const ca = Number(prompt.find(p => p.startsWith('ca'))?.replace('ca', '')) || 10;
+          const hp = Number(prompt.find(p => p.startsWith('hp'))?.replace('hp', '')) || 10;
+          const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
+          const iniziativa = Number(prompt.find(p => /^[+-]\d+$/.test(p))) || 0;
+
+          this.combatService.addCombattente(nomeSquadra, iniziativa, "", nomeGiocatore, ca, hp, tipo);
+        }
+
+        // Posizionamento automatico sulla mappa (centralizzato)
+        if (this.mappaService.mappa_value()) {
+          this.combatService.posizionamento();
+        }
       }
     },
     {

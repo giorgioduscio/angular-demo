@@ -13,6 +13,7 @@ export interface Combattente {
   danni: number;
   bonusAttacco: number;
   classeArmatura: number;
+  npc: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -149,6 +150,7 @@ export class CombattimentoService {
       target: "",
       squadra: nomeSquadra,
       numeroTurno: numeroTurno,
+      npc: !!(matchGradoSfida?.bonusAttacco && matchGradoSfida?.danniRound)
     };
 
     // Aggiungi il nuovo combattente alla lista
