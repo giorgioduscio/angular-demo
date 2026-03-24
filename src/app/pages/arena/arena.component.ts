@@ -1,23 +1,23 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toast } from '../../tools/feedbacksUI';
-import { CombattimentoService } from './combat.service';
+import { CombatService } from './combat.service';
 import { MappaService } from './mappa.service';
+import { FightersService } from './fighters.service';
 import { DiceService } from './dice.service';
 import { statisticheGradoSfida } from './gradiSfida';
 import { FormField } from '../login/validation';
 import { CellComponent } from './cell.component';
-import { FightersService } from './fighters.service';
 
 @Component({
-  selector: 'app-mappe',
+  selector: 'app-arena',
   standalone: true,
   imports: [CommonModule, CellComponent],
-  templateUrl: './mappe.component.html',
+  templateUrl: './arena.component.html',
 })
-export class MappeComponent {
+export class ArenaComponent {
   constructor(
-    public combatService: CombattimentoService,
+    public combatService: CombatService,
     public fightersService: FightersService,
     public mappaService: MappaService,
     public diceService: DiceService,

@@ -33,6 +33,6 @@ Esempi:
 3. talenti
 3. incantesimi: sezione attacchi ed incantesimi. aggiungere incantesimi
 
-# mappe
-- movimento: come si comporta se un muro occupa il suo cammino? rivedere logica di movimento
+# arena
+
 - ? layout: risultato dadi in alto a destra

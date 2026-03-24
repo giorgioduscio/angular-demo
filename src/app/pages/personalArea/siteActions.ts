@@ -27,8 +27,8 @@ export const siteActions =()=>[
   },
   {
     imgUrl:"https://mapitout.infinityfreeapp.com/wp-content/uploads/2025/01/giordanolupo20_2-1-1024x725.jpg",
-    title:"Mappe", 
-    path: '/mappe',
+    title:"Arena", 
+    path: '/arena',
     description:"Griglie tattiche e dadi per le tue sessioni di gioco di ruolo. Gestisci posizioni e tiri in tempo reale."
   },
 ]

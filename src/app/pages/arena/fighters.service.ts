@@ -6,7 +6,7 @@ import { MappaService } from "./mappa.service";
 export interface Combattente {
   id: string;
   tipo: "mischia" | "distanza";
-  target: string;
+  target: string[];
   squadra: string;
   numeroTurno: number;
   puntiFerita: number;
@@ -108,7 +108,7 @@ export class FightersService {
       danni: matchGradoSfida?.danniRound ?? 0,
       bonusAttacco: matchGradoSfida?.bonusAttacco ?? 0,
       classeArmatura: classeArmatura ? classeArmatura : matchGradoSfida?.classeArmatura ?? 10,
-      target: "",
+      target: [],
       squadra: nomeSquadra,
       numeroTurno: numeroTurno,
       npc: !!(matchGradoSfida?.bonusAttacco && matchGradoSfida?.danniRound)
