@@ -186,8 +186,9 @@
                 <!-- Celle della riga -->
                 <td *ngFor="let cellValue of mappaService.mappa_value().value[rowKey]; let j = index"
                     [attr.data-cell]="rowKey + (j + 1)"
-                    class="align-middle p-0">
-                  <app-cell [cellValue]="cellValue"></app-cell>
+                    class="p-0"
+                    [class.table-secondary]="cellValue==='+'">
+                  <app-cell [cellValue]="cellValue" class="h-100 w-100"></app-cell>
                 </td>
                 <!-- Intestazione della riga (lettera) -->
                 <th class="text-center align-middle p-2">{{ rowKey }}</th>
@@ -196,7 +197,7 @@
             <tfoot>
               <tr>
                 <th></th>
-                <!-- Intestazioni delle mappa_colonne (numeri) -->
+                <!-- Intestazioni delle mpa_colonne (numeri) -->
                 <th *ngFor="let col of mappaService.mappa_colonne(); let i = index"
                   class="px-3 text-center">
                   {{ i + 1 }}
@@ -266,3 +267,4 @@
   </div>
 
 </div>
+ap

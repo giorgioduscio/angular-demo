@@ -22,7 +22,7 @@ export class ArenaComponent {
     public mappaService: MappaService,
     public diceService: DiceService,
   ) {
-    document.title = "Mappe";
+    document.title = "Arena";
     this.form_reset()
   }
 

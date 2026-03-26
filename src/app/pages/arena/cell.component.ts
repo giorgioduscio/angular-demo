@@ -7,33 +7,36 @@ import { FightersService } from "./fighters.service";
   standalone: true,
   imports: [CommonModule],
   template:`
-  <div class="w-20px h-20px m-auto">
-    @if(combattente()) {
-      <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
-          [style.background]="color()" 
-          [class.subisceDanno]="feedback()"
-           style="rotate: 15deg;">
-        <!-- NOME -->
-        <h6 class="m-0 d-flex align-items-center justify-content-center">
-          <span>{{ combattente()!.id }}</span>
-        </h6>
-        <!-- STAT -->
-        <div class="d-flex align-items-center justify-content-center">
-          <i class="bi bi-heart me-1 text-secondary" 
-              [class.pocaVita]="combattente()!.puntiFerita < 10"></i>
-          <small [class.pocaVita]="combattente()!.puntiFerita < 10">
-                 {{ combattente()!.puntiFerita }}</small>
-          <img [alt]="combattente()!.id" [src]="srcValue()"
-                class="w-20px h-20px">
+  <div>
+    <div class="w-20px h-20px m-auto">
+      @if(combattente()) {
+        <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
+            [style.background]="color()" 
+            [class.subisceDanno]="feedback()"
+             style="rotate: 15deg;">
+          <!-- NOME -->
+          <h6 class="m-0 d-flex align-items-center justify-content-center">
+            <span>{{ combattente()!.id }}</span>
+          </h6>
+          <!-- STAT -->
+          <div class="d-flex align-items-center justify-content-center">
+            <i class="bi bi-heart me-1 text-secondary" 
+                [class.pocaVita]="combattente()!.puntiFerita < 10"></i>
+            <small [class.pocaVita]="combattente()!.puntiFerita < 10">
+                   {{ combattente()!.puntiFerita }}</small>
+            <img [alt]="combattente()!.id" [src]="srcValue()"
+                  class="w-20px h-20px">
+          </div>
         </div>
-      </div>
-
-    } @else {
-      <div>
-        {{ cellValue() }}
-      </div>
-    }
+  
+      } @else {
+        <div>
+          {{ cellValue() }}
+        </div>
+      }
+    </div>
   </div>
+
   <style>
     .pocaVita{
       color: #ff7979ff;

@@ -67,6 +67,7 @@ export class MappaService {
   
   mappa_reset(){
     this.mappa_value.set({ id: '', value: {} });
+    localStorage.removeItem(this.STORAGE_KEY_ATTUALE);
   }
 
   mappa_create(righe: number, colonne: number): void {
