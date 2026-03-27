@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, effect, input, computed, signal } from "@angular/core";
 import { FightersService } from "./fighters.service";
+import { MappaService } from "./mappa.service";
 
 @Component({
   selector: 'app-cell',
@@ -8,7 +9,7 @@ import { FightersService } from "./fighters.service";
   imports: [CommonModule],
   template:`
   <div>
-    <div class="w-20px h-20px m-auto">
+    <div class="w-30px h-30px m-auto">
       @if(combattente()) {
         <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
             [style.background]="color()" 
@@ -30,8 +31,11 @@ import { FightersService } from "./fighters.service";
         </div>
   
       } @else {
-        <div>
-          {{ cellValue() }}
+        <div class="h-100">
+          <input [value]="cellValue()" 
+                 (change)="updateCell($event)"
+                 class="w-100 h-100 border-0 bg-transparent text-center p-0"
+                 style="outline: none;">
         </div>
       }
     </div>
@@ -49,7 +53,13 @@ import { FightersService } from "./fighters.service";
   `
 })
 export class CellComponent {
-  constructor(private fightersService: FightersService) {
+  riga = input.required<string>();
+  colonna = input.required<number>();
+
+  constructor(
+    private fightersService: FightersService,
+    private mappaService: MappaService
+  ) {
     // Gestione del feedback: si attiva solo quando il personaggio subisce danno
     effect((onCleanup) => {
       const c = this.combattente();
@@ -106,5 +116,13 @@ export class CellComponent {
   // Variabili per il monitoraggio dello stato precedente
   private ultimoId: string | undefined;
   private ultimoHP: number | undefined;
+
+  updateCell(e: Event) {
+    e.stopPropagation();
+    const input = e.target as HTMLInputElement;
+    const val = input.value;
+    this.mappaService.mappa_setCell(this.riga(), this.colonna(), val);
+    input.blur(); // Rimuove il focus per evitare duplicazioni di eventi
+  }
 
 }

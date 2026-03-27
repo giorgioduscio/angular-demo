@@ -20,35 +20,38 @@ export class CombatService {
    * in modo compatto cercando le prime celle libere adiacenti all'angolo.
    */
   posizionamento(): void {
-    const mappa = this.mappaService.mappa_value();
-    const righe = this.mappaService.mappa_righe().length;
+    const mappaOriginale = this.mappaService.mappa_value();
+    const mappa = JSON.parse(JSON.stringify(mappaOriginale)) as Mappa;
+    const righeKeys = this.mappaService.mappa_righe();
     const colonneArray = this.mappaService.mappa_colonne().length;
 
-    if (!mappa || righe === 0 || colonneArray === 0) {
+    if (!mappa || righeKeys.length === 0 || colonneArray === 0) {
       toast.danger("Mappa non valida");
       return;
     }
 
     const combattenti = this.fightersService.combattenti();
     const squadre = [...new Set(combattenti.map(c => c.squadra))];
+    
     if (squadre.length === 0) {
       console.error("Nessuna squadra da posizionare");
       return;
     }
 
-    // Pulisce la mappa dai simboli dei combattenti precedenti prima del riposizionamento
-    for (const [riga, colonne] of Object.entries(mappa.value)) {
-      if (colonne.some(id => id !== '')) {
-        mappa.value[riga].fill('');
-      }
+    // Pulisce la mappa dai nomi dei combattenti precedenti prima del riposizionamento
+    const ids = combattenti.map(c => c.id.toLowerCase());
+    for (const riga of Object.keys(mappa.value)) {
+      mappa.value[riga] = mappa.value[riga].map(cell => 
+        ids.includes(cell.toLowerCase()) ? '' : cell
+      );
     }
 
     // Coordinate degli angoli: [Alto-Sx, Alto-Dx, Basso-Dx, Basso-Sx]
     const angoli = [
       { riga: 0, colonna: 0 },
       { riga: 0, colonna: colonneArray - 1 },
-      { riga: righe - 1, colonna: colonneArray - 1 },
-      { riga: righe - 1, colonna: 0 }
+      { riga: righeKeys.length - 1, colonna: colonneArray - 1 },
+      { riga: righeKeys.length - 1, colonna: 0 }
     ];
 
     squadre.forEach((squadra, index) => {
@@ -60,44 +63,52 @@ export class CombatService {
 
       for (const combattente of combattentiSquadra) {
         let posizioneTrovata = false;
-        // Direzioni di espansione prioritarie: Est, Sud, Ovest, Nord
-        const direzioni = [
-          { dr: 0, dc: 1 }, { dr: 1, dc: 0 }, { dr: 0, dc: -1 }, { dr: -1, dc: 0 }
-        ];
+        
+        // Verifica prima se l'angolo stesso è libero
+        const letteraAngolo = righeKeys[angolo.riga];
+        if (mappa.value[letteraAngolo] && mappa.value[letteraAngolo][angolo.colonna] === '') {
+          mappa.value[letteraAngolo][angolo.colonna] = combattente.id;
+          posizioneTrovata = true;
+        }
 
-        for (const direzione of direzioni) {
-          const nuovaRiga = rigaCorrente + direzione.dr;
-          const nuovaColonna = colonnaCorrente + direzione.dc;
-          const letteraRiga = String.fromCharCode(65 + nuovaRiga);
+        if (!posizioneTrovata) {
+          // Direzioni di espansione prioritarie: Est, Sud, Ovest, Nord
+          const direzioni = [
+            { dr: 0, dc: 1 }, { dr: 1, dc: 0 }, { dr: 0, dc: -1 }, { dr: -1, dc: 0 }
+          ];
 
-          if (
-            mappa.value[letteraRiga] !== undefined &&
-            nuovaColonna >= 0 &&
-            nuovaColonna < mappa.value[letteraRiga].length &&
-            mappa.value[letteraRiga][nuovaColonna] === ''
-          ) {
-            mappa.value[letteraRiga][nuovaColonna] = combattente.id;
-            rigaCorrente = nuovaRiga;
-            colonnaCorrente = nuovaColonna;
-            posizioneTrovata = true;
-            break;
+          for (const direzione of direzioni) {
+            const nuovaRiga = rigaCorrente + direzione.dr;
+            const nuovaColonna = colonnaCorrente + direzione.dc;
+            const letteraRiga = righeKeys[nuovaRiga];
+
+            if (
+              letteraRiga !== undefined &&
+              mappa.value[letteraRiga] !== undefined &&
+              nuovaColonna >= 0 &&
+              nuovaColonna < mappa.value[letteraRiga].length &&
+              mappa.value[letteraRiga][nuovaColonna] === ''
+            ) {
+              mappa.value[letteraRiga][nuovaColonna] = combattente.id;
+              rigaCorrente = nuovaRiga;
+              colonnaCorrente = nuovaColonna;
+              posizioneTrovata = true;
+              break;
+            }
           }
         }
 
-        // Se le celle adiacenti sono piene, cerca in un raggio 3x3 attorno all'angolo
+        // Se le celle adiacenti sono piene, cerca in un raggio più ampio attorno all'angolo
         if (!posizioneTrovata) {
-          for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
-              const nuovaRiga = angolo.riga + dr;
-              const nuovaColonna = angolo.colonna + dc;
-              const letteraRiga = String.fromCharCode(65 + nuovaRiga);
-
-              if (
-                mappa.value[letteraRiga] !== undefined &&
-                nuovaColonna >= 0 &&
-                nuovaColonna < mappa.value[letteraRiga].length &&
-                mappa.value[letteraRiga][nuovaColonna] === ''
-              ) {
+          for (let dr = -3; dr <= 3; dr++) {
+            for (let dc = -3; dc <= 3; dc++) {
+              const nuovaRiga = angolo.riga + (angolo.riga === 0 ? dr : -dr);
+              const nuovaColonna = angolo.colonna + (angolo.colonna === 0 ? dc : -dc);
+              
+              if (nuovaRiga < 0 || nuovaRiga >= righeKeys.length || nuovaColonna < 0 || nuovaColonna >= colonneArray) continue;
+              
+              const letteraRiga = righeKeys[nuovaRiga];
+              if (mappa.value[letteraRiga][nuovaColonna] === '') {
                 mappa.value[letteraRiga][nuovaColonna] = combattente.id;
                 posizioneTrovata = true;
                 break;
@@ -109,7 +120,19 @@ export class CombatService {
       }
     });
 
-    toast.success("Combattenti posizionati con successo!");
+    // Aggiorna il segnale della mappa per forzare il refresh della UI
+    this.mappaService.mappa_value.set(mappa);
+
+    // CONTROLLO DI VALIDAZIONE OTTIMIZZATO (O(R*C + N))
+    const idPresentiSullaMappa = new Set(Object.values(mappa.value).flat().map(v => v.toLowerCase()));
+    const combattentiMancanti = combattenti.filter(c => !idPresentiSullaMappa.has(c.id.toLowerCase()));
+
+    if (combattentiMancanti.length === 0) {
+      toast.success("Combattenti posizionati con successo!");
+    } else {
+      const nomiMancanti = combattentiMancanti.map(c => c.id).join(", ");
+      toast.warning(`Mappa troppo piccola o affollata. Mancano: ${nomiMancanti}`);
+    }
   }
 
   /**
@@ -253,7 +276,7 @@ export class CombatService {
       }
     }
 
-    // Traduzione del waypoint ("B3") in coordinate numeriche
+    // Traduzione del waypoint ("b3") in coordinate numeriche
     const coordTarget = this.parseCoord(prossimoTarget) || this.coordinateCombattente(mappa, prossimoTarget);
     if (coordTarget) {
       const letteraRiga = coordTarget.riga;
@@ -279,10 +302,11 @@ export class CombatService {
    * @param mappa Stato attuale della mappa.
    * @param partenza Coordinate iniziali del combattente.
    * @param targetId ID del nemico da raggiungere.
-   * @returns Array di stringhe rappresentanti le coordinate dei waypoint (es: ["B3", "C4", "NemicoID"]).
+   * @returns Array di stringhe rappresentanti le coordinate dei waypoint (es: ["b3", "c4", "NemicoID"]).
    */
   private trovaPercorso(mappa: Mappa, partenza: { riga: string; colonna: number }, targetId: string): string[] {
     const targetCoord = this.coordinateCombattente(mappa, targetId);
+    const righeKeys = Object.keys(mappa.value);
     if (!targetCoord) return [];
 
     // Coda per BFS: memorizza riga, colonna e il percorso accumulato fino a quel punto
@@ -311,10 +335,11 @@ export class CombatService {
       for (const { dr, dc } of direzioni) {
         const nr = r + dr;
         const nc = c + dc;
-        const nRiga = String.fromCharCode(65 + nr);
+        const nRiga = righeKeys[nr];
         const key = `${nRiga}${nc}`;
 
         if (
+          nRiga !== undefined &&
           mappa.value[nRiga] !== undefined &&
           nc >= 0 && nc < mappa.value[nRiga].length &&
           !visited.has(key) &&
@@ -332,10 +357,10 @@ export class CombatService {
   }
 
   /**
-   * Helper per decodificare una stringa coordinata (es: "A3") in oggetto strutturato.
+   * Helper per decodificare una stringa coordinata (es: "a3") in oggetto strutturato.
    */
   private parseCoord(coord: string): { riga: string; colonna: number } | null {
-    const match = coord.match(/^([A-Z])(\d+)$/);
+    const match = coord.match(/^([a-z])(\d+)$/);
     if (!match) return null;
     return { riga: match[1], colonna: parseInt(match[2], 10) };
   }
@@ -352,9 +377,9 @@ export class CombatService {
   }
 
   /**
-   * Converte la lettera della riga in indice numerico (A -> 0, B -> 1, ...).
+   * Converte la lettera della riga in indice numerico (a -> 0, b -> 1, ...).
    */
   private convertiRigaInNumero(riga: string): number {
-    return riga.charCodeAt(0) - 65; 
+    return riga.toLowerCase().charCodeAt(0) - 97; 
   }
 }

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toast } from '../../tools/feedbacksUI';
 import { CombatService } from './combat.service';
-import { MappaService } from './mappa.service';
+import { MappaService, Preset } from './mappa.service';
 import { FightersService } from './fighters.service';
 import { DiceService } from './dice.service';
 import { statisticheGradoSfida } from './gradiSfida';
@@ -26,6 +26,14 @@ export class ArenaComponent {
     this.form_reset()
   }
 
+  // Carica un preset e posiziona i combattenti
+  caricaMappaPreset(preset: Preset) {
+    this.mappaService.caricaPreset(preset);
+    if (this.fightersService.combattenti().length > 0) {
+      this.combatService.posizionamento();
+    }
+  }
+
   // Gestisce l'input del prompt principale
   handlePrompt(e: Event): void {
     e.preventDefault();
@@ -42,7 +50,7 @@ export class ArenaComponent {
       return;
     }
 
-    const comandi = value.split('>').map(cmd => cmd.trim()).filter(cmd => cmd);
+    const comandi = value.split(',').map(cmd => cmd.trim()).filter(cmd => cmd);
 
     for (const comando of comandi) {
       this.eseguiComando(comando, input);
@@ -91,14 +99,22 @@ export class ArenaComponent {
       label: '"mappa demo", "mappa salva bosco", "mappa elimina vecchio"',
       pattern: (s: string) => /^mappa /i.test(s),
       show: (s: string) => s.toLowerCase().startsWith('m'),
-      execute: (comando: string) => {
+      execute: async (comando: string) => {
         const match_elimina = comando.match(/^mappa elimina (.+)$/i);
         const match_salva = comando.match(/^mappa salva (.+)$/i);
         const match_carica = comando.match(/^mappa (.+)$/i);
         
-        if (match_elimina) this.mappaService.storage_removeMap(match_elimina[1].trim());
-        else if (match_salva) this.mappaService.storage_addMap(match_salva[1].trim());
-        else if (match_carica) this.mappaService.mappa_syncStorage(match_carica[1].trim());
+        if (match_elimina) {
+          await this.mappaService.storage_removeMap(match_elimina[1].trim());
+        } else if (match_salva) {
+          await this.mappaService.storage_addMap(match_salva[1].trim());
+        } else if (match_carica) {
+          await this.mappaService.mappa_syncStorage(match_carica[1].trim());
+          // Posizionamento automatico dopo il caricamento della mappa salvata
+          if (this.fightersService.combattenti().length > 0) {
+            this.combatService.posizionamento();
+          }
+        }
       }
     },
     // --- SIMBOLI ---
@@ -125,7 +141,7 @@ export class ArenaComponent {
       show: (s: string) => ['-', '+', '*', '#', '@', '|', '~'].includes(s[0]) || (s.length > 2 && s.includes(' in')),
       execute: (comando: string) => {
         const match = comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i);
-        if (match) this.mappaService.mappa_setCell(match[2].toUpperCase(), parseInt(match[3], 10) - 1, match[1].trim());
+        if (match) this.mappaService.mappa_setCell(match[2], parseInt(match[3], 10) - 1, match[1].trim());
       }
     },
     // --- DADI ---
@@ -165,8 +181,8 @@ export class ArenaComponent {
 
         // Logica per NPC
         if (comando.includes('gs')) {
-          const gradoSfida = prompt.find(s => s.startsWith("gs"))?.replace("gs", "") || "1";
-          const ripetizioni = Number(prompt.find(s => s.startsWith("x"))?.replace("x", "")) || 1;
+          const gradoSfida = prompt.find(s => /^gs/.test(s))?.replace("gs", "") || "1";
+          const ripetizioni = Number(prompt.find(s => /^x\d+$/.test(s))?.replace("x", "")) || 1;
           const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
 
           for (let i = 0; i < ripetizioni; i++) {
@@ -175,11 +191,11 @@ export class ArenaComponent {
           
         // Logica per Giocatore
         } else {
-          let nomeGiocatore = prompt.find((p, i) => i > 0 && !p.startsWith('ca') && !p.startsWith('hp') && !['mischia', 'distanza'].includes(p)) || 'Eroe';
+          let nomeGiocatore = prompt.find((p, i) => i > 0 && !/^ca\d+/.test(p) && !/^hp\d+/.test(p) && !/^[+-]\d+$/.test(p) && !['mischia', 'distanza'].includes(p)) || 'Eroe';
           nomeGiocatore = nomeGiocatore.charAt(0).toUpperCase() + nomeGiocatore.slice(1);
 
-          const ca = Number(prompt.find(p => p.startsWith('ca'))?.replace('ca', '')) || 10;
-          const hp = Number(prompt.find(p => p.startsWith('hp'))?.replace('hp', '')) || 10;
+          const ca = Number(prompt.find(p => /^ca\d+/.test(p))?.replace('ca', '')) || 10;
+          const hp = Number(prompt.find(p => /^hp\d+/.test(p))?.replace('hp', '')) || 10;
           const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
           const iniziativa = Number(prompt.find(p => /^[+-]\d+$/.test(p))) || 0;
 
@@ -259,37 +275,7 @@ export class ArenaComponent {
   }
 
   // METODI DI SUPPORTO PRIVATI (Estratti per pulizia)
-  private eseguiCreazioneNPC(comando: string) {
-    const prompt = comando.split(" ");
-    const nomeSquadra = prompt[0].trim();
-    const gradoSfida = prompt.find(s => s.startsWith("gs"))?.replace("gs", "") || "1";
-    let ripetizioni = Number(prompt.find(s => s.startsWith("x"))?.replace("x", "")) || 1;
-    const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
-
-    for (let i = 0; i < ripetizioni; i++) {
-      this.fightersService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
-    }
-    if(this.mappaService.mappa_value()) 
-      this.combatService.posizionamento();
-  }
-
-  private eseguiCreazioneGiocatore(comando: string) {
-    const prompt = comando.split(' ');
-    const nomeSquadra = prompt[0].trim();
-    
-    // Il nome giocatore è la prima parola dopo la squadra che non sia una parola chiave (ca, hp, mischia, distanza)
-    let nomeGiocatore = prompt.find((p, i) => i > 0 && !p.startsWith('ca') && !p.startsWith('hp') && !['mischia', 'distanza'].includes(p)) || 'Eroe';
-    nomeGiocatore = nomeGiocatore.charAt(0).toUpperCase() + nomeGiocatore.slice(1);
-    
-    const ca = Number(prompt.find(p => p.startsWith('ca'))?.replace('ca', '')) || 10;
-    const hp = Number(prompt.find(p => p.startsWith('hp'))?.replace('hp', '')) || 10;
-    const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
-    const iniziativa = Number(prompt.find(p => /^[+-]\d+$/.test(p))) || 0;
-
-    this.fightersService.addCombattente(nomeSquadra, iniziativa, "", nomeGiocatore, ca, hp, tipo);
-    this.combatService.posizionamento();
-  }
-
+  
   private eseguiAttacco(comando: string) {
     const parts = comando.toLowerCase().split(' attacca ');
     const idAttaccante = parts[0].trim();

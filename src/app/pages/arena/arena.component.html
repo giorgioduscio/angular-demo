@@ -2,7 +2,7 @@
   <!-- Main: Griglia della mappa -->
   <section class="row">
     <!-- strumenti -->
-    <aside class="pt-3 d-none d-lg-block col-md-3 overflow-auto" style="height: 92.5vh;">
+    <aside class="pt-3 d-none d-lg-block col-md-3 overflow-auto" style="height: 92vh;">
       <!-- CRONOLOGIA TIRI -->
       <div *ngIf="diceService.tiri.length > 0">
         <h3><i class="bi bi-dice-5"></i> Cronologia tiri</h3>
@@ -16,18 +16,15 @@
         </div>
       </div>
 
-      <!-- MAPPE SALVATE -->
+      <!-- MAPPE -->
       <div>
         <h3> <i class="bi bi-map"></i> Genera mappa</h3>
         <div class="d-flex-table my-2 rounded overflow-hidden">
-          <button (click)="eseguiComando('9x9')" class="btn btn-primary rounded-0">
-            <i class="bi bi-house me-2"></i>Stanza 
-          </button>
-          <button (click)="eseguiComando('12x12')" class="btn btn-primary rounded-0">
-            <i class="bi bi-building me-2"></i>Edificio
-          </button>
-          <button (click)="eseguiComando('26x12')" class="btn btn-primary rounded-0">
-            <i class="bi bi-tree-fill me-2"></i>Piazza
+          <button *ngFor="let preset of mappaService.mappa_presets" 
+                  (click)="caricaMappaPreset(preset)" 
+                  class="btn btn-primary rounded-0">
+            <i class="bi bi-{{preset.icon || 'map'}} me-2"></i>
+            {{ preset.title }}
           </button>
         </div>
         
@@ -123,7 +120,7 @@
     </aside>
         
     <!-- Mappa -->
-    <div class="col-12 col-lg py-3 overflow-auto pb-5" style="height: 92.5vh;">
+    <div class="col-12 col-lg py-3 overflow-auto pb-5" style="height: 92vh;">
       <!-- Messaggio placeholder se la mappa non è stata generata -->
       @if (mappaService.mappa_isVoid()) {
         <div class="d-flex-table gap-2">
@@ -171,9 +168,10 @@
               <tr>
                 <th></th>
                 <!-- Intestazioni delle mappa_colonne (numeri) -->
-                <th *ngFor="let col of mappaService.mappa_colonne(); let i = index"
-                  class="text-center w-60px">
-                  {{ i + 1 }}
+                <th *ngFor="let col of mappaService.mappa_colonne(); let i = index">
+                  <div class="text-center">
+                    {{ i + 1 }}
+                  </div>
                 </th>
                 <th></th>
               </tr>
@@ -182,16 +180,17 @@
               <!-- Righe della tabella -->
               <tr *ngFor="let rowKey of mappaService.mappa_righe()">
                 <!-- Intestazione della riga (lettera) -->
-                <th class="text-center align-middle p-2">{{ rowKey }}</th>
+                <th class="text-center align-middle">{{ rowKey }}</th>
                 <!-- Celle della riga -->
-                <td *ngFor="let cellValue of mappaService.mappa_value().value[rowKey]; let j = index"
-                    [attr.data-cell]="rowKey + (j + 1)"
-                    class="p-0"
-                    [class.table-secondary]="cellValue==='+'">
-                  <app-cell [cellValue]="cellValue" class="h-100 w-100"></app-cell>
-                </td>
+                @for (cellValue of mappaService.mappa_value().value[rowKey]; track $index) {
+                  <td [attr.data-cell]="rowKey + ($index + 1)"
+                      class="p-0"
+                      [class.table-secondary]="cellValue==='+'">
+                    <app-cell [cellValue]="cellValue" [riga]="rowKey" [colonna]="$index" class="h-100 w-100"></app-cell>
+                  </td>
+                }
                 <!-- Intestazione della riga (lettera) -->
-                <th class="text-center align-middle p-2">{{ rowKey }}</th>
+                <th class="text-center align-middle">{{ rowKey }}</th>
               </tr>
             </tbody>
             <tfoot>
@@ -199,7 +198,7 @@
                 <th></th>
                 <!-- Intestazioni delle mpa_colonne (numeri) -->
                 <th *ngFor="let col of mappaService.mappa_colonne(); let i = index"
-                  class="px-3 text-center">
+                  class="text-center">
                   {{ i + 1 }}
                 </th>
                 <th></th>
@@ -267,4 +266,3 @@
   </div>
 
 </div>
-ap
