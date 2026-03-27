@@ -287,14 +287,19 @@ export class MappaService {
 
 
   // PRESETS
-  caricaPreset(p: Preset) {   
-    if (!p) return console.error("parametro non valido");
-
+  mappa_setPreset(preset: Preset, fightersService: any, combatService:any) {
+    if (!preset) return console.error("parametro non valido");
+  
     this.mappa_value.set({
-      id: p.title,
-      value: JSON.parse(JSON.stringify(p.map))
+      id: preset.title,
+      value: JSON.parse(JSON.stringify(preset.map))
     });
+
+    if (fightersService.combattenti().length > 0) {
+      combatService.posizionamento();
+    }
   }
+
   mappa_presets: Preset[] = [
     { title: 'Cimitero', icon:'',
       map: {

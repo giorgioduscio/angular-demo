@@ -36,5 +36,4 @@ Esempi:
 # arena
 
 - ? layout: risultato dadi in alto a destra
-- fix: nella cartella /arena controlla se nei file, divisi per ambito, ci sono funzionalità che non gli riguardano
 - fix: nella cartella /arena, bisogna evitare troppi toast. proposta: i toast devono essere invocati solo nel file arena.component.ts. nei service, sostituisci i toast con i console.danger

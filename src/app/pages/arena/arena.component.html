@@ -21,7 +21,7 @@
         <h3> <i class="bi bi-map"></i> Genera mappa</h3>
         <div class="d-flex-table my-2 rounded overflow-hidden">
           <button *ngFor="let preset of mappaService.mappa_presets" 
-                  (click)="caricaMappaPreset(preset)" 
+                  (click)="mappaService.mappa_setPreset(preset, fightersService, combatService)" 
                   class="btn btn-primary rounded-0">
             <i class="bi bi-{{preset.icon || 'map'}} me-2"></i>
             {{ preset.title }}
@@ -77,9 +77,9 @@
         </div>
 
         <!-- NUOVO COMBATTENTE -->
-        <form (change)="handleChange($event)" (submit)="handleSubmit($event)">
+        <form (change)="form_handleChange($event)" (submit)="form_handleSubmit($event)">
           <div class="d-flex-table gap-2 my-2">
-            <div *ngFor="let field of form; let i = index">
+            <div *ngFor="let field of form_value; let i = index">
               <label [for]="field.key">{{ field.label }}</label>
               
               @if (field.type=='select') {
@@ -249,7 +249,7 @@
       </div>
 
       <!-- Input principale -->
-      <form (submit)="handlePrompt($event)"
+      <form (submit)="prompt_submit($event)"
             (input)="prompt_setConsiglio($event)"
             class="m-auto d-flex gap-2">
         <div class="w-100 border rounded mb-1 p-1 d-flex align-items-center">
