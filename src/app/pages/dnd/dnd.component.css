@@ -62,7 +62,7 @@
     accent-color: var(--dnd3);
   }
   .form-control-dnd {
-    background-color: var(--dnd2);
+    background-color: var(--dnd2) !important;
     color: var(--dnd5);
     border-color: var(--dnd5);
     font-family: 'Times New Roman', Times, serif !important;

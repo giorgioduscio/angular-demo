@@ -1,4 +1,3 @@
-type ToastColor = "primary" | "secondary" | "danger" | "success" | "warning" | "info";
 
 // Funzione di utilità per mantenere la sintassi originale
 export const toast = {
@@ -22,6 +21,8 @@ export const toast = {
   },
 } as const;
 
+type ToastColor = 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'info';
+
 class ToastManager {
   private static instance: ToastManager;
   private toastPool: HTMLElement[] = [];
@@ -35,9 +36,12 @@ class ToastManager {
     warning: '#ffc107',
     info: '#0dcaf0'
   };
+  // Cache per i messaggi recenti
+  private messageCache = new Set<string>();
+  private readonly MAX_CACHE_SIZE = 10;
+  private readonly CACHE_CLEANUP_DELAY = 5000; // 5 secondi
 
-  // Costruttore privato per singleton
-  private constructor() { }
+  private constructor() {}
 
   // Metodo per ottenere l'istanza singleton
   public static getInstance(): ToastManager {
@@ -92,8 +96,28 @@ class ToastManager {
     }
   }
 
-  // Mostra un toast
+  // Aggiunge un messaggio alla cache e ne programma la rimozione
+  private addToCache(message: string): void {
+    this.messageCache.add(message);
+    setTimeout(() => {
+      this.messageCache.delete(message);
+    }, this.CACHE_CLEANUP_DELAY);
+  }
+
+  // Verifica se il messaggio è già stato mostrato di recente
+  private isMessageDuplicate(message: string): boolean {
+    return this.messageCache.has(message);
+  }
+
   public show(message: string, color: ToastColor = "secondary"): void {
+    // Controllo duplicati: se il messaggio è già nella cache, non mostrare il toast
+    if (this.isMessageDuplicate(message)) {
+      return;
+    }
+
+    // Aggiungi il messaggio alla cache
+    this.addToCache(message);
+
     const bootstrapGlobal = (window as any).bootstrap;
     const isBootstrap5 = typeof bootstrapGlobal !== 'undefined' && bootstrapGlobal.Toast;
 
@@ -107,7 +131,6 @@ class ToastManager {
         document.body.appendChild(container);
       }
 
-      // Colori chiari di bootstrap richiedono testo scuro
       const isLightColor = color === 'warning' || color === 'info';
       const textColor = isLightColor ? 'text-dark' : 'text-white';
       const closeBtnColor = isLightColor ? '' : 'btn-close-white';
