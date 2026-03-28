@@ -61,7 +61,10 @@ export class ArenaComponent {
       showSuggestion: (s: string) => !isNaN(parseInt(s[0])),
       execute: (comando: string) => {
         const match = comando.match(/^(\d+)x(\d+)$/i);
-        if (match) this.mappaService.mappa_create(parseInt(match[1], 10), parseInt(match[2], 10));
+        if (match) {
+          const error = this.mappaService.mappa_create(parseInt(match[1], 10), parseInt(match[2], 10));
+          if (error) toast.danger(error);
+        }
         // Posizionamento automatico sulla mappa
         if(this.fightersService.combattenti().length) 
           this.combatService.posizionamento();
@@ -89,7 +92,9 @@ export class ArenaComponent {
       execute: async (comando: string) => {
         const match = comando.match(/^mappa (.+)$/i);
         if (match) {
-          await this.mappaService.mappa_syncStorage(match[1].trim());
+          const error = await this.mappaService.mappa_syncStorage(match[1].trim());
+          if (error) toast.danger(error);
+          
           // Posizionamento automatico dopo il caricamento della mappa salvata
           if (this.fightersService.combattenti().length > 0) {
             this.combatService.posizionamento();
@@ -106,7 +111,10 @@ export class ArenaComponent {
       showSuggestion: (s: string) => s.toLowerCase().startsWith('mappa salva') || "mappa salva".startsWith(s.toLowerCase()),
       execute: async (comando: string) => {
         const match = comando.match(/^mappa salva (.+)$/i);
-        if (match) await this.mappaService.storage_addMap(match[1].trim());
+        if (match) {
+          const error = await this.mappaService.storage_addMap(match[1].trim());
+          if (error) toast.danger(error);
+        }
       }
     },
     {
@@ -118,7 +126,10 @@ export class ArenaComponent {
       showSuggestion: (s: string) => s.toLowerCase().startsWith('mappa elimina') || "mappa elimina".startsWith(s.toLowerCase()),
       execute: async (comando: string) => {
         const match = comando.match(/^mappa elimina (.+)$/i);
-        if (match) await this.mappaService.storage_removeMap(match[1].trim());
+        if (match) {
+          const error = await this.mappaService.storage_removeMap(match[1].trim());
+          if (error) toast.danger(error);
+        }
       }
     },
     // --- SIMBOLI ---
@@ -134,8 +145,9 @@ export class ArenaComponent {
         if(!match) return console.error("match non trovato");
         
         const riga =match[1];
-        const colonna = parseInt(match[2], 10) - 1
-        this.mappaService.mappa_setCell(riga, colonna, "")
+        const colonna = parseInt(match[2], 10) - 1;
+        const error = this.mappaService.mappa_setCell(riga, colonna, "");
+        if (error) toast.danger(error);
       }
     },
     {
@@ -147,7 +159,10 @@ export class ArenaComponent {
       showSuggestion: (s: string) => ['-', '+', '*', '#', '@', '|', '~'].includes(s[0]),
       execute: (comando: string) => {
         const match = comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i);
-        if (match) this.mappaService.mappa_setCell(match[2], parseInt(match[3], 10) - 1, match[1].trim());
+        if (match) {
+          const error = this.mappaService.mappa_setCell(match[2], parseInt(match[3], 10) - 1, match[1].trim());
+          if (error) toast.danger(error);
+        }
       }
     },
     {
@@ -159,7 +174,10 @@ export class ArenaComponent {
       showSuggestion: (s: string) => s.length > 2 && s.includes(' in'),
       execute: (comando: string) => {
         const match = comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i);
-        if (match) this.mappaService.mappa_setCell(match[2], parseInt(match[3], 10) - 1, match[1].trim());
+        if (match) {
+          const error = this.mappaService.mappa_setCell(match[2], parseInt(match[3], 10) - 1, match[1].trim());
+          if (error) toast.danger(error);
+        }
       }
     },
     // --- DADI ---
@@ -214,9 +232,12 @@ export class ArenaComponent {
         const ripetizioni = Number(prompt.find(s => /^x\d+$/.test(s))?.replace("x", "")) || 1;
         const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
 
+        let errorFeedback =new Set<string>();
         for (let i = 0; i < ripetizioni; i++) {
-          this.fightersService.addCombattente(nomeSquadra, gradoSfida, '', 0, 0, 0, tipo);
+          const e = this.fightersService.addCombattente(nomeSquadra, gradoSfida, '', 0, 0, 0, tipo);
+          if(e) errorFeedback.add(e);
         }
+        if(errorFeedback.size > 0) toast.danger(Array.from(errorFeedback).join(', '));
         if (this.mappaService.mappa_value()) this.combatService.posizionamento();
       }
     },
@@ -241,7 +262,8 @@ export class ArenaComponent {
         const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
         const iniziativa = Number(prompt.find(p => /^[+-]\d+$/.test(p))) || 0;
 
-        this.fightersService.addCombattente(nomeSquadra, "", nomeGiocatore, ca, hp, iniziativa, tipo);
+        const errorFeedback = this.fightersService.addCombattente(nomeSquadra, "", nomeGiocatore, ca, hp, iniziativa, tipo);
+        if(errorFeedback) return toast.danger(errorFeedback);
         if (this.mappaService.mappa_value()) this.combatService.posizionamento();
       }
     },
@@ -261,7 +283,8 @@ export class ArenaComponent {
         const attaccato = combattenti.find(c => c.id.toLowerCase() === attaccatoId.trim());
 
         if (!attaccante || !attaccato) return toast.danger("Contendenti non trovati");
-        this.combatService.tiraPerColpire(attaccante, attaccato);
+        const error = this.combatService.tiraPerColpire(attaccante, attaccato);
+        if (error) toast.danger(error);
       }
     },
     {
@@ -287,7 +310,11 @@ export class ArenaComponent {
           let passi = 6;
           const interval = setInterval(() => {
             if (this.combatService.sonoPortata(p, nemico, this.mappaService.mappa_value())) {
-              this.combatService.tiraPerColpire(p, nemico);
+              const error = this.combatService.tiraPerColpire(p, nemico);
+              // Mostra il toast solo per errori bloccanti, ignora i 'mancati' e i danni standard
+              if (error && !error.includes('manca')) {
+                 toast.danger(error);
+              }
               haAttaccato = true;
             } else {
               this.combatService.movimento(p, nemico, this.mappaService.mappa_value);
@@ -321,7 +348,10 @@ export class ArenaComponent {
       showSuggestion: (s: string) => s.toLowerCase().startsWith('rimuovi'),
       execute: (comando: string) => {
         const id = comando.split(' ')[1];
-        this.fightersService.rimuoviCombattente(id);
+        this.fightersService.rimuoviCombattente(id).then(res=>{
+          if (res) toast.danger(res);
+          else toast.success(`Combattente "${id}" rimosso`);
+        });
       }
     },
     {
@@ -333,7 +363,8 @@ export class ArenaComponent {
       showSuggestion: (s: string) => s.includes(' -') || s.includes(' +'),
       execute: (comando: string) => {
         const [id, value] = comando.split(' ');
-        this.fightersService.vitalitaPersonaggio(id, Number(value));
+        const error = this.fightersService.vitalitaPersonaggio(id, Number(value));
+        if (error) toast.danger(error);
       }
     },
     {
@@ -343,7 +374,10 @@ export class ArenaComponent {
       label: '"start"',
       pattern: (s: string) => s.toLowerCase() === 'start',
       showSuggestion: (s: string) => "start".startsWith(s.toLowerCase()),
-      execute: () => this.combatService.posizionamento()
+      execute: () => {
+        const error = this.combatService.posizionamento();
+        if (error) toast.danger(error);
+      }
     }
   ];
 
@@ -502,7 +536,7 @@ export class ArenaComponent {
     }
 
     // 3. ESECUZIONE
-    this.fightersService.addCombattente(
+    const errorFeedback = this.fightersService.addCombattente(
       squadra,
       isNPCValido ? gs : "",
       nome || "",
@@ -511,6 +545,8 @@ export class ArenaComponent {
       iniziativa || 0,
       tipo
     );
+
+    if(errorFeedback) toast.danger(errorFeedback); // feedback
 
     // Posizionamento automatico sulla mappa
     if(this.mappaService.mappa_value())

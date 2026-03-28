@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
-import { toast, agree } from '../../tools/feedbacksUI';
+import { agree } from '../../tools/feedbacksUI';
 
 export interface Mappa {
   id: string;
@@ -75,16 +75,14 @@ export class MappaService {
     localStorage.removeItem(this.STORAGE_KEY_ATTUALE);
   }
 
-  mappa_create(righe: number, colonne: number): void {
+  mappa_create(righe: number, colonne: number): string | null {
     if (righe <= 0 || colonne <= 0) {
-      toast.danger('Dimensioni della mappa non valide');
-      return;
+      return 'Dimensioni della mappa non valide';
     }
 
     const maxCelle = 26;
     if (righe > maxCelle || colonne > maxCelle) {
-      toast.danger(`Il numero massimo di righe e colonne è ${maxCelle}`);
-      return;
+      return `Il numero massimo di righe e colonne è ${maxCelle}`;
     }
 
     const lettereRighe = 'abcdefghijklmnopqrstuvwxyz';
@@ -98,29 +96,27 @@ export class MappaService {
       id: 'map-' + Date.now(),
       value: nuovaGriglia
     });
+    return null;
   }
 
   // AGGIUNGE SIMBOLI
-  mappa_setCell(riga: string, colonna: number, simbolo: string): void {
+  mappa_setCell(riga: string, colonna: number, simbolo: string): string | null {
     const mappaCorrente = this.mappa_value();
     const nuovaMappa = JSON.parse(JSON.stringify(mappaCorrente)) as Mappa;
     
    
     if (!mappaCorrente.value[riga]) {
-      toast.danger(`Riga "${riga}" non valida!`);
-      return console.error(`Riga "${riga}" non valida!`);
+      return `Riga "${riga}" non valida!`;
     }
     if (colonna < 0) {
-      toast.danger(`Valori negativi non ammessi`);
-      return console.error(`Valori negativi non ammessi`);
+      return `Valori negativi non ammessi`;
     }
     if (colonna >= this.mappa_colonne().length) {
-      toast.danger(`Colonna "$${colonna + 1}" non valida!`);
-      return console.error(`Colonna "$${colonna + 1}" non valida!`);
+      return `Colonna "${colonna + 1}" non valida!`;
     }
     if(!simbolo.length){
       mappaCorrente.value[riga][colonna] = '';
-      return toast.success("Cella ripulita")
+      return null;
     }
 
     // reset della stringa del giocatore
@@ -141,21 +137,22 @@ export class MappaService {
           && simbolo.length >1
    
     if (simboloUguale) {
-      return toast.danger("Il simbolo è uguale");
+      return "Il simbolo è uguale";
     }else if (giocatoreInGiocatore) {
-      return toast.danger("Due giocatori devono avere posizioni diverse");
+      return "Due giocatori devono avere posizioni diverse";
     } else {
       nuovaMappa.value[riga][colonna] = simbolo;
     }
     
     this.mappa_value.set(nuovaMappa);
+    return null;
   }
 
   submit(e:Event){
     e.preventDefault();
     const form =e.target as HTMLFormElement
     const input =form.querySelector('input');
-    if(!input) return console.error('input non trovato');
+    if(!input) return;
     
     this.storage_addMap(input?.value || 'random')
   }
@@ -190,7 +187,6 @@ export class MappaService {
         }
         this.storage_value.set(parsed);
       } catch (e) {
-        console.error('Errore nel parsing delle mappe salvate:', e);
         this.storage_value.set({});
       }
     } else {
@@ -209,7 +205,7 @@ export class MappaService {
   }
 
   // SALVA MAPPA
-  async storage_addMap(nomeMappa: string = 'random'): Promise<void> {
+  async storage_addMap(nomeMappa: string = 'random'): Promise<string | null> {
     const currentMap = this.mappa_value();
     const storage = this.storage_value();
     
@@ -219,12 +215,11 @@ export class MappaService {
       ? nomeMappa 
       : (currentMap.id || 'mappa' + Date.now().toString().slice(-6));
 
-    const isUpdate = currentMap.id === keyToSave && !!storage[keyToSave];
     const isOverwriting = currentMap.id !== keyToSave && !!storage[keyToSave];
 
     // Conferma per sovrascrittura di una mappa esistente diversa da quella corrente
     if (isOverwriting && !(await agree.warning(`Mappa "${keyToSave}" già esistente. Vuoi sovrascriverla?`))) {
-      return;
+      return null;
     }
 
     const mapToSave: Mappa = { ...currentMap, id: keyToSave };
@@ -243,22 +238,20 @@ export class MappaService {
 
     try {
       localStorage.setItem('mappe', JSON.stringify(mappeSalvateCorrenti));
-      toast.success(isUpdate ? `Mappa "${keyToSave}" aggiornata!` : `Mappa "${keyToSave}" salvata!`);
+      return null;
     } catch (e) {
-      console.error('Errore nel salvataggio della mappa:', e);
-      toast.danger('Errore nel salvataggio della mappa');
+      return 'Errore nel salvataggio della mappa';
     }
   }
 
   // ELIMINA MAPPA
-  async storage_removeMap(nomeMappa: string): Promise<void> {
+  async storage_removeMap(nomeMappa: string): Promise<string | null> {
     if (!this.storage_value()[nomeMappa]) {
-      toast.danger(`Mappa "${nomeMappa}" non trovata`);
-      return;
+      return `Mappa "${nomeMappa}" non trovata`;
     }
 
     if (!(await agree.danger(`Sei sicuro di voler eliminare la mappa "${nomeMappa}"?`, "Rimuovi"))) {
-      return;
+      return null;
     }
 
     const mappeSalvateCorrenti = { ...this.storage_value() };
@@ -267,28 +260,27 @@ export class MappaService {
 
     try {
       localStorage.setItem('mappe', JSON.stringify(mappeSalvateCorrenti));
-      toast.success(`Mappa "${nomeMappa}" eliminata!`);
+      return null;
     } catch (e) {
-      console.error('Errore nell\'eliminazione della mappa:', e);
-      toast.danger('Errore nell\'eliminazione della mappa');
+      return 'Errore nell\'eliminazione della mappa';
     }
   }
 
   // CARICA MAPPA
-  async mappa_syncStorage(nomeMappa: string): Promise<void> {
+  async mappa_syncStorage(nomeMappa: string): Promise<string | null> {
     const mappaSalvata = this.storage_getMapByName(nomeMappa);
     if (!mappaSalvata) {
-      toast.danger(`Mappa "${nomeMappa}" non trovata`);
-      return;
+      return `Mappa "${nomeMappa}" non trovata`;
     }
 
     this.mappa_value.set(JSON.parse(JSON.stringify(mappaSalvata.mappa)));
+    return null;
   }
 
 
   // PRESETS
   mappa_setPreset(preset: Preset, fightersService: any, combatService:any) {
-    if (!preset) return console.error("parametro non valido");
+    if (!preset) return;
   
     this.mappa_value.set({
       id: preset.title,

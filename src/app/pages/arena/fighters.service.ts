@@ -1,5 +1,5 @@
 import { effect, Injectable, signal } from '@angular/core';
-import { agree, toast } from "../../tools/feedbacksUI";
+import { agree } from "../../tools/feedbacksUI";
 import { statisticheGradoSfida } from "./gradiSfida";
 import { MappaService } from "./mappa.service";
 
@@ -35,9 +35,7 @@ export class FightersService {
   private saveToStorage(data: Combattente[]): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {
-      console.error("Errore salvataggio LocalStorage:", e);
-    }
+    } catch (e) {}
   }
   
   private loadFromStorage(): Combattente[] {
@@ -45,11 +43,11 @@ export class FightersService {
       const saved = localStorage.getItem(this.STORAGE_KEY);
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
-      console.error("Errore caricamento LocalStorage:", e);
       return [];
     }
   }
   
+  private numeroMassimoCombattenti = 28;
   getCombattenteById(combattenteId: string): Combattente | undefined {
     const idLower = combattenteId.toLowerCase();
     return this.combattenti().find(c => c.id.toLowerCase() === idLower);
@@ -85,15 +83,17 @@ export class FightersService {
     puntiFerita: number,
     bonusIniziativa=0,
     tipoCombettente: 'mischia' | 'distanza' = 'mischia'
-  ): void {
+  ): string | null {
+    if(this.combattenti().length >= this.numeroMassimoCombattenti) {
+      return "Superato il numero massimo di combattenti";
+    }
     const numeroTurno = (Math.random() * 20) + bonusIniziativa;
     const matchGradoSfida = statisticheGradoSfida.find(gs => gs.gradoSfida === gradoSfida);
     const nuovoNome = nomePersonaggio.trim() !== '' ? nomePersonaggio.trim() : this.getNomeRandom();
     const nuoviHP = puntiFerita ? puntiFerita : matchGradoSfida?.puntiFerita ?? 0;
 
     if (!nuovoNome || !nomeSquadra) {
-      console.error("Errore", { nomeSquadra, nuovoNome });
-      return;
+      return "Nome o squadra non validi";
     }
 
     const nuovoCombattente: Combattente = {
@@ -110,33 +110,39 @@ export class FightersService {
     };
 
     this.combattenti.update(combattenti => [...combattenti, nuovoCombattente]);
+    return null;
   }
 
-  async rimuoviCombattente(combattenteId: string, showAgree = false): Promise<void> {
-    if (showAgree && !await agree.danger(`Rimuovere ${combattenteId}?`, "Rimuovi")) return;
+  async rimuoviCombattente(combattenteId: string, showAgree = false): Promise<string | null> {
+    if (showAgree && !await agree.danger(`Rimuovere ${combattenteId}?`, "Rimuovi")) return null;
 
     const idLower = combattenteId.toLowerCase();
     const combattentiAggiornati = this.combattenti().filter(c => c.id.toLowerCase() !== idLower);
 
     this.combattenti.set(combattentiAggiornati);
     this.mappaService.mappa_removeSymbol(combattenteId);
+
+    const combattenteEsisteAncora = this.combattenti().some(c => c.id.toLowerCase() === idLower);
+    if(combattenteEsisteAncora) return "Combattente non rimosso correttamente";
+    return null;
   }
 
-  async rimuoviTuttiCombattenti(): Promise<void> {
-    if (!await agree.danger("Rimuovere tutti i combattenti?", "Rimuovi tutti")) return;
+  async rimuoviTuttiCombattenti(): Promise<string | null> {
+    if (!await agree.danger("Rimuovere tutti i combattenti?", "Rimuovi tutti")) return null;
 
     for (const combattente of this.combattenti()) {
       this.mappaService.mappa_removeSymbol(combattente.id);
     }
     this.combattenti.set([]);
-    toast.success("Tutti i combattenti rimossi");
+    
+    if(this.combattenti().length) return "Combattenti non rimossi";
+    return null;
   }
 
-  vitalitaPersonaggio(combattenteId: string, bonus: number): void {
+  vitalitaPersonaggio(combattenteId: string, bonus: number): string | null {
     const combattente = this.getCombattenteById(combattenteId);
     if (!combattente) {
-      toast.danger("Combattente non trovato");
-      return;
+      return "Combattente non trovato";
     }
 
     const hpIniziali = combattente.puntiFerita;
@@ -149,15 +155,17 @@ export class FightersService {
 
     this.combattenti.set(combattentiAggiornati);
     const aggiornato = combattentiAggiornati.find(c => c.id.toLowerCase() === combattenteId.toLowerCase());
-    
-    if (aggiornato && aggiornato.puntiFerita <= 0) {
+   
+    if(!aggiornato) return "Combattente non trovato";
+
+    if (aggiornato.puntiFerita <= 0) {
       this.rimuoviCombattente(combattenteId);
-      toast.danger(`${aggiornato.id} eliminato`);
-      return;
+      if (this.getCombattenteById(combattenteId)) {
+        return "Combattente non eliminato correttamente";
+      }
     }
 
-    if (aggiornato && hpIniziali !== aggiornato.puntiFerita) {
-      toast.success(`HP ${aggiornato.id} aggiornati`);
-    }
+    if (hpIniziali == aggiornato.puntiFerita) return `HP non aggiornati correttamente`;
+    return null;
   }
 }

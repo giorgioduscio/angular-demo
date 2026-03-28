@@ -1,5 +1,4 @@
 import { Injectable, WritableSignal } from '@angular/core';
-import { toast } from "../../tools/feedbacksUI";
 import { Mappa, MappaService } from "./mappa.service";
 import { Combattente, FightersService } from "./fighters.service";
 
@@ -19,23 +18,21 @@ export class CombatService {
    * Divide le squadre nei quattro angoli della mappa e posiziona i membri
    * in modo compatto cercando le prime celle libere adiacenti all'angolo.
    */
-  posizionamento(): void {
+  posizionamento(): string | null {
     const mappaOriginale = this.mappaService.mappa_value();
     const mappa = JSON.parse(JSON.stringify(mappaOriginale)) as Mappa;
     const righeKeys = this.mappaService.mappa_righe();
     const colonneArray = this.mappaService.mappa_colonne().length;
 
     if (!mappa || righeKeys.length === 0 || colonneArray === 0) {
-      toast.danger("Mappa non valida");
-      return;
+      return "Mappa non valida";
     }
 
     const combattenti = this.fightersService.combattenti();
     const squadre = [...new Set(combattenti.map(c => c.squadra))];
     
     if (squadre.length === 0) {
-      console.error("Nessuna squadra da posizionare");
-      return;
+      return "Nessuna squadra da posizionare";
     }
 
     // Pulisce la mappa dai nomi dei combattenti precedenti prima del riposizionamento
@@ -128,10 +125,12 @@ export class CombatService {
     const combattentiMancanti = combattenti.filter(c => !idPresentiSullaMappa.has(c.id.toLowerCase()));
 
     if (combattentiMancanti.length === 0) {
-      toast.success("Combattenti posizionati con successo!");
+      return null
     } else {
       const nomiMancanti = combattentiMancanti.map(c => c.id).join(", ");
-      toast.warning(`Mappa troppo piccola o affollata. Mancano: ${nomiMancanti}`);
+      const msg = `Mappa troppo piccola o affollata. Mancano: ${nomiMancanti}`;
+      console.warn(msg);
+      return msg;
     }
   }
 
@@ -141,15 +140,16 @@ export class CombatService {
    * @param attaccante Il combattente che effettua l'attacco.
    * @param bersaglio Il combattente che subisce l'attacco.
    */
-  tiraPerColpire(attaccante: Combattente, bersaglio: Combattente): void {
+  tiraPerColpire(attaccante: Combattente, bersaglio: Combattente): string | null {
     const tiroPerColpire = attaccante.bonusAttacco + Math.floor(Math.random() * 20);
     const superaClasseArmatura = tiroPerColpire >= bersaglio.classeArmatura;
     const danni = attaccante.danni;
 
+    let resultMsg: string | null = null;
     if (superaClasseArmatura) {
-      this.fightersService.vitalitaPersonaggio(bersaglio.id, -danni);
+      resultMsg = this.fightersService.vitalitaPersonaggio(bersaglio.id, -danni);
     } else {
-      toast.danger(`${attaccante.id} manca ${bersaglio.id}`);
+      resultMsg = `${attaccante.id} manca ${bersaglio.id}`;
     }
 
     // Imposta il bersaglio come target corrente (ultimo nemico ingaggiato)
@@ -160,6 +160,7 @@ export class CombatService {
       `${attaccante.id.substring(0, 7)} ${superaClasseArmatura ? 'COLPISCE' : 'manca'} ${bersaglio.id} \n`,
       `\t(TPC=${tiroPerColpire}) \t\t (CA=${bersaglio.classeArmatura})`
     );
+    return resultMsg;
   }
 
   /**
