@@ -23,19 +23,7 @@ export class FightersService {
   listaCombattenti: Combattente[] = [];
   giocatoreUltimoTurno = '';
 
-  private coloriSquadre = {
-    a: '#009494ff',
-    b: '#009900ff',
-    c: '#0000ddff',
-    d: '#888800ff',
-    e: '#a100a1ff',
-    f: '#aa0000ff',
-    g: '#8c5b00ff',
-    h: '#800080',
-    i: '#b74357ff',
-    j: '#891616ff'
-  } as const;
-
+  
   constructor(private mappaService: MappaService) {
     effect(() => {
       const current = this.combattenti();
@@ -43,7 +31,7 @@ export class FightersService {
       this.listaCombattenti = [...current].sort((a, b) => b.numeroTurno - a.numeroTurno);
     });
   }
-
+  
   private saveToStorage(data: Combattente[]): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
@@ -51,7 +39,7 @@ export class FightersService {
       console.error("Errore salvataggio LocalStorage:", e);
     }
   }
-
+  
   private loadFromStorage(): Combattente[] {
     try {
       const saved = localStorage.getItem(this.STORAGE_KEY);
@@ -61,14 +49,21 @@ export class FightersService {
       return [];
     }
   }
-
+  
   getCombattenteById(combattenteId: string): Combattente | undefined {
     const idLower = combattenteId.toLowerCase();
     return this.combattenti().find(c => c.id.toLowerCase() === idLower);
   }
-
-  getColoreSquadra(squadra: string): string {
-    return this.coloriSquadre[squadra as keyof typeof this.coloriSquadre];
+  
+  private colors_value = {
+    a: 'success',
+    b: 'info',
+    c: 'secondary',
+    d: 'primary'
+  } as const;
+  colors_getbyName(squadra: string): string {
+    const _squadra = squadra as keyof typeof this.colors_value;
+    return this.colors_value[_squadra];
   }
 
   private getNomeRandom(): string {
@@ -78,17 +73,17 @@ export class FightersService {
       'Avorio', 'Cacao', 'Citrino', 'Dorato', 'Ebano', 'Kaki', 'Lavanda',
       'Nocciola', 'Fucsia', 'Oliva', 'Perla', 'Rosa', 'Salmone', 'Turchese'
     ];
-    const nomiDisponibili = nomiDefault.filter(nome => !this.combattenti().some(c => c.id === nome));
-    return nomiDisponibili[Math.floor(Math.random() * nomiDisponibili.length)];
+    const nomiNonselezionati = nomiDefault.filter(nome => !this.combattenti().some(c => c.id === nome));
+    return nomiNonselezionati[Math.floor(Math.random() * nomiNonselezionati.length)];
   }
 
   addCombattente(
     nomeSquadra: string,
-    bonusIniziativa: number,
     gradoSfida: string,
     nomePersonaggio: string,
     classeArmatura: number,
     puntiFerita: number,
+    bonusIniziativa=0,
     tipoCombettente: 'mischia' | 'distanza' = 'mischia'
   ): void {
     const numeroTurno = (Math.random() * 20) + bonusIniziativa;

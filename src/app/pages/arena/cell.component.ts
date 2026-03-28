@@ -11,10 +11,9 @@ import { MappaService } from "./mappa.service";
   <div>
     <div class="w-30px h-30px m-auto">
       @if(combattente()) {
-        <div class="rounded-circle h-100 d-flex flex-column justify-content-center" 
-            [style.background]="color()" 
+        <div class="rounded-circle h-100 d-flex flex-column justify-content-center text-bg-{{color()}}" 
             [class.subisceDanno]="feedback()"
-             style="rotate: 15deg;">
+            style="rotate: 15deg;">
           <!-- NOME -->
           <h6 class="m-0 d-flex align-items-center justify-content-center">
             <span>{{ combattente()!.id }}</span>
@@ -100,7 +99,7 @@ export class CellComponent {
   // Colore della squadra calcolato in modo reattivo
   color = computed(() => {
     const c = this.combattente();
-    return c ? this.fightersService.getColoreSquadra(c.squadra) : '';
+    return c ? this.fightersService.colors_getbyName(c.squadra) : '';
   });
 
   // Percorso immagine calcolato in modo reattivo

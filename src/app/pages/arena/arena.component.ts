@@ -50,15 +50,7 @@ export class ArenaComponent {
 
   // CONFIGURAZIONE CENTRALIZZATA COMANDI
   // Unifica logica di esecuzione e suggerimenti UI
-  readonly CONFIG_COMANDI: {
-    section: 'Mappe' | 'Simboli' | 'Dadi' | 'Combattimento';
-    name: string;
-    description: string;
-    label: string;
-    show: (s: string) => boolean;
-    pattern: (s: string) => boolean;
-    execute: (comando: string) => void;
-  }[] = [
+  readonly CONFIG_COMANDI = [
     // --- MAPPE ---
     {
       section: 'Mappe',
@@ -66,7 +58,7 @@ export class ArenaComponent {
       description: 'Genera una mappa delle dimensioni indicate',
       label: '"9x9", "12x6", "26x14"',
       pattern: (s: string) => /^(\d+)x(\d+)$/i.test(s),
-      show: (s: string) => !isNaN(parseInt(s[0])),
+      showSuggestion: (s: string) => !isNaN(parseInt(s[0])),
       execute: (comando: string) => {
         const match = comando.match(/^(\d+)x(\d+)$/i);
         if (match) this.mappaService.mappa_create(parseInt(match[1], 10), parseInt(match[2], 10));
@@ -81,7 +73,7 @@ export class ArenaComponent {
       description: 'Rimuove personaggi e mappa correnti',
       label: '"reset"',
       pattern: (s: string) => /^reset$/i.test(s),
-      show: (s: string) => "reset ".includes(s.toLowerCase()) || s.toLowerCase().startsWith('reset'),
+      showSuggestion: (s: string) => "reset ".includes(s.toLowerCase()) || s.toLowerCase().startsWith('reset'),
       execute: () => {
         this.fightersService.combattenti.set([]);
         this.mappaService.mappa_reset();
@@ -93,7 +85,7 @@ export class ArenaComponent {
       description: 'Carica una mappa salvata',
       label: '"mappa demo", "mappa bosco"',
       pattern: (s: string) => /^mappa (?!salva|elimina)(.+)$/i.test(s),
-      show: (s: string) => s.toLowerCase().startsWith('mappa') && !s.toLowerCase().includes('salva') && !s.toLowerCase().includes('elimina'),
+      showSuggestion: (s: string) => s.toLowerCase().startsWith('mappa') && !s.toLowerCase().includes('salva') && !s.toLowerCase().includes('elimina'),
       execute: async (comando: string) => {
         const match = comando.match(/^mappa (.+)$/i);
         if (match) {
@@ -111,7 +103,7 @@ export class ArenaComponent {
       description: 'Salva la mappa corrente',
       label: '"mappa salva bosco"',
       pattern: (s: string) => /^mappa salva (.+)$/i.test(s),
-      show: (s: string) => s.toLowerCase().startsWith('mappa salva') || "mappa salva".startsWith(s.toLowerCase()),
+      showSuggestion: (s: string) => s.toLowerCase().startsWith('mappa salva') || "mappa salva".startsWith(s.toLowerCase()),
       execute: async (comando: string) => {
         const match = comando.match(/^mappa salva (.+)$/i);
         if (match) await this.mappaService.storage_addMap(match[1].trim());
@@ -123,7 +115,7 @@ export class ArenaComponent {
       description: 'Elimina una mappa salvata',
       label: '"mappa elimina vecchio"',
       pattern: (s: string) => /^mappa elimina (.+)$/i.test(s),
-      show: (s: string) => s.toLowerCase().startsWith('mappa elimina') || "mappa elimina".startsWith(s.toLowerCase()),
+      showSuggestion: (s: string) => s.toLowerCase().startsWith('mappa elimina') || "mappa elimina".startsWith(s.toLowerCase()),
       execute: async (comando: string) => {
         const match = comando.match(/^mappa elimina (.+)$/i);
         if (match) await this.mappaService.storage_removeMap(match[1].trim());
@@ -136,7 +128,7 @@ export class ArenaComponent {
       description: 'pulisce la cella indicata',
       label: '"clear b4", "clear c6"',
       pattern: (s: string) => /^clear ([a-zA-Z])\s*(\d+)$/i.test(s),
-      show: (s: string) => "clear".startsWith(s),
+      showSuggestion: (s: string) => "clear".startsWith(s),
       execute: (comando: string) => {
         const match = comando.match(/^clear ([a-zA-Z])\s*(\d+)$/i);
         if(!match) return console.error("match non trovato");
@@ -152,7 +144,7 @@ export class ArenaComponent {
       description: 'Inserisce un simbolo grafico (- + * # @ | ~)',
       label: '"+ in a3", "# in b4"',
       pattern: (s: string) => /^([-+*#@|~]) in ([a-zA-Z])\s*(\d+)$/i.test(s),
-      show: (s: string) => ['-', '+', '*', '#', '@', '|', '~'].includes(s[0]),
+      showSuggestion: (s: string) => ['-', '+', '*', '#', '@', '|', '~'].includes(s[0]),
       execute: (comando: string) => {
         const match = comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i);
         if (match) this.mappaService.mappa_setCell(match[2], parseInt(match[3], 10) - 1, match[1].trim());
@@ -164,7 +156,7 @@ export class ArenaComponent {
       description: 'Sposta un personaggio o inserisce un nome',
       label: '"aldo in c6", "Eroe in d2"',
       pattern: (s: string) => /^((?![-+*#@|~]).+) in ([a-zA-Z])\s*(\d+)$/i.test(s),
-      show: (s: string) => s.length > 2 && s.includes(' in'),
+      showSuggestion: (s: string) => s.length > 2 && s.includes(' in'),
       execute: (comando: string) => {
         const match = comando.match(/^(.+) in ([a-zA-Z])\s*(\d+)$/i);
         if (match) this.mappaService.mappa_setCell(match[2], parseInt(match[3], 10) - 1, match[1].trim());
@@ -177,7 +169,7 @@ export class ArenaComponent {
       description: 'Tira i dadi (es. 2d6+2)',
       label: '"d100", "2d4+2", "d20-1"',
       pattern: (s: string) => /^(\d*)d(\d+)([+-]\d*)?$/i.test(s),
-      show: (s: string) => (s[0] === 'd' || (!isNaN(parseInt(s[0])) && s.toLowerCase().includes('d'))) && !s.toLowerCase().includes('x'),
+      showSuggestion: (s: string) => (s[0] === 'd' || (!isNaN(parseInt(s[0])) && s.toLowerCase().includes('d'))) && !s.toLowerCase().includes('x'),
       execute: (comando: string) => {
         const match = comando.match(/^(\d*)d(\d+)([+-]\d*)?$/i);
         if (match) {
@@ -192,7 +184,7 @@ export class ArenaComponent {
       description: 'Esegue più tiri dello stesso dado',
       label: '"d20 x3", "2d6+2 x5"',
       pattern: (s: string) => /^(\d*)d(\d+)([+-]\d*)?\s*x\s*(\d+)$/i.test(s),
-      show: (s: string) => s.toLowerCase().includes('x') && s.toLowerCase().includes('d'),
+      showSuggestion: (s: string) => s.toLowerCase().includes('x') && s.toLowerCase().includes('d'),
       execute: (comando: string) => {
         const match = comando.match(/^(\d*)d(\d+)([+-]\d*)?\s*x\s*(\d+)$/i);
         if (match) {
@@ -211,7 +203,7 @@ export class ArenaComponent {
       description: 'Aggiunge NPC alla squadra tramite grado sfida',
       label: '"a gs1/2", "b gs1 x3 distanza"',
       pattern: (s: string) => s.includes('gs'),
-      show: (s: string) => s.includes('gs'),
+      showSuggestion: (s: string) => s.includes('gs'),
       execute: (comando: string) => {
         const squadre = [...new Set(this.fightersService.combattenti().map(c => c.squadra))];
         if (squadre.length >= 4) return toast.danger("Limite squadre raggiunto");
@@ -223,7 +215,7 @@ export class ArenaComponent {
         const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
 
         for (let i = 0; i < ripetizioni; i++) {
-          this.fightersService.addCombattente(nomeSquadra, 0, gradoSfida, '', 0, 0, tipo);
+          this.fightersService.addCombattente(nomeSquadra, gradoSfida, '', 0, 0, 0, tipo);
         }
         if (this.mappaService.mappa_value()) this.combatService.posizionamento();
       }
@@ -234,7 +226,7 @@ export class ArenaComponent {
       description: 'Aggiunge un personaggio giocante',
       label: '"b Mario ca15 hp25 +2"',
       pattern: (s: string) => s.includes('ca') && s.includes('hp'),
-      show: (s: string) => s.includes('ca') || s.includes('hp'),
+      showSuggestion: (s: string) => s.includes('ca') || s.includes('hp'),
       execute: (comando: string) => {
         const squadre = [...new Set(this.fightersService.combattenti().map(c => c.squadra))];
         if (squadre.length >= 4) return toast.danger("Limite squadre raggiunto");
@@ -249,7 +241,7 @@ export class ArenaComponent {
         const tipo = prompt.includes("distanza") ? "distanza" : "mischia";
         const iniziativa = Number(prompt.find(p => /^[+-]\d+$/.test(p))) || 0;
 
-        this.fightersService.addCombattente(nomeSquadra, iniziativa, "", nomeGiocatore, ca, hp, tipo);
+        this.fightersService.addCombattente(nomeSquadra, "", nomeGiocatore, ca, hp, iniziativa, tipo);
         if (this.mappaService.mappa_value()) this.combatService.posizionamento();
       }
     },
@@ -259,7 +251,7 @@ export class ArenaComponent {
       description: 'Esegue un attacco tra due combattenti',
       label: '"kaki attacca mario"',
       pattern: (s: string) => s.toLowerCase().includes(' attacca '),
-      show: (s: string) => s.toLowerCase().includes(' attacca '),
+      showSuggestion: (s: string) => s.toLowerCase().includes(' attacca '),
       execute: (comando: string) => {
         const combattenti = this.fightersService.combattenti();
         if(!combattenti.length) return toast.danger("Nessun combattente presente");
@@ -278,7 +270,7 @@ export class ArenaComponent {
       description: 'Avvia il turno di un personaggio o squadra',
       label: '"turno a", "turno mario"',
       pattern: (s: string) => s.toLowerCase().startsWith('turno '),
-      show: (s: string) => s.toLowerCase().startsWith('turno'),
+      showSuggestion: (s: string) => s.toLowerCase().startsWith('turno'),
       execute: (comando: string) => {
         const combattenti = this.fightersService.combattenti();
         if(!combattenti.length) return toast.danger("Nessun combattente presente");
@@ -326,7 +318,7 @@ export class ArenaComponent {
       description: 'Rimuove un combattente dall\'arena',
       label: '"rimuovi kaki"',
       pattern: (s: string) => s.toLowerCase().startsWith('rimuovi '),
-      show: (s: string) => s.toLowerCase().startsWith('rimuovi'),
+      showSuggestion: (s: string) => s.toLowerCase().startsWith('rimuovi'),
       execute: (comando: string) => {
         const id = comando.split(' ')[1];
         this.fightersService.rimuoviCombattente(id);
@@ -338,7 +330,7 @@ export class ArenaComponent {
       description: 'Modifica i punti ferita (danno o cura)',
       label: '"mario -5", "mario +10"',
       pattern: (s: string) => /^(\S+) ([+-]\d+)$/.test(s),
-      show: (s: string) => s.includes(' -') || s.includes(' +'),
+      showSuggestion: (s: string) => s.includes(' -') || s.includes(' +'),
       execute: (comando: string) => {
         const [id, value] = comando.split(' ');
         this.fightersService.vitalitaPersonaggio(id, Number(value));
@@ -350,7 +342,7 @@ export class ArenaComponent {
       description: 'Posiziona i combattenti (start)',
       label: '"start"',
       pattern: (s: string) => s.toLowerCase() === 'start',
-      show: (s: string) => "start".startsWith(s.toLowerCase()),
+      showSuggestion: (s: string) => "start".startsWith(s.toLowerCase()),
       execute: () => this.combatService.posizionamento()
     }
   ];
@@ -380,7 +372,7 @@ export class ArenaComponent {
     }
 
     this.prompt_consiglio = this.CONFIG_COMANDI
-      .filter(c => c.show(value))
+      .filter(c => c.showSuggestion(value))
       .slice(0, 3)
       .map(c => ({
         esempio: c.label.split('"'),
@@ -399,16 +391,16 @@ export class ArenaComponent {
 
 
   // FORM INSERIMENTO COMBATTENTI
-  gs = statisticheGradoSfida
   form_value :FormField[] =[]
   form_reset(){
+    const gsOptions = statisticheGradoSfida.map(gs => ({ value: gs.gradoSfida, label: "GS "+gs.gradoSfida }))
     this.form_value = [
       {
         type: 'select',
         key: 'gs',
-        label: 'Grado sfida (solo npc)',
+        label: 'Grado sfida (NPG)',
         value: '',
-        options: this.gs.map(gs => ({ value: gs.gradoSfida, label: gs.gradoSfida }))
+        options: gsOptions
       },
       {
         type: 'text',
@@ -427,14 +419,14 @@ export class ArenaComponent {
       {
         type: 'number',
         key: 'ca',
-        label: 'Classe armatura (solo pg)',
+        label: 'Classe armatura (PG)',
         value: '',
         placeholder:'es: 10, 15, 20'
       },
       {
         type: 'number',
         key: 'hp',
-        label: 'Punti ferita (solo pg)',
+        label: 'Punti ferita (PG)',
         value: '',
         placeholder:'es: 10, 15, 20'
       },
@@ -446,6 +438,8 @@ export class ArenaComponent {
         options: [
           { value: 'a', label: 'A' },
           { value: 'b', label: 'B' },
+          { value: 'c', label: 'C' },
+          { value: 'd', label: 'D' },
         ]
       },
       {
@@ -477,13 +471,23 @@ export class ArenaComponent {
     e.preventDefault();
 
     // Mappa i valori del form_value in un oggetto comodo
-    const nc: { [k: string]: any } = {};
+    const nc ={
+      squadra: '',
+      gs: '',
+      nome: '',
+      ca: 0,
+      hp: 0,
+      iniziativa: 0,
+      tipo: 'mischia' as 'mischia' | 'distanza'
+    };
     for (const field of this.form_value) {
-      nc[field.key] = field.value;
-    }
+      if(field.key in nc){
+        (nc as any)[field.key] = field.value;
+      }
+    }    
 
     const { squadra, gs, nome, ca, hp, iniziativa, tipo } = nc;
-
+    
     // 1. BLOCCO: Un NPC (GS) non può avere statistiche fisse da Giocatore (CA/HP)
     if (gs && (ca || hp)) {
       return toast.danger("Un NPC (GS) non può avere CA o HP personalizzati");
@@ -500,11 +504,11 @@ export class ArenaComponent {
     // 3. ESECUZIONE
     this.fightersService.addCombattente(
       squadra,
-      iniziativa || 0,
       isNPCValido ? gs : "",
       nome || "",
       isPGValido ? ca : 0,
       isPGValido ? hp : 0,
+      iniziativa || 0,
       tipo
     );
 
