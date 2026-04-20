@@ -8,13 +8,14 @@ import { MappaService } from "./mappa.service";
   standalone: true,
   imports: [CommonModule],
   template:`
+
   <div (dragover)="drag_over($event)" 
        (dragleave)="drag_leave()"
        (drop)="drag_drop($event)"
        [class.drag-over]="isDragOver()"
        role="gridcell"
        [attr.aria-label]="'Cella ' + riga().toUpperCase() + (colonna() + 1)">
-    <div class="w-30px h-30px m-auto">
+    <div class="w-40px h-40px m-auto">
       @if(combattente(); as c) {
         <div class="rounded-circle h-100 d-flex flex-column justify-content-center text-bg-{{color()}}" 
             [class.subisceDanno]="feedback()"
@@ -27,23 +28,18 @@ import { MappaService } from "./mappa.service";
           <!-- NOME -->
           <h6 class="m-0 d-flex align-items-center justify-content-center" style="pointer-events: none;" aria-hidden="true">
             <span>{{ c.id }}</span>
+            <img [alt]="'Icona combattente ' + c.tipo" [src]="srcValue()" style="width: 15px; height: 15px;">
           </h6>
           <!-- STAT -->
-          <div class="d-flex align-items-center justify-content-center" style="pointer-events: none;" aria-hidden="true">
-            <div class="d-flex align-items-center">
-              <i class="bi bi-heart-fill position-absolute start-0"
-                style="font-size: 25px;" 
-                [class.text-secondary]="c.puntiFerita > 10"
-                [class.text-danger]="c.puntiFerita < 10" 
-                aria-hidden="true">
-              </i>
-              <small class="ms-3 z-1 text-white">
-                {{ c.puntiFerita }}
-              </small>
-            </div>
-
-            <img [alt]="'Icona combattente ' + c.tipo" [src]="srcValue()"
-                  class="w-20px h-20px">
+          <div class="d-flex gap-1 align-items-center justify-content-end" aria-hidden="true">
+            <i class="mx-auto bi bi-heart" 
+              [class.text-light]="c.puntiFerita > 10"
+              [class.text-danger]="c.puntiFerita < 10" 
+              aria-hidden="true">
+            </i>
+            <strong class="mx-auto z-1 text-white">
+              {{ c.puntiFerita }}
+            </strong>
           </div>
         </div>
   
@@ -53,8 +49,7 @@ import { MappaService } from "./mappa.service";
                  (change)="updateCell($event)"
                  class="w-100 h-100 border-0 bg-transparent text-center p-0"
                  style="outline: none;"
-                 [attr.aria-label]="'Inserisci simbolo in cella ' + riga().toUpperCase() + (colonna() + 1)"
-                 placeholder=".">
+                 [attr.aria-label]="'Inserisci simbolo in cella ' + riga().toUpperCase() + (colonna() + 1)">
         </div>
       }
     </div>

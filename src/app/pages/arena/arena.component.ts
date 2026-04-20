@@ -546,9 +546,9 @@ export class ArenaComponent {
       tipo
     );
 
-    if(errorFeedback) toast.danger(errorFeedback); // feedback
+    if(errorFeedback) toast.danger(errorFeedback); 
 
-    // Posizionamento automatico sulla mappa
+    // se c'è una mappa, posiziona i combattenti
     if(this.mappaService.mappa_value())
       this.combatService.posizionamento();
   }

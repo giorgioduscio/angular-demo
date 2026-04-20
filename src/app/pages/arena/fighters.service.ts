@@ -18,12 +18,6 @@ export interface Combattente {
 
 @Injectable({ providedIn: 'root' })
 export class FightersService {
-  private readonly STORAGE_KEY = 'combattenti_data';
-  combattenti = signal<Combattente[]>(this.loadFromStorage());
-  listaCombattenti: Combattente[] = [];
-  giocatoreUltimoTurno = '';
-
-  
   constructor(private mappaService: MappaService) {
     effect(() => {
       const current = this.combattenti();
@@ -32,12 +26,13 @@ export class FightersService {
     });
   }
   
+  // STORAGE
+  private readonly STORAGE_KEY = 'combattenti_data';
   private saveToStorage(data: Combattente[]): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
     } catch (e) {}
   }
-  
   private loadFromStorage(): Combattente[] {
     try {
       const saved = localStorage.getItem(this.STORAGE_KEY);
@@ -47,17 +42,21 @@ export class FightersService {
     }
   }
   
+  combattenti = signal<Combattente[]>(this.loadFromStorage());
+  listaCombattenti: Combattente[] = [];
+  giocatoreUltimoTurno = '';
   private numeroMassimoCombattenti = 28;
   getCombattenteById(combattenteId: string): Combattente | undefined {
     const idLower = combattenteId.toLowerCase();
     return this.combattenti().find(c => c.id.toLowerCase() === idLower);
   }
-  
+
+  // COLORI
   private colors_value = {
     a: 'success',
-    b: 'info',
+    b: 'primary',
     c: 'secondary',
-    d: 'primary'
+    d: 'info'
   } as const;
   colors_getbyName(squadra: string): string {
     const _squadra = squadra as keyof typeof this.colors_value;

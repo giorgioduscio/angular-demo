@@ -17,6 +17,7 @@ export class CombatService {
    * Distribuisce automaticamente i combattenti sulla mappa all'inizio del gioco.
    * Divide le squadre nei quattro angoli della mappa e posiziona i membri
    * in modo compatto cercando le prime celle libere adiacenti all'angolo.
+   * FIX: se si aggiunge un nuovo giocatore, deve aggiungere solo lui, non deve toccare la posizione degli altri
    */
   posizionamento(): string | null {
     const mappaOriginale = this.mappaService.mappa_value();
@@ -29,18 +30,33 @@ export class CombatService {
     }
 
     const combattenti = this.fightersService.combattenti();
-    const squadre = [...new Set(combattenti.map(c => c.squadra))];
-    
-    if (squadre.length === 0) {
-      return "Nessuna squadra da posizionare";
+    if (combattenti.length === 0) {
+      return "Nessun combattente da posizionare";
     }
 
-    // Pulisce la mappa dai nomi dei combattenti precedenti prima del riposizionamento
-    const ids = combattenti.map(c => c.id.toLowerCase());
-    for (const riga of Object.keys(mappa.value)) {
-      mappa.value[riga] = mappa.value[riga].map(cell => 
-        ids.includes(cell.toLowerCase()) ? '' : cell
-      );
+    // 1. Identifica chi è già sulla mappa e rimuove chi non esiste più nel fightersService
+    const idsAttivi = combattenti.map(c => c.id.toLowerCase());
+    const giaPosizionati = new Set<string>();
+
+    for (const riga of righeKeys) {
+      mappa.value[riga] = mappa.value[riga].map(cell => {
+        if (cell === '') return '';
+        const cellLower = cell.toLowerCase();
+        
+        // Se è un combattente attivo, lo manteniamo e lo segnamo come già posizionato
+        if (idsAttivi.includes(cellLower)) {
+          giaPosizionati.add(cellLower);
+          return cell;
+        }
+        
+        // Se è un marcatore o simbolo (singolo carattere: cifra, lettera o simbolo), lo lasciamo stare
+        if (cell.length === 1) {
+          return cell;
+        }
+
+        // Se non è un combattente attivo né un marcatore a singolo carattere, lo rimuoviamo
+        return ''; 
+      });
     }
 
     // Coordinate degli angoli: [Alto-Sx, Alto-Dx, Basso-Dx, Basso-Sx]
@@ -51,14 +67,17 @@ export class CombatService {
       { riga: righeKeys.length - 1, colonna: 0 }
     ];
 
+    const squadre = [...new Set(combattenti.map(c => c.squadra))];
+
+    // 2. Posiziona SOLO i combattenti che non sono ancora sulla mappa
     squadre.forEach((squadra, index) => {
       const angolo = angoli[index % 4];
-      const combattentiSquadra = combattenti.filter(c => c.squadra === squadra);
+      const daPosizionare = combattenti.filter(c => c.squadra === squadra && !giaPosizionati.has(c.id.toLowerCase()));
 
       let rigaCorrente = angolo.riga;
       let colonnaCorrente = angolo.colonna;
 
-      for (const combattente of combattentiSquadra) {
+      for (const combattente of daPosizionare) {
         let posizioneTrovata = false;
         
         // Verifica prima se l'angolo stesso è libero
@@ -97,19 +116,22 @@ export class CombatService {
 
         // Se le celle adiacenti sono piene, cerca in un raggio più ampio attorno all'angolo
         if (!posizioneTrovata) {
-          for (let dr = -3; dr <= 3; dr++) {
-            for (let dc = -3; dc <= 3; dc++) {
-              const nuovaRiga = angolo.riga + (angolo.riga === 0 ? dr : -dr);
-              const nuovaColonna = angolo.colonna + (angolo.colonna === 0 ? dc : -dc);
-              
-              if (nuovaRiga < 0 || nuovaRiga >= righeKeys.length || nuovaColonna < 0 || nuovaColonna >= colonneArray) continue;
-              
-              const letteraRiga = righeKeys[nuovaRiga];
-              if (mappa.value[letteraRiga][nuovaColonna] === '') {
-                mappa.value[letteraRiga][nuovaColonna] = combattente.id;
-                posizioneTrovata = true;
-                break;
+          for (let raggio = 1; raggio <= 5; raggio++) {
+            for (let dr = -raggio; dr <= raggio; dr++) {
+              for (let dc = -raggio; dc <= raggio; dc++) {
+                const nr = angolo.riga + (angolo.riga === 0 ? dr : -dr);
+                const nc = angolo.colonna + (angolo.colonna === 0 ? dc : -dc);
+                
+                if (nr < 0 || nr >= righeKeys.length || nc < 0 || nc >= colonneArray) continue;
+                
+                const letteraRiga = righeKeys[nr];
+                if (mappa.value[letteraRiga][nc] === '') {
+                  mappa.value[letteraRiga][nc] = combattente.id;
+                  posizioneTrovata = true;
+                  break;
+                }
               }
+              if (posizioneTrovata) break;
             }
             if (posizioneTrovata) break;
           }

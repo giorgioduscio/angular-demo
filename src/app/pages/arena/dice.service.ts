@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
+import { toast } from "../../tools/feedbacksUI";
 
 @Injectable({ providedIn: 'root' })
 export class DiceService {
   // TIRI DEI DADI
-  tiri: {value:string, color:string}[] = [];
+  tiri: {color:string, result:string, dices:string}[] = [];
   setTiri(qta: number, max: number, modifier: number): void {
     let total = 0;
     const rolls: number[] = [];
@@ -17,13 +18,18 @@ export class DiceService {
     total += modifier;
     const modifierSign = modifier >= 0 ? `+${modifier}` : modifier;
     const qta_result = qta > 1 ? `${qta}` : '';
-    const description = `${qta_result}d${max}${modifier !== 0 ? modifierSign : ''} = ${total}`;
+    const formula = `${qta_result}d${max}${modifier !== 0 ? modifierSign : ''}`;
     const colorMatch = this.pulsantiDadi.find(p => p.value.includes(`d${max}`))?.color || 'secondary';
 
-    this.tiri.unshift({value: description, color: colorMatch});
+    this.tiri.unshift({
+      color: colorMatch, 
+      result: total.toString(), 
+      dices: formula
+    });
     if (this.tiri.length > 10) {
       this.tiri.pop();
     }
+    toast.secondary(`Tiro: ${formula} = ${total}`);
   }
 
   // PULSANTI RELATIVI
