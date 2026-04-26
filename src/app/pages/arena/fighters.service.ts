@@ -80,13 +80,13 @@ export class FightersService {
     nomePersonaggio: string,
     classeArmatura: number,
     puntiFerita: number,
-    bonusIniziativa=0,
+    iniziativa = Math.random()*20,
     tipoCombettente: 'mischia' | 'distanza' = 'mischia'
   ): string | null {
     if(this.combattenti().length >= this.numeroMassimoCombattenti) {
       return "Superato il numero massimo di combattenti";
     }
-    const numeroTurno = (Math.random() * 20) + bonusIniziativa;
+    const numeroTurno = iniziativa;
     const matchGradoSfida = statisticheGradoSfida.find(gs => gs.gradoSfida === gradoSfida);
     const nuovoNome = nomePersonaggio.trim() !== '' ? nomePersonaggio.trim() : this.getNomeRandom();
     const nuoviHP = puntiFerita ? puntiFerita : matchGradoSfida?.puntiFerita ?? 0;

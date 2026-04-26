@@ -54,8 +54,10 @@
         </h3>
 
         <div class="d-grid gap-1 my-2 align-items-center" 
-              style="grid-template-columns: auto 1fr auto auto;">
+              style="grid-template-columns: 30px auto 1fr auto auto;">
           @for(combattente of fightersService.listaCombattenti; track combattente.id) {
+            <!-- iniziativa -->
+            <div class="text-center overflow-hidden">{{ combattente.numeroTurno.toFixed(0) }}</div>
             <!-- pulsante eliminazione -->
             <button (click)="fightersService.rimuoviCombattente(combattente.id, true)" 
               class="btn btn-danger bi bi-trash">
@@ -101,7 +103,7 @@
         <form (change)="form_handleChange($event)" (submit)="form_handleSubmit($event)">
           <!-- HEADER -->
           <div class="my-2 d-flex gap-2 align-items-center">
-            <h5 class="me-auto text-truncate text-nowrap">Nuovo combattente</h5>
+            <h3 class="h5 me-auto text-truncate text-nowrap">Nuovo combattente</h3>
             <button type="submit" class="btn btn-primary p-1 text-nowrap">
               <i class="bi bi-person-plus"></i> Aggiungi
             </button>
@@ -113,7 +115,7 @@
           <div class="d-grid responsive-100px align-items-start gap-2">
             @for(field of form_value; track $index) {
               <div class="rounded text-bg-dark">
-                <label [for]="field.key" class="px-2 w-100">{{ field.label }}</label>
+                <label [for]="field.key" class="p-2 w-100">{{ field.label }}</label>
                 
                 @if (field.type=='select') {
                   <select [name]="field.key" [id]="field.key" 
@@ -138,6 +140,20 @@
                           {{ opt.label }}
                         </label>
                       </div>
+                  </div>
+
+                }@else if(field.key=='iniziativa'){
+                  <div class="input-group">
+                    <input [type]="field.type" [name]="field.key" [id]="field.key" 
+                          class="form-control text-bg-dark"
+                          [value]="field.value"
+                          [placeholder]="field.placeholder"
+                    />
+                    <button class="p-1 btn btn-light" 
+                            type="button" title="Lancia d20" 
+                            (click)="field.value = diceService.roll(20)">
+                      <i class="bi bi-dice-1"></i>
+                    </button>
                   </div>
                   
                 }@else{

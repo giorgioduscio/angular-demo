@@ -1,46 +1,42 @@
-# Angular demo
+# 🎮 Angular Gaming Architecture Demo
 
-Questo progetto è stato generato con [Angular CLI](https://github.com/angular/angular-cli) versione 17.3.7.
+Questa è una dimostrazione di architettura front-end professionale applicata al mondo del gaming e del gioco di ruolo, focalizzata su **scalabilità**, **performance** e **accessibilità (A11y)**.
 
-Progetto sviluppato per **scopo ludico**. Si stanno sviluppando demo di giochi, schede digitali per giochi di ruolo e giochi da tavolo digitalizzati.
+## 🚀 Quick Start
 
-## Server di sviluppo
+### Con Docker (Consigliato)
 
-Esegui `ng serve` per un server di sviluppo. Naviga su `http://localhost:4200/`. 
+Il progetto è containerizzato per garantire coerenza tra gli ambienti di sviluppo.
 
-**Docker:** eseguire i seguenti comandi per avviare l'applicazione in un container Docker:
+*   **Sviluppo:** `npm run docker:up` → [http://localhost:4200](http://localhost:4200)
+*   **Monitoraggio:** `npm run docker:logs`
 
-```bash
-npm run docker:up
-npm run docker:logs
-```
+### Locale
 
-## Scaffolding del codice
+1. `npm install`
+2. `ng serve` → [http://localhost:4200](http://localhost:4200)
 
-Esegui `ng generate component nome-componente` per generare un nuovo componente. Puoi anche usare `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## 🛠 Tech Stack & Architecture
 
-## Compilazione (Build)
+*   **Core:** Angular 17 (Standalone Components & Signals)
+*   **State Management:** Servizi reattivi con RxJS e Signals per una gestione fluida della logica di gioco.
+*   **Styling:** Bootstrap 5 + Custom CSS (Mobile First & Performance oriented).
+*   **Testing:** Playwright per test E2E robusti e affidabili.
+*   **Infrastruttura:** Docker & Docker Compose per un deployment riproducibile.
 
-Esegui `ng build` per compilare il progetto. Gli artefatti della compilazione verranno memorizzati nella directory `dist/`.
+## 🏗️ Caratteristiche Enterprise (Best Practices)
 
-## Esecuzione dei test
+*   **Performance Optimization:** Ottimizzazione del rendering tramite l'uso efficiente dei Signals di Angular e strategie di change detection mirate.
+*   **Accessibilità (A11y):** Implementazione rigorosa di standard ARIA, navigabilità da tastiera e contrasti cromatici ottimizzati per il gaming inclusivo.
+*   **Robustezza:** Tipizzazione forte con TypeScript per la gestione di algoritmi complessi (calcolo dadi, sistemi di combattimento e mappe).
+*   **Scalabilità:** Architettura modulare che permette l'estensione facilitata di nuove meccaniche di gioco o schede personaggio.
 
-Esegui `npx playwright test` per eseguire tutti i test disponibili nel progetto.
+## 📋 Funzionalità Core
 
-* **Test per componente specifico:** `npx playwright test src/app/tests/nomeFile.test.js`
-* **Esempio:** `npx playwright test src/app/tests/list.test.js`
+*   **🔐 Sistema di Login:** Architettura di autenticazione basata su Guardie e Servizi centralizzati.
+*   **🐉 Modulo D&D:** Gestione avanzata di schede personaggio e calcolatori meccanici per GDR.
+*   **📊 Gestione Gerarchica:** Visualizzazione di strutture dati complesse (alberi delle abilità e nodi narrativi).
+*   **🗺️ Arena Engine:** Motore di gestione mappe e combattimenti a turni.
 
-## Ulteriore aiuto
-
-Per ottenere ulteriore aiuto su Angular CLI usa `ng help` o consulta la pagina [Angular CLI Overview and Command Reference](https://angular.io/cli).
-
-## Funzionalità
-
-L'applicazione include le seguenti funzionalità, sviluppate per scopi di **intrattenimento e sperimentazione**:
-
-* **Sistema di Login:** Gestione dell'accesso e autenticazione degli utenti (simulazione).
-* **Pagina DND:** Sezione dedicata a contenuti e strumenti per **Dungeons & Dragons** (gioco di ruolo).
-* **Gestione Liste:** Creazione e organizzazione di liste personalizzate (es. inventari, equipaggiamenti).
-* **Area Personale:** Sezione per la gestione del profilo e delle impostazioni utente (simulazione).
-* **Home Page:** La pagina principale di atterraggio del sito.
-* **Gestione Gerarchica:** Visualizzazione e gestione di dati strutturati gerarchicamente (es. albero delle abilità, strutture narrative).
+---
+*Sviluppato con enfasi su manutenibilità, clean code e standard A11y.*

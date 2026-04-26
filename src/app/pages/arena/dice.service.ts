@@ -1,16 +1,20 @@
 import { Injectable } from "@angular/core";
 import { toast } from "../../tools/feedbacksUI";
+import { max } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class DiceService {
   // TIRI DEI DADI
   tiri: {color:string, result:string, dices:string}[] = [];
+  roll(maxDice: number): number {
+    return Math.floor(Math.random() * maxDice) + 1;
+  }
   setTiri(qta: number, max: number, modifier: number): void {
     let total = 0;
     const rolls: number[] = [];
 
     for (let i = 0; i < qta; i++) {
-      const roll = Math.floor(Math.random() * max) + 1;
+      const roll = this.roll(max);
       rolls.push(roll);
       total += roll;
     }

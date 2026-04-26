@@ -448,7 +448,7 @@ export class ArenaComponent {
         key: 'iniziativa',
         label: 'Iniziativa',
         value: '',
-        placeholder:'es: 3, -1, 2'
+        placeholder:'es: 7, 12, 15'
       },
       {
         type: 'number',
@@ -542,7 +542,7 @@ export class ArenaComponent {
       nome || "",
       isPGValido ? ca : 0,
       isPGValido ? hp : 0,
-      iniziativa || 0,
+      iniziativa || Math.random()*20,
       tipo
     );
 
