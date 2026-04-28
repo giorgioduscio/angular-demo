@@ -14,6 +14,7 @@ import { CellComponent } from './cell.component';
   standalone: true,
   imports: [CommonModule, CellComponent],
   templateUrl: './arena.component.html',
+  styleUrl: './arena.component.css',
 })
 export class ArenaComponent {
   constructor(

@@ -1,0 +1,31 @@
+
+/* Scrollbar personalizzata */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--c2) transparent;
+  scroll-behavior: smooth;
+}
+
+.overflow-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background-color: var(--c2);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background-color: var(--c3);
+}
+
+/* Sidebar e Mappa devono avere altezza piena e scorrimento indipendente */
+.sidebar-column, .map-column {
+  height: 92vh;
+}

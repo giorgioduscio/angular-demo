@@ -1,293 +1,299 @@
-<div class="container">
-  <!-- Main: Griglia della mappa -->
-  <section class="row">
+<div class="mt-2 p-0 container-fluid ">
+  <!-- Main Content: Sidebar + Mappa -->
+  <div class="row m-0 justify-content-center">
     <!-- strumenti -->
-    <aside class="pt-3 d-none d-lg-block col-md-3 col-lg-4 overflow-auto" style="height: 92vh;">
-      <!-- CRONOLOGIA TIRI -->
-      <div class="my-2 p-2 border-start border-3" 
-           style="background: linear-gradient(90deg, #05358d, transparent);" 
-           *ngIf="diceService.tiri.length > 0">
-        <h3><i class="bi bi-dice-5"></i> Cronologia tiri</h3>
-        <div class="mb-3">
-          <div class="d-flex flex-wrap gap-2">
-            <div *ngFor="let tiro of diceService.tiri"
-                  class="badge rounded text-bg-{{ tiro.color }} text-nowrap">
-              <div class="h5 m-0">{{ tiro.result }}</div>
-              <small class="text-bg-{{tiro.color}}">({{ tiro.dices }})</small> 
+    <aside class="d-none d-lg-block col-md-3 pt-2 ">
+      <div class="overflow-y-auto" style="max-height: 90vh;">
+
+        <!-- CRONOLOGIA TIRI -->
+        <div class="my-2 p-2 border-start border-3" 
+             style="background: linear-gradient(90deg, #05358d, transparent);" 
+             *ngIf="diceService.tiri.length > 0">
+          <h3><i class="bi bi-dice-5"></i> Cronologia tiri</h3>
+          <div class="mb-3">
+            <div class="d-flex flex-wrap gap-2">
+              <div *ngFor="let tiro of diceService.tiri"
+                    class="badge rounded text-bg-{{ tiro.color }} text-nowrap">
+                <div class="h5 m-0">{{ tiro.result }}</div>
+                <small class="text-bg-{{tiro.color}}">({{ tiro.dices }})</small> 
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- MAPPE -->
-      <div class="my-2 p-2 border-start border-3" style="background: linear-gradient(90deg, #108d05, transparent);">
-        <h3> <i class="bi bi-map"></i> Genera mappa</h3>
-        <div class="d-flex-table my-2 rounded overflow-hidden">
-          <button *ngFor="let preset of mappaService.mappa_presets" 
-                  (click)="mappaService.mappa_setPreset(preset, fightersService, combatService)" 
-                  class="btn btn-primary rounded-0">
-            <i class="bi bi-{{preset.icon || 'map'}} me-2"></i>
-            {{ preset.title }}
-          </button>
+  
+        <!-- MAPPE -->
+        <div class="my-2 p-2 border-start border-3" style="background: linear-gradient(90deg, #108d05, transparent);">
+          <h3> <i class="bi bi-map"></i> Genera mappa</h3>
+          <div class="d-flex-table my-2 rounded overflow-hidden">
+            <button *ngFor="let preset of mappaService.mappa_presets" 
+                    (click)="mappaService.mappa_setPreset(preset, fightersService, combatService)" 
+                    class="btn btn-primary rounded-0">
+              <i class="bi bi-{{preset.icon || 'map'}} me-2"></i>
+              {{ preset.title }}
+            </button>
+          </div>
+          
+          <div class="d-flex-table gap-2 align-items-center">
+            <div *ngFor="let nome of mappaService.storage_getNames()" class="btn-group"
+                  style="max-width: 100%;">
+              <button (click)="eseguiComando('mappa ' + nome)" 
+                      class="btn btn-secondary text-truncate text-nowrap">
+                <b>{{ nome }}</b>
+              </button>
+              <button (click)="mappaService.storage_removeMap(nome)" class="btn btn-danger max-w-40px bi bi-trash"></button>
+            </div>
+          </div>
         </div>
         
-        <div class="d-flex-table gap-2 align-items-center">
-          <div *ngFor="let nome of mappaService.storage_getNames()" class="btn-group"
-                style="max-width: 100%;">
-            <button (click)="eseguiComando('mappa ' + nome)" 
-                    class="btn btn-secondary text-truncate text-nowrap">
-              <b>{{ nome }}</b>
-            </button>
-            <button (click)="mappaService.storage_removeMap(nome)" class="btn btn-danger max-w-40px bi bi-trash"></button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- LISTA COMBATTENTI -->
-      <div class="my-2 p-2 border-start border-3" 
-           style="background: linear-gradient(90deg, #8d1e05, transparent);"
-           *ngIf="fightersService.combattenti().length">
-        <h3 class="d-grid cols-auto-1fr-auto gap-1"> 
-          <i class="bi bi-person"></i> 
-          <span class="text-truncate">Combattenti</span>
-          <button class="btn btn-danger" (click)="fightersService.rimuoviTuttiCombattenti()">Rimuovi tutti</button>
-        </h3>
-
-        <div class="d-grid gap-1 my-2 align-items-center" 
-              style="grid-template-columns: 30px auto 1fr auto auto;">
-          @for(combattente of fightersService.listaCombattenti; track combattente.id) {
-            <!-- iniziativa -->
-            <div class="text-center overflow-hidden">{{ combattente.numeroTurno.toFixed(0) }}</div>
-            <!-- pulsante eliminazione -->
-            <button (click)="fightersService.rimuoviCombattente(combattente.id, true)" 
-              class="btn btn-danger bi bi-trash">
-            </button>
-            <!-- nome -->
-            <div class="text-nowrap text-truncate">{{ combattente.id }} {{combattente.npc ?'' :'(PG)'}}</div>
-            <!-- punti ferita -->
-            <div class="input-group">
-              <button class="p-1 btn btn-light bi bi-dash"
-                      (click)="fightersService.vitalitaPersonaggio(combattente.id, -1)"></button>
-              <div class="ps-1 d-flex align-items-center border-light border">
-                <label class="px-1 bi bi-heart-fill" [for]="'hpInput-' + combattente.id"></label>
-                <input [id]="'hpInput-' + combattente.id" 
-                       [name]="'hpInput-' + combattente.id"
-                       type="number"  
-                       #hpInput
-                       class="p-1 max-w-50px form-control border-0"
-                       [value]="combattente.puntiFerita"
-                       (change)="fightersService.vitalitaPersonaggio(combattente.id, +hpInput.value - combattente.puntiFerita)">
-              </div>
-              <button class="p-1 btn btn-light bi bi-plus"
-                      (click)="fightersService.vitalitaPersonaggio(combattente.id, 1)"></button>
-            </div>
-            <!-- esecuzione turno -->
-            <div>
-              <button class="btn btn-{{fightersService.colors_getbyName(combattente.squadra)}}" 
-                      (click)="eseguiComando('turno ' +combattente.id.toLowerCase())"
-                      [class.border]="combattente.id === fightersService.giocatoreUltimoTurno"
-                      [attr.aria-label]="'Esegui turno di '+combattente.id"
-                      *ngIf="combattente.npc">
-                <i class="bi bi-caret-right" *ngIf="combattente.id !== fightersService.giocatoreUltimoTurno; else squareIcon"></i>
-                <ng-template #squareIcon>
-                  <small class="bi bi-square-fill"></small>
-                </ng-template>
+        <!-- LISTA COMBATTENTI -->
+        <div class="my-2 p-2 border-start border-3" 
+             style="background: linear-gradient(90deg, #8d1e05, transparent);"
+             *ngIf="fightersService.combattenti().length">
+          <h3 class="d-grid cols-auto-1fr-auto gap-1"> 
+            <i class="bi bi-person"></i> 
+            <span class="text-truncate">Combattenti</span>
+            <button class="btn btn-danger" (click)="fightersService.rimuoviTuttiCombattenti()">Rimuovi tutti</button>
+          </h3>
+  
+          <div class="d-grid gap-1 my-2 align-items-center" 
+                style="grid-template-columns: 30px auto 1fr auto auto;">
+            @for(combattente of fightersService.listaCombattenti; track combattente.id) {
+              <!-- iniziativa -->
+              <div class="text-center overflow-hidden">{{ combattente.numeroTurno.toFixed(0) }}</div>
+              <!-- pulsante eliminazione -->
+              <button (click)="fightersService.rimuoviCombattente(combattente.id, true)" 
+                class="btn btn-danger bi bi-trash">
               </button>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- NUOVO COMBATTENTE -->
-      <div class="p-2 border-start border-3" style="background: linear-gradient(90deg, #8d5405, transparent);">
-        <form (change)="form_handleChange($event)" (submit)="form_handleSubmit($event)">
-          <!-- HEADER -->
-          <div class="my-2 d-flex gap-2 align-items-center">
-            <h3 class="h5 me-auto text-truncate text-nowrap">Nuovo combattente</h3>
-            <button type="submit" class="btn btn-primary p-1 text-nowrap">
-              <i class="bi bi-person-plus"></i> Aggiungi
-            </button>
-            <button (click)="form_reset()" type="button" class="btn btn-danger p-1 text-nowrap">
-              <i class="bi bi-x-lg"></i> Reset
-            </button>
-          </div>          
-          <!-- BODY -->
-          <div class="d-grid responsive-100px align-items-start gap-2">
-            @for(field of form_value; track $index) {
-              <div class="rounded text-bg-dark">
-                <label [for]="field.key" class="p-2 w-100">{{ field.label }}</label>
-                
-                @if (field.type=='select') {
-                  <select [name]="field.key" [id]="field.key" 
-                          class="form-control bg-dark">
-                    <option value="">Seleziona</option>
-                    <option *ngFor="let option of field.options" [value]="option.value">
-                      {{ option.label }}
-                    </option>
-                  </select>
-    
-                }@else if (field.type=='radio') {
-                  <div class="pb-1 d-flex flex-wrap bg-dark">
-                      <div class="px-2 d-flex align-items-center gap-2" 
-                           *ngFor="let opt of field.options; let i=index">
-                        <input type="radio" class="form-check-input" 
-                              [name]="field.key" [id]="field.key + '-' + i" 
-                              [checked]="opt.value === field.value"
-                              [value]="opt.value">
-                        <label class="text-{{fightersService.colors_getbyName(opt.value.toString())}} form-check-label text-nowrap text-truncate" 
-                              [class.btn-outline-light]="field.key!=='squadra'"
-                              [for]="field.key + '-' + i">
-                          {{ opt.label }}
-                        </label>
-                      </div>
-                  </div>
-
-                }@else if(field.key=='iniziativa'){
-                  <div class="input-group">
-                    <input [type]="field.type" [name]="field.key" [id]="field.key" 
-                          class="form-control text-bg-dark"
-                          [value]="field.value"
-                          [placeholder]="field.placeholder"
-                    />
-                    <button class="p-1 btn btn-light" 
-                            type="button" title="Lancia d20" 
-                            (click)="field.value = diceService.roll(20)">
-                      <i class="bi bi-dice-1"></i>
-                    </button>
-                  </div>
-                  
-                }@else{
-                  <input [type]="field.type" [name]="field.key" [id]="field.key" 
-                         class="form-control text-bg-dark"
-                         [value]="field.value"
-                         [placeholder]="field.placeholder"
-                  />
-                }
+              <!-- nome -->
+              <div class="text-nowrap text-truncate">{{ combattente.id }} {{combattente.npc ?'' :'(PG)'}}</div>
+              <!-- punti ferita -->
+              <div class="input-group">
+                <button class="p-1 btn btn-light bi bi-dash"
+                        (click)="fightersService.vitalitaPersonaggio(combattente.id, -1)"></button>
+                <div class="ps-1 d-flex align-items-center border-light border">
+                  <label class="px-1 bi bi-heart-fill" [for]="'hpInput-' + combattente.id"></label>
+                  <input [id]="'hpInput-' + combattente.id" 
+                         [name]="'hpInput-' + combattente.id"
+                         type="number"  
+                         #hpInput
+                         class="p-1 max-w-50px form-control border-0"
+                         [value]="combattente.puntiFerita"
+                         (change)="fightersService.vitalitaPersonaggio(combattente.id, +hpInput.value - combattente.puntiFerita)">
+                </div>
+                <button class="p-1 btn btn-light bi bi-plus"
+                        (click)="fightersService.vitalitaPersonaggio(combattente.id, 1)"></button>
+              </div>
+              <!-- esecuzione turno -->
+              <div>
+                <button class="btn btn-{{fightersService.colors_getbyName(combattente.squadra)}}" 
+                        (click)="eseguiComando('turno ' +combattente.id.toLowerCase())"
+                        [class.border]="combattente.id === fightersService.giocatoreUltimoTurno"
+                        [attr.aria-label]="'Esegui turno di '+combattente.id"
+                        *ngIf="combattente.npc">
+                  <i class="bi bi-caret-right" *ngIf="combattente.id !== fightersService.giocatoreUltimoTurno; else squareIcon"></i>
+                  <ng-template #squareIcon>
+                    <small class="bi bi-square-fill"></small>
+                  </ng-template>
+                </button>
               </div>
             }
           </div>
-        </form>
-      </div>
+        </div>
+  
+        <!-- NUOVO COMBATTENTE -->
+        <div class="p-2 border-start border-3" style="background: linear-gradient(90deg, #8d5405, transparent);">
+          <form (change)="form_handleChange($event)" (submit)="form_handleSubmit($event)">
+            <!-- HEADER -->
+            <div class="my-2 d-flex gap-2 align-items-center">
+              <h3 class="h5 me-auto text-truncate text-nowrap">Nuovo combattente</h3>
+              <button type="submit" class="btn btn-primary p-1 text-nowrap">
+                <i class="bi bi-person-plus"></i> Aggiungi
+              </button>
+              <button (click)="form_reset()" type="button" class="btn btn-danger p-1 text-nowrap">
+                <i class="bi bi-x-lg"></i> Reset
+              </button>
+            </div>          
+            <!-- BODY -->
+            <div class="d-grid responsive-100px align-items-start gap-2">
+              @for(field of form_value; track $index) {
+                <div class="rounded text-bg-dark">
+                  <label [for]="field.key" class="p-2 w-100">{{ field.label }}</label>
+                  
+                  @if (field.type=='select') {
+                    <select [name]="field.key" [id]="field.key" 
+                            class="form-control bg-dark">
+                      <option value="">Seleziona</option>
+                      <option *ngFor="let option of field.options" [value]="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+      
+                  }@else if (field.type=='radio') {
+                    <div class="pb-1 d-flex flex-wrap bg-dark">
+                        <div class="px-2 d-flex align-items-center gap-2" 
+                             *ngFor="let opt of field.options; let i=index">
+                          <input type="radio" class="form-check-input" 
+                                [name]="field.key" [id]="field.key + '-' + i" 
+                                [checked]="opt.value === field.value"
+                                [value]="opt.value">
+                          <label class="text-{{fightersService.colors_getbyName(opt.value.toString())}} form-check-label text-nowrap text-truncate" 
+                                [class.btn-outline-light]="field.key!=='squadra'"
+                                [for]="field.key + '-' + i">
+                            {{ opt.label }}
+                          </label>
+                        </div>
+                    </div>
+  
+                  }@else if(field.key=='iniziativa'){
+                    <div class="input-group">
+                      <input [type]="field.type" [name]="field.key" [id]="field.key" 
+                            class="form-control text-bg-dark"
+                            [value]="field.value"
+                            [placeholder]="field.placeholder"
+                      />
+                      <button class="p-1 btn btn-light" 
+                              type="button" title="Lancia d20" 
+                              (click)="field.value = diceService.roll(20)">
+                        <i class="bi bi-dice-1"></i>
+                      </button>
+                    </div>
+                    
+                  }@else{
+                    <input [type]="field.type" [name]="field.key" [id]="field.key" 
+                           class="form-control text-bg-dark"
+                           [value]="field.value"
+                           [placeholder]="field.placeholder"
+                    />
+                  }
+                </div>
+              }
+            </div>
+          </form>
+        </div>
 
+      </div>
     </aside>
         
     <!-- Mappa -->
-    <div class="col-12 col-lg py-3 overflow-auto pb-5" style="height: 92vh;">
-      <!-- Messaggio placeholder se la mappa non è stata generata -->
-      @if (mappaService.mappa_isVoid()) {
-        <div class="d-flex flex-column align-items-center justify-content-center py-5 text-center">
-          <!-- Icona Centrale -->
-          <div class="mb-4 p-4 rounded-circle bg-dark border border-secondary shadow-lg" 
-               style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
-            <i class="bi bi-map-fill display-3 text-primary"></i>
-          </div>
-
-          <h2 class="display-6 fw-bold mb-2 text-white">Pronto per l'Iniziativa?</h2>
-          <p class="lead mb-5" style="max-width: 500px;">
-            La tua arena è attualmente vuota. Genera una mappa dai preset laterali o carica un campo di battaglia salvato per iniziare lo scontro.
-          </p>
-
-          <!-- Griglia Suggerimenti Rapidi -->
-          <div class="d-flex-table gap-3 w-100 px-3 justify-content-center">
-            @for (sezione of prompt_sezioni; track sezione) {
-              <div class="card h-100 border-0 shadow-sm text-bg-dark border-start border-3 border-primary text-start">
-                <div class="card-body p-3">
-                  <h6 class="card-title d-flex align-items-center gap-2 text-primary fw-bold">
-                    <i class="bi bi-terminal-fill"></i>
-                    {{ sezione }}
-                  </h6>
-                  <hr class="my-2 opacity-25">
-                  <ul class="mb-0 small">
-                    @for (esempio of prompt_getBySection(sezione); track esempio) {
-                      <li class="mb-2">
-                        <code class="text-info bg-black p-1 rounded">{{ esempio.label }}</code>
-                        <div class="mt-1">{{ esempio.description }}</div>
-                      </li>
-                    }
-                  </ul>
-                </div>
+    <div class="p-0 col-12 col-lg-6 text-bg-c3 border-start border-end border-3">
+      <div>
+        <!-- Messaggio placeholder se la mappa non è stata generata -->
+        @if (mappaService.mappa_isVoid()) {
+          <div class="overflow-y-auto" style="max-height: 92vh;">
+            <div class="d-flex flex-column align-items-center justify-content-center py-5 text-center">
+              <!-- Icona Centrale -->
+              <div class="mb-4 p-4 rounded-circle bg-dark border border-secondary shadow-lg" 
+                    style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-map-fill display-3 text-primary"></i>
               </div>
-            }
-          </div>
-        </div>
 
-      <!-- TABELLA -->
-      } @else {
-        <div class="position-relative pb-2">
-          <div class="d-flex gap-2">
-            <button class="btn btn-outline-light text-nowrap" 
-                    (click)="mappaService.mappa_reset()"
-                    role="button">
-              <i class="bi bi-arrow-left"></i>
-              Indietro
-            </button>
+              <h2 class="display-6 fw-bold mb-2 text-white">Pronto per l'Iniziativa?</h2>
+              <p class="max-w-500px lead mb-5">
+                La tua arena è attualmente vuota. Genera una mappa dai preset laterali o carica un campo di battaglia salvato per iniziare lo scontro.
+              </p>
 
-            <form (submit)="mappaService.submit($event)"
-                  class="input-group">
-              <input type="text" name="mapName" id="mapName"
-                    class="form-control max-w-200px"
-                    aria-label="Nome della mappa"
-                    placeholder="Inserisci nome della mappa"
-                    [value]="mappaService.mappa_value().id">
-              <button type="submit" class="btn btn-outline-light text-nowrap">
-                <i class="bi bi-save"></i>
-                Salva
-              </button>
-            </form>
-          </div>
-        </div>
-        
-        <div class="">
-          <table class="w-min-content m-auto table table-sm table-dark table-borderless table-striped table-hover table-striped-columns">
-            <thead>
-              <tr>
-                <th></th>
-                <!-- Intestazioni delle mappa_colonne (numeri) -->
-                <th *ngFor="let col of mappaService.mappa_colonne(); let i = index">
-                  <div class="text-center">
-                    {{ i + 1 }}
+              <!-- Griglia Suggerimenti Rapidi -->
+              <div class="d-flex-table gap-3 w-100 px-3 justify-content-center">
+                @for (sezione of prompt_sezioni; track sezione) {
+                  <div class="card h-100 border-0 shadow-sm text-bg-dark border-start border-3 border-primary text-start">
+                    <div class="card-body p-3">
+                      <h6 class="card-title d-flex align-items-center gap-2 text-primary fw-bold">
+                        <i class="bi bi-terminal-fill"></i>
+                        {{ sezione }}
+                      </h6>
+                      <hr class="my-2 opacity-25">
+                      <ul class="mb-0 small">
+                        @for (esempio of prompt_getBySection(sezione); track esempio) {
+                          <li class="mb-2">
+                            <code class="text-info bg-black p-1 rounded">{{ esempio.label }}</code>
+                            <div class="mt-1">{{ esempio.description }}</div>
+                          </li>
+                        }
+                      </ul>
+                    </div>
                   </div>
-                </th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Righe della tabella -->
-              <tr *ngFor="let rowKey of mappaService.mappa_righe()">
-                <!-- Intestazione della riga (lettera) -->
-                <th class="text-center align-middle">{{ rowKey }}</th>
-                <!-- Celle della riga -->
-                @for (cellValue of mappaService.mappa_value().value[rowKey]; track $index) {
-                  <td [attr.data-cell]="rowKey + ($index + 1)"
-                      class="p-0"
-                      [class.table-secondary]="cellValue==='+'">
-                    <app-cell [cellValue]="cellValue" [riga]="rowKey" [colonna]="$index" class="h-100 w-100"></app-cell>
-                  </td>
                 }
-                <!-- Intestazione della riga (lettera) -->
-                <th class="text-center align-middle">{{ rowKey }}</th>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <th></th>
-                <!-- Intestazioni delle mpa_colonne (numeri) -->
-                <th *ngFor="let col of mappaService.mappa_colonne(); let i = index"
-                  class="text-center">
-                  {{ i + 1 }}
-                </th>
-                <th></th>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+              </div>
+            </div>
+          </div>
+
         <!-- TABELLA -->
-      }
+        } @else {
+          <div data-barra-strumenti>
+            <div class="p-2 d-flex gap-2">
+              <button class="btn btn-outline-light text-nowrap" 
+                      (click)="mappaService.mappa_reset()"
+                      role="button">
+                <i class="bi bi-arrow-left"></i>
+                Indietro
+              </button>
+  
+              <form (submit)="mappaService.submit($event)"
+                    class="input-group">
+                <input type="text" name="mapName" id="mapName"
+                      class="form-control max-w-200px"
+                      aria-label="Nome della mappa"
+                      placeholder="Inserisci nome della mappa"
+                      [value]="mappaService.mappa_value().id">
+                <button type="submit" class="btn btn-outline-light text-nowrap">
+                  <i class="bi bi-save"></i>
+                  Salva
+                </button>
+              </form>
+            </div>
+          </div>
+          <div class="p-2 overflow-y-auto" style="max-height: 82vh;">
+            <table class="w-min-content m-auto table table-sm table-dark table-borderless table-striped table-hover table-striped-columns">
+              <thead>
+                <tr>
+                  <th></th>
+                  <!-- Intestazioni delle mappa_colonne (numeri) -->
+                  <th *ngFor="let col of mappaService.mappa_colonne(); let i = index">
+                    <div class="text-center">
+                      {{ i + 1 }}
+                    </div>
+                  </th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Righe della tabella -->
+                <tr *ngFor="let rowKey of mappaService.mappa_righe()">
+                  <!-- Intestazione della riga (lettera) -->
+                  <th class="text-center align-middle">{{ rowKey }}</th>
+                  <!-- Celle della riga -->
+                  @for (cellValue of mappaService.mappa_value().value[rowKey]; track $index) {
+                    <td [attr.data-cell]="rowKey + ($index + 1)"
+                        class="p-0"
+                        [class.table-secondary]="cellValue==='+'">
+                      <app-cell [cellValue]="cellValue" [riga]="rowKey" [colonna]="$index" class="h-100 w-100"></app-cell>
+                    </td>
+                  }
+                  <!-- Intestazione della riga (lettera) -->
+                  <th class="text-center align-middle">{{ rowKey }}</th>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th></th>
+                  <!-- Intestazioni delle mpa_colonne (numbers) -->
+                  <th *ngFor="let col of mappaService.mappa_colonne(); let i = index"
+                    class="text-center">
+                    {{ i + 1 }}
+                  </th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <!-- TABELLA -->
+        }
+      </div>
     </div>
 
     <!-- pulsanti dadi -->
     <div class="col-1 d-none d-lg-block">
-      <div class="d-flex flex-column align-items-center">
+      <div class="d-flex flex-column align-items-center pt-3">
         <!-- pulsanti dadi -->
         <button (click)="diceService.setShowButtons()" 
                 class="btn rounded-circle w-50px h-50px p-2"
@@ -304,19 +310,20 @@
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
   <!-- Footer: Input principale -->
-  <div class="pt-5 pt-md-0">
-    <div class="fixed-bottom z-1  mx-auto min-w-250px max-w-400px text-bg-c1">
+  <div class="fixed-bottom">
+    <div class="mx-auto max-w-400px text-bg-c1 rounded shadow border border-secondary">
       <!-- Consigli di input -->
-      <div *ngIf="prompt_consiglio.length" class="mx-auto p-1">
-        <ul class="m-0">
+      <div *ngIf="prompt_consiglio.length" class="mx-auto p-1 border-bottom border-secondary">
+        <ul class="m-0 list-unstyled">
           <li *ngFor="let consiglio of prompt_consiglio">
+            <small class="text-info">{{ consiglio.descrizione }}: </small>
             @for(es of consiglio.esempio; track $index) {
-              <small *ngIf="es!=', ' ; else virgola">{{ es }}</small>
+              <small class="fw-bold" *ngIf="es!=', ' ; else virgola">{{ es }}</small>
               <ng-template #virgola>
-                <span class="mx-2"> / </span>
+                <span class="mx-1"> | </span>
               </ng-template>
             }
           </li>
@@ -327,11 +334,11 @@
       <form (submit)="prompt_submit($event)"
             (input)="prompt_setConsiglio($event)"
             class="m-auto d-flex gap-2">
-        <div class="w-100 border rounded mb-1 p-1 d-flex align-items-center">
+        <div class="w-100 border rounded d-flex align-items-center">
           <label for="promptInput" class="visually-hidden">Prompt</label>
           <input id="promptInput" name="promptInput" type="text"
-                 class="form-control border-0 shadow-none"
-                 placeholder="Inserisci prompt">
+                 class="form-control border-0 shadow-none text-white"
+                 placeholder="Inserisci prompt (es: d20, start, mappa...)">
           <button type="submit" class="btn btn-primary py-1">
             <i class="bi bi-arrow-return-left"></i>
           </button>
@@ -339,5 +346,4 @@
       </form>
     </div>
   </div>
-
 </div>
