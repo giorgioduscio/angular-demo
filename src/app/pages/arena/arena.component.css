@@ -2,7 +2,7 @@
 /* Scrollbar personalizzata */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--c2) transparent;
+  scrollbar-color: #aaa transparent;
   scroll-behavior: smooth;
 }
 
@@ -15,17 +15,13 @@
 }
 
 .overflow-auto::-webkit-scrollbar-thumb {
-  background-color: var(--c2);
+  background-color: #aaa;
   border-radius: 4px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 .overflow-auto::-webkit-scrollbar-thumb:hover {
-  background-color: var(--c3);
+  background-color: #fff;
 }
 
-/* Sidebar e Mappa devono avere altezza piena e scorrimento indipendente */
-.sidebar-column, .map-column {
-  height: 92vh;
-}

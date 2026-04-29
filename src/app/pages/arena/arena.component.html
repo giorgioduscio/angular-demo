@@ -1,46 +1,76 @@
 <div class="mt-2 p-0 container-fluid ">
   <!-- Main Content: Sidebar + Mappa -->
-  <div class="row m-0 justify-content-center">
+  <div class="row m-0 justify-content-between">
     <!-- strumenti -->
-    <aside class="d-none d-lg-block col-md-3 pt-2 ">
+    <aside class="p-0 d-none d-lg-block col-4 shadow-lg z-3">
       <div class="overflow-y-auto" style="max-height: 90vh;">
+
+        <!-- CRONOLOGIA RICOMPENSE -->
+        <div class="my-2 p-2 border-start border-3" 
+             style="background: linear-gradient(90deg, #8d056a, transparent);" 
+             *ngIf="diceService.ricompenze_cronologia.length > 0"
+             role="region" aria-label="Cronologia ricompense">
+          <h3><i class="bi bi-gift" aria-hidden="true"></i> Cronologia ricompense</h3>
+          <div class="mb-3" role="list">
+            @for (ricompensa of diceService.ricompenze_cronologia; let i = $index; track i) {
+              <div class="my-2 d-grid cols-auto-1fr" role="listitem">
+                <button class="btn btn-danger me-2 p-2"
+                        (click)="diceService.ricompenze_rimuovi_ronologia(i)"
+                        aria-label="Rimuovi questa ricompensa">
+                  <i class="bi bi-trash" aria-hidden="true"></i>
+                </button>
+                <div class="my-2 ps-2 border-start border-5 border-{{ ricompensa.color }}">
+                  <div>{{ ricompensa.text }}</div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
 
         <!-- CRONOLOGIA TIRI -->
         <div class="my-2 p-2 border-start border-3" 
              style="background: linear-gradient(90deg, #05358d, transparent);" 
-             *ngIf="diceService.tiri.length > 0">
-          <h3><i class="bi bi-dice-5"></i> Cronologia tiri</h3>
+             *ngIf="diceService.tiri.length > 0"
+             role="region" aria-label="Cronologia tiri">
+          <h3><i class="bi bi-dice-5" aria-hidden="true"></i> Cronologia tiri</h3>
           <div class="mb-3">
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-2" role="list">
               <div *ngFor="let tiro of diceService.tiri"
-                    class="badge rounded text-bg-{{ tiro.color }} text-nowrap">
-                <div class="h5 m-0">{{ tiro.result }}</div>
-                <small class="text-bg-{{tiro.color}}">({{ tiro.dices }})</small> 
+                    class="badge rounded text-bg-{{ tiro.color }} text-nowrap"
+                    role="listitem"
+                    [attr.aria-label]="'Risultato: ' + tiro.result + ' con dadi: ' + tiro.dices">
+                <div class="h5 m-0" aria-hidden="true">{{ tiro.result }}</div>
+                <small class="text-bg-{{tiro.color}}" aria-hidden="true">({{ tiro.dices }})</small> 
               </div>
             </div>
           </div>
         </div>
   
         <!-- MAPPE -->
-        <div class="my-2 p-2 border-start border-3" style="background: linear-gradient(90deg, #108d05, transparent);">
-          <h3> <i class="bi bi-map"></i> Genera mappa</h3>
-          <div class="d-flex-table my-2 rounded overflow-hidden">
+        <div class="my-2 p-2 border-start border-3" style="background: linear-gradient(90deg, #108d05, transparent);"
+             role="region" aria-label="Generazione mappa">
+          <h3> <i class="bi bi-map" aria-hidden="true"></i> Genera mappa</h3>
+          <div class="d-flex-table my-2 rounded overflow-hidden" role="group" aria-label="Preset mappa">
             <button *ngFor="let preset of mappaService.mappa_presets" 
                     (click)="mappaService.mappa_setPreset(preset, fightersService, combatService)" 
-                    class="btn btn-primary rounded-0">
-              <i class="bi bi-{{preset.icon || 'map'}} me-2"></i>
+                    class="btn btn-primary rounded-0"
+                    [attr.aria-label]="'Applica preset: ' + preset.title">
+              <i class="bi bi-{{preset.icon || 'map'}} me-2" aria-hidden="true"></i>
               {{ preset.title }}
             </button>
           </div>
           
-          <div class="d-flex-table gap-2 align-items-center">
+          <div class="d-flex-table gap-2 align-items-center" role="group" aria-label="Mappe salvate">
             <div *ngFor="let nome of mappaService.storage_getNames()" class="btn-group"
                   style="max-width: 100%;">
               <button (click)="eseguiComando('mappa ' + nome)" 
-                      class="btn btn-secondary text-truncate text-nowrap">
+                      class="btn btn-secondary text-truncate text-nowrap"
+                      [attr.aria-label]="'Carica mappa ' + nome">
                 <b>{{ nome }}</b>
               </button>
-              <button (click)="mappaService.storage_removeMap(nome)" class="btn btn-danger max-w-40px bi bi-trash"></button>
+              <button (click)="mappaService.storage_removeMap(nome)" 
+                      class="btn btn-danger max-w-40px bi bi-trash"
+                      [attr.aria-label]="'Elimina mappa ' + nome"></button>
             </div>
           </div>
         </div>
@@ -48,40 +78,52 @@
         <!-- LISTA COMBATTENTI -->
         <div class="my-2 p-2 border-start border-3" 
              style="background: linear-gradient(90deg, #8d1e05, transparent);"
-             *ngIf="fightersService.combattenti().length">
+             *ngIf="fightersService.combattenti().length"
+             role="region" aria-label="Elenco combattenti">
           <h3 class="d-grid cols-auto-1fr-auto gap-1"> 
-            <i class="bi bi-person"></i> 
+            <i class="bi bi-person" aria-hidden="true"></i> 
             <span class="text-truncate">Combattenti</span>
-            <button class="btn btn-danger" (click)="fightersService.rimuoviTuttiCombattenti()">Rimuovi tutti</button>
+            <button class="btn btn-danger" 
+                    (click)="fightersService.rimuoviTuttiCombattenti()"
+                    aria-label="Svuota lista combattenti">Rimuovi tutti</button>
           </h3>
   
           <div class="d-grid gap-1 my-2 align-items-center" 
-                style="grid-template-columns: 30px auto 1fr auto auto;">
+                style="grid-template-columns: 30px auto 1fr auto auto;"
+                role="list">
             @for(combattente of fightersService.listaCombattenti; track combattente.id) {
               <!-- iniziativa -->
-              <div class="text-center overflow-hidden">{{ combattente.numeroTurno.toFixed(0) }}</div>
+              <div class="text-center overflow-hidden" 
+                   role="listitem" 
+                   [attr.aria-label]="'Iniziativa: ' + combattente.numeroTurno.toFixed(0)">
+                {{ combattente.numeroTurno.toFixed(0) }}
+              </div>
               <!-- pulsante eliminazione -->
               <button (click)="fightersService.rimuoviCombattente(combattente.id, true)" 
-                class="btn btn-danger bi bi-trash">
+                class="btn btn-danger bi bi-trash"
+                [attr.aria-label]="'Rimuovi combattente ' + combattente.id">
               </button>
               <!-- nome -->
               <div class="text-nowrap text-truncate">{{ combattente.id }} {{combattente.npc ?'' :'(PG)'}}</div>
               <!-- punti ferita -->
-              <div class="input-group">
+              <div class="input-group d-none d-lg-flex flex-nowrap" role="group" [attr.aria-label]="'HP di ' + combattente.id">
                 <button class="p-1 btn btn-light bi bi-dash"
-                        (click)="fightersService.vitalitaPersonaggio(combattente.id, -1)"></button>
+                        (click)="fightersService.vitalitaPersonaggio(combattente.id, -1)"
+                        aria-label="Diminuisci salute"></button>
                 <div class="ps-1 d-flex align-items-center border-light border">
-                  <label class="px-1 bi bi-heart-fill" [for]="'hpInput-' + combattente.id"></label>
+                  <label class="px-1 bi bi-heart-fill" [for]="'hpInput-' + combattente.id" aria-hidden="true"></label>
                   <input [id]="'hpInput-' + combattente.id" 
                          [name]="'hpInput-' + combattente.id"
                          type="number"  
                          #hpInput
                          class="p-1 max-w-50px form-control border-0"
                          [value]="combattente.puntiFerita"
-                         (change)="fightersService.vitalitaPersonaggio(combattente.id, +hpInput.value - combattente.puntiFerita)">
+                         (change)="fightersService.vitalitaPersonaggio(combattente.id, +hpInput.value - combattente.puntiFerita)"
+                         aria-label="Punti ferita attuali">
                 </div>
                 <button class="p-1 btn btn-light bi bi-plus"
-                        (click)="fightersService.vitalitaPersonaggio(combattente.id, 1)"></button>
+                        (click)="fightersService.vitalitaPersonaggio(combattente.id, 1)"
+                        aria-label="Aumenta salute"></button>
               </div>
               <!-- esecuzione turno -->
               <div>
@@ -90,9 +132,9 @@
                         [class.border]="combattente.id === fightersService.giocatoreUltimoTurno"
                         [attr.aria-label]="'Esegui turno di '+combattente.id"
                         *ngIf="combattente.npc">
-                  <i class="bi bi-caret-right" *ngIf="combattente.id !== fightersService.giocatoreUltimoTurno; else squareIcon"></i>
+                  <i class="bi bi-caret-right" *ngIf="combattente.id !== fightersService.giocatoreUltimoTurno; else squareIcon" aria-hidden="true"></i>
                   <ng-template #squareIcon>
-                    <small class="bi bi-square-fill"></small>
+                    <small class="bi bi-square-fill" aria-hidden="true"></small>
                   </ng-template>
                 </button>
               </div>
@@ -175,7 +217,7 @@
     </aside>
         
     <!-- Mappa -->
-    <div class="p-0 col-12 col-lg-6 text-bg-c3 border-start border-end border-3">
+    <div class="p-0 col-12 col-lg-7 text-bg-c3">
       <div>
         <!-- Messaggio placeholder se la mappa non è stata generata -->
         @if (mappaService.mappa_isVoid()) {
@@ -220,7 +262,7 @@
         <!-- TABELLA -->
         } @else {
           <div data-barra-strumenti>
-            <div class="p-2 d-flex gap-2">
+            <div class="p-2 d-flex gap-2 border-bottom">
               <button class="btn btn-outline-light text-nowrap" 
                       (click)="mappaService.mappa_reset()"
                       role="button">
@@ -291,39 +333,66 @@
       </div>
     </div>
 
-    <!-- pulsanti dadi -->
-    <div class="col-1 d-none d-lg-block">
-      <div class="d-flex flex-column align-items-center pt-3">
-        <!-- pulsanti dadi -->
-        <button (click)="diceService.setShowButtons()" 
-                class="btn rounded-circle w-50px h-50px p-2"
-                [class.btn-primary]="diceService.showButtons">
-          <i class="bi bi-dice-6"></i>
-        </button>
-        <div class="d-flex flex-column align-items-center gap-1 pt-2" 
-             *ngIf="diceService.showButtons">
-          <button *ngFor="let set of diceService.pulsantiDadi" 
-                  class="btn badge rounded-pill text-bg-{{set.color}}" 
-                  (click)="eseguiComando(set.value)">
-            {{ set.value }}
+    <!-- laterale sottile -->
+    <div class="col-1 d-none d-lg-block shadow-lg z-3 ">
+      <div class="overflow-y-auto" style="max-height: 92vh;">
+        <div class="d-flex flex-column gap-2 align-items-center justify-content-center" 
+             role="toolbar" aria-label="Strumenti rapidi">
+          <!-- DADI -->
+          <button (click)="diceService.setShowButtons()" 
+                  class="btn rounded-circle w-50px h-50px p-2"
+                  [class.btn-dark]="!diceService.showButtons"
+                  [class.btn-primary]="diceService.showButtons"
+                  aria-label="Mostra pulsanti dadi"
+                  [attr.aria-expanded]="diceService.showButtons">
+            <i class="bi bi-dice-6" aria-hidden="true"></i>
           </button>
+          @if (diceService.showButtons) {
+            <div class="w-min-content" role="group" aria-label="Tiri rapidi">
+              <button *ngFor="let set of diceService.pulsantiDadi" 
+                      class="btn badge rounded-pill text-bg-{{set.color}} w-100 mb-1" 
+                      (click)="eseguiComando(set.value)"
+                      [attr.aria-label]="'Lancia ' + set.value">
+                {{ set.value }}
+              </button>
+            </div>
+          }
+          <!-- RICOMPENSE -->
+          <button class="btn rounded-circle w-50px h-50px p-2"
+                  [class.btn-dark]="!diceService.ricompense_mostra"
+                  [class.btn-success]="diceService.ricompense_mostra"
+                  (click)="diceService.ricompense_toggle()" 
+                  title="Tabelle Ricompense"
+                  aria-label="Tabelle Ricompense"
+                  [attr.aria-expanded]="diceService.ricompense_mostra"
+                  ><i class="bi bi-award" aria-hidden="true"></i></button>
+          <div *ngIf="diceService.ricompense_mostra" 
+                class="d-flex-table rounded overflow-hidden" role="group" aria-label="Selezione tabella ricompense">
+            @for (tabella of diceService.ricompense_tabelle; track tabella.key) {
+              <button class="btn btn-{{tabella.color}} rounded-0"
+                      (click)="diceService.ricompense_cerca(tabella)"
+                      [attr.aria-label]="'Cerca in Tabella ' + tabella.key">
+                Tab {{ tabella.key }}
+              </button>
+            }
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Footer: Input principale -->
-  <div class="fixed-bottom">
-    <div class="mx-auto max-w-400px text-bg-c1 rounded shadow border border-secondary">
+  <div class="mx-auto max-w-400px fixed-bottom" role="search">
+    <div class="text-bg-c1 rounded shadow border border-secondary">
       <!-- Consigli di input -->
-      <div *ngIf="prompt_consiglio.length" class="mx-auto p-1 border-bottom border-secondary">
+      <div *ngIf="prompt_consiglio.length" class="mx-auto p-1 border-bottom border-secondary" aria-live="polite">
         <ul class="m-0 list-unstyled">
           <li *ngFor="let consiglio of prompt_consiglio">
             <small class="text-info">{{ consiglio.descrizione }}: </small>
             @for(es of consiglio.esempio; track $index) {
               <small class="fw-bold" *ngIf="es!=', ' ; else virgola">{{ es }}</small>
               <ng-template #virgola>
-                <span class="mx-1"> | </span>
+                <span class="mx-1" aria-hidden="true"> | </span>
               </ng-template>
             }
           </li>
@@ -335,12 +404,12 @@
             (input)="prompt_setConsiglio($event)"
             class="m-auto d-flex gap-2">
         <div class="w-100 border rounded d-flex align-items-center">
-          <label for="promptInput" class="visually-hidden">Prompt</label>
+          <label for="promptInput" class="visually-hidden">Comando prompt</label>
           <input id="promptInput" name="promptInput" type="text"
                  class="form-control border-0 shadow-none text-white"
                  placeholder="Inserisci prompt (es: d20, start, mappa...)">
-          <button type="submit" class="btn btn-primary py-1">
-            <i class="bi bi-arrow-return-left"></i>
+          <button type="submit" class="btn btn-primary py-1" aria-label="Invia comando">
+            <i class="bi bi-arrow-return-left" aria-hidden="true"></i>
           </button>
         </div>
       </form>
