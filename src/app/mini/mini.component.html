@@ -1,0 +1,97 @@
+<div id="save-indicator" class="position-fixed top-0 end-0 m-3 p-2 bg-success text-white rounded shadow" [style.display]="showSaveIndicator() ? 'block' : 'none'">✓ Salvato</div>
+
+<section class="py-4 max-w-800px container">
+  <header class="d-flex justify-content-center mb-3 gap-2 align-items-center">
+    <h1 class="h3 m-0 text-truncate">Mini RPG</h1>
+    <button type="button" class="btn btn-sm btn-primary" (click)="copyToClipboard()">Copia</button>
+    <button type="button" class="btn btn-sm btn-success" (click)="pasteFromClipboard()">Incolla</button>
+  </header>
+
+  <!-- CONTENITORI -->
+  <div class="row justify-content-center g-0 gap-3">
+    @for (section of ['head', 'left', 'right']; track section) {
+      <div class="col-12 {{section === 'head' ?'' :'col-sm'}}">
+        <div class="p-1 text-bg-secondary">
+          <div class="row g-0 gap-2">
+            @if (groupedCharacter()[section]; as fields) {
+
+
+              @for (field of fields; track field.key) {
+                @if (isArray(field.value)) {
+                  <!-- ARRAY -->
+                  <div class="col-12">
+                    <label class="form-label text-capitalize">{{ field.key }}</label>
+
+                    <form class="mb-2 d-flex" (submit)="$event.preventDefault(); addArrayItem(field.section, field.key, amountInput.value, descInput.value)">
+                      <input type="number" 
+                              #amountInput 
+                              class="me-2 p-1 w-40px h-40px form-control border-0 rounded-circle text-center text-bg-dark" 
+                              name="amount" 
+                              min="1" 
+                              placeholder="Qtà" />
+                      <input #descInput 
+                              class="form-control text-bg-dark border-0 rounded-l" 
+                              name="description" 
+                              placeholder="Descrizione" />
+                      <button type="submit" class="btn btn-primary btn-sm rounded-r">
+                        <i class="bi bi-plus-lg"></i>
+                      </button>
+                    </form>
+                    <div class="py-2"></div>
+
+                    @for (item of field.value; track $index) {
+                      <div class="mb-2 d-flex">
+                        <input type="number" 
+                                class="me-2 p-1 w-40px h-40px form-control border-0 rounded-circle text-center text-bg-dark" 
+                                [value]="item.amount" 
+                                (change)="updateArrayValue(field.section, field.key, $index, 'amount', $any($event.target).value)">
+                        <textarea class="form-control text-bg-dark border-0 rounded-l" 
+                                  (change)="updateArrayValue(field.section, field.key, $index, 'description', $any($event.target).value)">{{ item.description }}</textarea>
+                        <button type="button" class="btn btn-danger btn-sm rounded-r" (click)="removeArrayItem(field.section, field.key, $index)">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+
+                } @else {
+                  <div class="min-w-100px col text-bg-dark rounded">
+                    <label [for]="field.key" class="px-2 w-100 text-capitalize fst-italic fw-bold text-truncate"><small>{{ field.key }}</small></label>
+                    <!-- SELECT -->
+                    @if (isStatKey(field.key)) {
+                      <select [id]="field.key" 
+                              class="pt-0 form-select border-0 text-bg-dark" 
+                              (change)="updateValue(field.section, field.key, $any($event.target).value)">
+                        @for (opt of diceOptions; track opt) {
+                          <option [value]="opt" [selected]="field.value == opt">D{{ opt }}</option>
+                        }
+                      </select>
+
+                    } @else if (isLingueKey(field.key)) {
+                      <!-- TEXTAREA -->
+                      <textarea [id]="field.key" 
+                                class="pt-0 form-control border-0" 
+                                (change)="updateValue(field.section, field.key, $any($event.target).value)"
+                        >{{ field.value }}</textarea>
+
+                    <!-- INPUT -->
+                    } @else {
+                      <input [id]="field.key" 
+                              class="pt-0 form-control border-0" 
+                              [type]="isNumberValue(field.value) ? 'number' : 'text'"
+                              [value]="field.value" 
+                              (change)="updateValue(field.section, field.key, $any($event.target).value)"
+                              [disabled]="field.disabled">
+                    }
+                  </div>
+                }
+              }
+
+
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

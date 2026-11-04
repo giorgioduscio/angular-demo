@@ -12,6 +12,7 @@ import { DndComponent } from './pages/dnd/dnd.component';
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
 import { ArenaComponent } from './pages/arena/arena.component';
+import { MiniComponent } from './mini/mini.component';
 
 export interface SmartRoute{
   path:string
@@ -50,6 +51,7 @@ export const { routes, smartRoutes } =buildSmartRouter([
 
   // MAPPE GDR
   { title:'Arena', show:true, path: 'arena', component: ArenaComponent },
+  { title:'Mini RPG', show:true, path: 'mini', component: MiniComponent },
 
   // LOGIN
   { title:'Registrazione', path: 'login', component: LoginComponent },
