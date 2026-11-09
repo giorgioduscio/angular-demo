@@ -20,10 +20,10 @@ Esempi:
 
 ## Generali 
 
-- x search input
-- programmazione+test nello stesso file
-- prova ad aggiungere un iframe
-3) inserire audio o video
+* [] 1) layout ottimizzato per mobile
+* [] 3) inserire audio o video
+* [] search input
+* [] programmazione+test nello stesso file
 
 ## dnd
 2. inserire le schede dei diversi personaggi che l'utente ha salvato
@@ -33,6 +33,8 @@ Esempi:
 3. talenti
 3. incantesimi: sezione attacchi ed incantesimi. aggiungere incantesimi
 
-# arena
-
-- ? layout: risultato dadi in alto a destra
+# mini
+mini.component.ts
+* implementare la pagina per più personaggi. la pagina deve gestire più personaggi in diverse schede
+  * in basso deve comparire una bottombar (overflow horizontal) con, a sinistra, un pulsante per aggiungere un nuovo personaggio e, a destra, i personaggi salvati 
+  

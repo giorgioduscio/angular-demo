@@ -1,4 +1,29 @@
-input, textarea, select{
+[data-pseudo-input] input, 
+[data-pseudo-input] textarea, 
+[data-pseudo-input] select,
+[data-pseudo-input] [contenteditable]{
     outline: none !important;
     box-shadow: none !important;
+}
+
+/* aggiunge omra quando un input all'interno ha il focus */
+[data-pseudo-input]{
+    cursor: text;
+}
+[data-pseudo-input]:has(*:focus) {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* rimuovere interfaccia input number */
+/* Chrome, Safari, Edge, Opera */
+.no-interface::-webkit-inner-spin-button,
+.no-interface::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+.no-interface {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }

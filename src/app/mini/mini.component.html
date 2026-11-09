@@ -1,66 +1,95 @@
-<div id="save-indicator" class="position-fixed top-0 end-0 m-3 p-2 bg-success text-white rounded shadow" [style.display]="showSaveIndicator() ? 'block' : 'none'">✓ Salvato</div>
+<div id="save-indicator" 
+      class="position-fixed z-3 top-0 end-0 m-3 p-2 text-bg-{{feed_toastValue().color}} rounded shadow" 
+      [style.display]="feed_toastValue().message ?'block' :'none'">
+  <i class="mx-1 bi bi-{{feed_toastValue().icon}}"></i> 
+  <span style="color: inherit !important;">{{ feed_toastValue().message }}</span>
+</div>
 
 <section class="py-4 max-w-800px container">
   <header class="d-flex justify-content-center mb-3 gap-2 align-items-center">
     <h1 class="h3 m-0 text-truncate">Mini RPG</h1>
-    <button type="button" class="btn btn-sm btn-primary" (click)="copyToClipboard()">Copia</button>
-    <button type="button" class="btn btn-sm btn-success" (click)="pasteFromClipboard()">Incolla</button>
+    <button type="button" class="btn btn-sm btn-primary" (click)="shared_copyToClipboard()">Copia</button>
+    <button type="button" class="btn btn-sm btn-success" (click)="shared_pasteFromClipboard()">Incolla</button>
+    <button type="button" class="btn btn-sm btn-danger" (click)="initDefault()">Reset</button>
   </header>
+
 
   <!-- CONTENITORI -->
   <div class="row justify-content-center g-0 gap-3">
     @for (section of ['head', 'left', 'right']; track section) {
       <div class="col-12 {{section === 'head' ?'' :'col-sm'}}">
-        <div class="p-1 text-bg-secondary">
+        <div class="p-1 rounded" style="background-color: #444444aa;">
           <div class="row g-0 gap-2">
             @if (groupedCharacter()[section]; as fields) {
-
-
+              
+              
               @for (field of fields; track field.key) {
+                <!-- ARRAY -->
                 @if (isArray(field.value)) {
-                  <!-- ARRAY -->
                   <div class="col-12">
                     <label class="form-label text-capitalize">{{ field.key }}</label>
-
-                    <form class="mb-2 d-flex" (submit)="$event.preventDefault(); addArrayItem(field.section, field.key, amountInput.value, descInput.value)">
-                      <input type="number" 
-                              #amountInput 
-                              class="me-2 p-1 w-40px h-40px form-control border-0 rounded-circle text-center text-bg-dark" 
-                              name="amount" 
-                              min="1" 
+                    
+                    <form class="mb-2 d-flex" (submit)="addArrayItem($event, field.section, field.key, amountInput.value, descInput.value)">
+                      <input type="number"
+                              [name]="section +'_amount_form'"
+                              [id]="section +'_amount_form'"
+                              #amountInput
+                              class="max-w-50px max-h-50px me-2 form-control border-0 rounded-circle text-bg-dark no-interface"
                               placeholder="Qtà" />
-                      <input #descInput 
+                      
+                      <textarea #descInput 
                               class="form-control text-bg-dark border-0 rounded-l" 
                               name="description" 
-                              placeholder="Descrizione" />
+                              placeholder="Descrizione"></textarea>
                       <button type="submit" class="btn btn-primary btn-sm rounded-r">
                         <i class="bi bi-plus-lg"></i>
                       </button>
                     </form>
-                    <div class="py-2"></div>
+                    <div class="py-1"></div>
 
                     @for (item of field.value; track $index) {
-                      <div class="mb-2 d-flex">
-                        <input type="number" 
-                                class="me-2 p-1 w-40px h-40px form-control border-0 rounded-circle text-center text-bg-dark" 
-                                [value]="item.amount" 
-                                (change)="updateArrayValue(field.section, field.key, $index, 'amount', $any($event.target).value)">
-                        <textarea class="form-control text-bg-dark border-0 rounded-l" 
-                                  (change)="updateArrayValue(field.section, field.key, $index, 'description', $any($event.target).value)">{{ item.description }}</textarea>
-                        <button type="button" class="btn btn-danger btn-sm rounded-r" (click)="removeArrayItem(field.section, field.key, $index)">
+                      <div class="mb-2 row g-0">
+                        <!-- bonus o quantità -->
+                        <div  class="col-auto max-h-50px w-50px me-2 p-1 text-bg-dark rounded-circle 
+                                     d-flex align-items-center justify-content-center" 
+                              data-pseudo-input
+                              (click)="focusAmountInput($event)">
+
+                          <i class="bi" style="max-width: 13px; pointer-events: none;"
+                             [class.bi-plus]="section === 'left'" 
+                             [class.bi-x]="section === 'right'"
+                          ></i>
+                          <span [id]="section +'_amount_'+ $index"
+                                contenteditable="true"
+                                class=""
+                                (blur)="updateArrayValue($event, field.section, field.key, $index, 'amount')">
+                            {{ item.amount }}
+                          </span>
+                          
+                        </div>
+                        <!-- descrizione -->
+                        <textarea class="col form-control text-bg-dark border-0 rounded-l" 
+                                  (change)="updateArrayValue($event, field.section, field.key, $index, 'description')">{{ item.description }}</textarea>
+                        <!-- pulsante eliminazione elemento -->
+                        <button type="button" class="col-auto btn btn-danger btn-sm rounded-r" (click)="removeArrayItem(field.section, field.key, $index)">
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
                     }
                   </div>
 
+
+                <!-- INPUT -->
                 } @else {
-                  <div class="min-w-100px col text-bg-dark rounded">
-                    <label [for]="field.key" class="px-2 w-100 text-capitalize fst-italic fw-bold text-truncate"><small>{{ field.key }}</small></label>
+                  <div [class]="'min-w-100px col rounded ' + (field.className ||' text-bg-dark')" data-pseudo-input>
+                    <label [for]="field.key" class="w-100 px-2 text-capitalize fw-bold small text-truncate"
+                      style="color: inherit !important;">
+                      {{ field.key }}
+                    </label>
                     <!-- SELECT -->
                     @if (isStatKey(field.key)) {
                       <select [id]="field.key" 
-                              class="pt-0 form-select border-0 text-bg-dark" 
+                              [class]="'pt-0 form-select border-0 ' + (field.className || 'text-bg-dark')" 
                               (change)="updateValue(field.section, field.key, $any($event.target).value)">
                         @for (opt of diceOptions; track opt) {
                           <option [value]="opt" [selected]="field.value == opt">D{{ opt }}</option>
@@ -69,17 +98,21 @@
 
                     } @else if (isLingueKey(field.key)) {
                       <!-- TEXTAREA -->
-                      <textarea [id]="field.key" 
-                                class="pt-0 form-control border-0" 
-                                (change)="updateValue(field.section, field.key, $any($event.target).value)"
-                        >{{ field.value }}</textarea>
+                      <span [id]="field.key"
+                            contenteditable="true"
+                            class="pt-0 form-control form-control-sm border-0"
+                            style="color: inherit !important; display: block; min-height: 1.5em;"
+                            (blur)="updateValue(field.section, field.key, $any($event.target).textContent)">
+                        {{ field.value }}
+                      </span>
 
                     <!-- INPUT -->
                     } @else {
-                      <input [id]="field.key" 
-                              class="pt-0 form-control border-0" 
+                      <input [id]="field.key"
+                              class="pt-0 form-control form-control-sm border-0"
+                              style="color: inherit !important;"
                               [type]="isNumberValue(field.value) ? 'number' : 'text'"
-                              [value]="field.value" 
+                              [value]="field.value"
                               (change)="updateValue(field.section, field.key, $any($event.target).value)"
                               [disabled]="field.disabled">
                     }

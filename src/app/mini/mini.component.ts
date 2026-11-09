@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Component, signal, computed, effect } from '@angular/core';
 
 interface CharacterField {
@@ -6,6 +6,7 @@ interface CharacterField {
   key: string;
   value: string | number | ArrayItem[];
   disabled?: boolean;
+  className: string;
 }
 
 interface ArrayItem {
@@ -16,13 +17,18 @@ interface ArrayItem {
 @Component({
   selector: 'app-mini',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgIf],
   templateUrl: './mini.component.html',
-  styleUrl: './mini.component.css'
+  styleUrls: ['./mini.component.css']
 })
 export class MiniComponent {
   constructor() {
     this.loadFromStorage();
+
+    effect(() => {
+      this.character();
+      this.saveToStorage();
+    }, { allowSignalWrites: true });
   }
 
   // STORAGE
@@ -41,15 +47,13 @@ export class MiniComponent {
   }
   private saveToStorage() {
     localStorage.setItem('mini-rpg-data', JSON.stringify(this.character()));
-    this.showSaveIndicator.set(true);
-    setTimeout(() => this.showSaveIndicator.set(false), 2000);
+    this.feed_showToast('success', 'Salvato');
   }
 
 
   
-
+  // PERSONAGGIO 
   character = signal<CharacterField[]>([]);
-  showSaveIndicator = signal(false);
 
   private numericKeys = [
     'ispirazione', 'vita attuale', 'monete', 'protezione',
@@ -57,22 +61,28 @@ export class MiniComponent {
   ];
 
   diceOptions = [12, 10, 8, 6, 4];
-  private initDefault() {
+  initDefault() {
     this.character.set([
-      { section: 'head', key: 'nome', value: 'Nome' },
-      { section: 'head', key: 'ispirazione', value: 1 },
-      { section: 'head', key: 'vita attuale', value: 10 },
-      { section: 'head', key: 'monete', value: 5 },
-      { section: 'head', key: 'protezione', value: 2 },
-      { section: 'left', key: 'costituzione', value: 6 },
-      { section: 'left', key: 'destrezza', value: 8 },
-      { section: 'left', key: 'forza', value: 6 },
-      { section: 'left', key: 'carisma', value: 6 },
-      { section: 'left', key: 'intelligenza', value: 4 },
-      { section: 'left', key: 'saggezza', value: 4 },
-      { section: 'left', key: 'bonus condizionali', value: [{ amount: 1, description: 'Es. bonus' }] },
-      { section: 'right', key: 'lingue', value: 'Italiano' },
-      { section: 'right', key: 'equipaggiamento', value: [{ amount: 1, description: 'Oggetto' }] },
+      { section: 'head', key: 'nome',         value: 'Nome', className: '', disabled: false },
+      { section: 'head', key: 'ispirazione',  value: 1,      className: '', disabled: false },
+      { section: 'head', key: 'vita attuale', value: 10,     className: 'text-bg-warning', disabled: false },
+      { section: 'head', key: 'monete',       value: 5,      className: '', disabled: false },
+      { section: 'head', key: 'protezione',   value: 2,      className: '', disabled: false },
+
+      { section: 'left', key: 'costituzione', value: 6, className: 'text-bg-warning', disabled: false },
+      { section: 'left', key: 'destrezza', value: 8,    className: 'text-bg-success', disabled: false },
+      { section: 'left', key: 'forza', value: 6,        className: 'text-bg-danger', disabled: false },
+      { section: 'left', key: 'carisma', value: 6,      className: 'text-bg-primary', disabled: false },
+      { section: 'left', key: 'intelligenza', value: 4, className: 'text-bg-info', disabled: false },
+      { section: 'left', key: 'saggezza', value: 4,     className: 'text-bg-secondary', disabled: false },
+      { section: 'left', key: 'bonus condizionali', className: '', disabled: false,
+        value: [{ amount: 1, description: 'Es. bonus' }]
+      },
+
+      { section: 'right', key: 'lingue', value: 'Italiano', className: '', disabled: false },
+      { section: 'right', key: 'equipaggiamento', className: '', disabled: false,
+        value: [{ amount: 1, description: 'Oggetto' }]
+      },
     ]);
   }
 
@@ -86,7 +96,8 @@ export class MiniComponent {
           section: cur.section, 
           key: 'vita massima', 
           value: this.maxVita(), 
-          disabled: true
+          disabled: true,
+          className: cur.className
         });
       }
       return acc;
@@ -109,32 +120,77 @@ export class MiniComponent {
     const obj = current.find((c: CharacterField) => c.section === section && c.key === key);
     if (!obj) return;
 
+    console.log('[updateValue] Campo:', key, 'Valore vecchio:', obj.value, 'Nuovo valore:', newValue);
+
     const mustBeNumber = this.numericKeys.includes(key) || typeof obj.value === 'number';
+    let processedValue: string | number | ArrayItem[];
     if (mustBeNumber) {
       const match = String(newValue).match(/\d+/);
       const num = match ? Number(match[0]) : Number(newValue);
-      obj.value = isNaN(num) ? obj.value : num;
+      processedValue = isNaN(num) ? obj.value : num;
     } else {
-      obj.value = newValue;
+      processedValue = newValue;
     }
-    this.character.set([...current]);
+
+    const updated = current.map((c: CharacterField) => 
+      c.section === section && c.key === key ? { ...c, value: processedValue } : c
+    );
+    this.character.set(updated);
+
+    console.log('[updateValue] Campo aggiornato:', key, 'Nuovo valore nel signal:', processedValue);
   }
 
-  updateArrayValue(section: string, key: string, index: number, prop: keyof ArrayItem, newValue: string) {
-    const current = this.character();
-    const obj = current.find(c => c.section === section && c.key === key);
-    if (!obj || !Array.isArray(obj.value)) return;
+  // imita il comportamento di una label che contiene un input
+  focusAmountInput(e: Event) {
+    const target = e.target as HTMLElement;
+    const input = target.querySelector('[contenteditable]') as HTMLInputElement;
+    input?.focus();
+  }
+  // aggiorna un valore in un array di oggetti
+  updateArrayValue(e: Event, section: string, key: string, index: number, prop: keyof ArrayItem) {
+    // DATI
+    const character = this.character();
+    const targetList = character.find(c => c.section === section && c.key === key);
+    if (!targetList || !Array.isArray(targetList.value))
+      return console.error("Campo non trovato o non è un array");
 
-    if (prop === 'amount') {
-      const num = Number(newValue);
-      obj.value[index][prop] = isNaN(num) ? obj.value[index][prop] : num;
-    } else {
-      obj.value[index][prop] = newValue;
+    const arrayValue = targetList.value as ArrayItem[];
+    const oldValue = () => this.isArray(arrayValue)
+      ? arrayValue[index][prop]
+      : null;
+    const input = e.target as HTMLInputElement;
+    const inputValue = input.value || input.textContent || '';
+    const newValue = prop === 'amount' 
+      ? Number(inputValue.trim()) 
+      : inputValue.trim();
+    
+    // VALIDAZIONE
+    // amount deve essere un numero
+    if (prop === 'amount' && isNaN(newValue as number)) {
+      this.feed_showToast('danger', `Numero non valido`);
+      return;
+
+    // se il valore è lo stesso
+    } else if(newValue === oldValue()){
+      this.feed_showToast('info', 'Nessun cambiamento');
+      return;
     }
-    this.character.set([...current]);
+   
+    // AGGIORNAMENTO
+    const updatedArray = arrayValue.map((item: ArrayItem, i: number) => {
+      if (i !== index) return item;
+      return { ...item, [prop]: newValue };
+    });
+
+    const updated = character.map((c: CharacterField) => 
+      c.section === section && c.key === key 
+        ?{ ...c, value: updatedArray } 
+        :c
+    );
+    this.character.set(updated);
   }
 
-  addArrayItem(section: string, key: string, amount: string, description: string) {
+  addArrayItem(e:Event, section: string, key: string, amount: string, description: string) {
     const current = this.character();
     const obj = current.find(c => c.section === section && c.key === key);
     if (!obj || !Array.isArray(obj.value)) return;
@@ -148,6 +204,9 @@ export class MiniComponent {
       c.section === section && c.key === key ? { ...c, value: newValue } : c
     );
     this.character.set(updated);
+    // reset form
+    e.preventDefault();
+    (e.target as HTMLFormElement).reset();
   }
 
   removeArrayItem(section: string, key: string, index: number) {
@@ -165,15 +224,32 @@ export class MiniComponent {
   }
 
 
+  // feed
+  feed_toastValue =signal({color:'', message:'', icon:''})
+  feed_toastIcons ={
+    success: 'check-circle',
+    danger: 'exclamation-triangle',
+    warning: 'exclamation-triangle',
+    info: 'info-circle'
+  }
+  feed_showToast(color:"success" | "danger" | "warning" | "info", message:string) {
+    this.feed_toastValue.set({color, message, icon: this.feed_toastIcons[color]});
+
+    setTimeout(() => {
+      this.feed_toastValue.set({color:'', message:'', icon:''});
+    }, 2000);
+  }
+
+
   // CONDIVISIONE
-  copyToClipboard() {
+  shared_copyToClipboard() {
     const data = JSON.stringify(this.character());
     navigator.clipboard.writeText(data)
       .then(() => console.warn("Dati copiati negli appunti!"))
       .catch(err => console.error("Errore durante la copia:", err));
   }
 
-  pasteFromClipboard() {
+  shared_pasteFromClipboard() {
     navigator.clipboard.readText()
       .then(text => {
         const requiredChars = ['{', '}', '[', ']', ':'];
