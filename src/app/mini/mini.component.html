@@ -1,3 +1,8 @@
+<!-- 
+  navbar dedicata 
+  confirm dedicato 
+-->
+
 <div id="save-indicator" 
       class="position-fixed z-3 top-0 end-0 m-3 p-2 text-bg-{{feed_toastValue().color}} rounded shadow" 
       [style.display]="feed_toastValue().message ?'block' :'none'">
@@ -5,7 +10,7 @@
   <span style="color: inherit !important;">{{ feed_toastValue().message }}</span>
 </div>
 
-<section class="py-4 max-w-800px container">
+<section class="py-4 pb-20 max-w-800px container">
   <header class="d-flex justify-content-center mb-3 gap-2 align-items-center">
     <h1 class="h3 m-0 text-truncate">Mini RPG</h1>
     <button type="button" class="btn btn-sm btn-primary" (click)="shared_copyToClipboard()">Copia</button>
@@ -128,3 +133,49 @@
     }
   </div>
 </section>
+
+
+<!-- BOTTOMBAR -->
+<footer class="position-fixed bottom-0 start-0 end-0" style="background-color: #444444aa;">
+  <div class="container d-flex align-items-center overflow-x-auto">
+    <!-- Pulsante aggiungi -->
+    <button type="button"
+            class="me-2 btn btn-sm btn-outline-light border-0 rounded-circle"
+            (click)="addCharacter()"
+            title="Nuovo personaggio">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+
+    <!-- Pulsanti personaggi -->
+    @for (char of characters(); track char.id) {
+      <button type="button"
+              class="px-2 btn rounded-0 text-nowrap"
+              [class.btn-outline-light]="currentCharacterId() !== char.id"
+              [class.border-0]="currentCharacterId() !== char.id"
+              [class.btn-secondary]="currentCharacterId() === char.id"
+
+              (click)="selectCharacter(char.id)"
+              title="{{ char.name }}">
+        {{ char.name }}
+      </button>
+      <div class="dropdown dropup position-static">
+        <button class="px-2 btn rounded-0 dropdown-toggle"
+                [class.btn-outline-light]="currentCharacterId() !== char.id"
+                [class.border-0]="currentCharacterId() !== char.id"
+                [class.btn-secondary]="currentCharacterId() === char.id"
+                type="button"
+                [id]="'dropdown-' + char.id"
+                data-bs-toggle="dropdown"
+                data-bs-boundary="viewport"
+                aria-haspopup="true"
+                aria-expanded="false">
+        </button>
+        <div class="p-0 dropdown-menu bg-dark" [attr.aria-labelledby]="'dropdown-' + char.id">
+          <button class="w-100 btn btn-sm btn-danger" (click)="deleteCharacter(char.id)">
+            <i class="bi bi-trash"></i> Elimina
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</footer>

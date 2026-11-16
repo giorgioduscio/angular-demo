@@ -14,6 +14,12 @@ interface ArrayItem {
   description: string;
 }
 
+interface SavedCharacter {
+  id: string;
+  name: string;
+  data: CharacterField[];
+}
+
 @Component({
   selector: 'app-mini',
   standalone: true,
@@ -33,26 +39,37 @@ export class MiniComponent {
 
   // STORAGE
   private loadFromStorage() {
-    const localdata = localStorage.getItem('mini-rpg-data');
-    if (localdata) {
+    const charactersData = localStorage.getItem('mini-rpg-characters');
+    if (charactersData) {
       try {
-        this.character.set(JSON.parse(localdata));
+        this.characters.set(JSON.parse(charactersData));
+        const currentId = localStorage.getItem('mini-rpg-current-id');
+        if (currentId) {
+          this.currentCharacterId.set(currentId);
+          const char = this.characters().find(c => c.id === currentId);
+          if (char) {
+            this.character.set(char.data);
+            return;
+          }
+        }
       } catch (e) {
-        console.error('Errore parsing localdata:', e);
-        this.initDefault();
+        console.error('Errore parsing characters:', e);
       }
-    } else {
-      this.initDefault();
     }
+    this.initDefault();
+    this.addCharacter();
   }
   private saveToStorage() {
-    localStorage.setItem('mini-rpg-data', JSON.stringify(this.character()));
+    localStorage.setItem('mini-rpg-characters', JSON.stringify(this.characters()));
+    localStorage.setItem('mini-rpg-current-id', this.currentCharacterId());
     this.feed_showToast('success', 'Salvato');
   }
 
 
   
-  // PERSONAGGIO 
+  // PERSONAGGIO
+  characters = signal<SavedCharacter[]>([]);
+  currentCharacterId = signal<string>('');
   character = signal<CharacterField[]>([]);
 
   private numericKeys = [
@@ -61,6 +78,46 @@ export class MiniComponent {
   ];
 
   diceOptions = [12, 10, 8, 6, 4];
+
+  // Gestione personaggi
+  addCharacter() {
+    this.initDefault();
+    const id = Date.now().toString();
+    const name = this.character().find(f => f.key === 'nome')?.value as string || 'Nuovo Personaggio';
+    const newChar: SavedCharacter = {
+      id,
+      name,
+      data: this.character()
+    };
+    this.characters.set([...this.characters(), newChar]);
+    this.currentCharacterId.set(id);
+    this.saveToStorage();
+  }
+
+  selectCharacter(id: string) {
+    const char = this.characters().find(c => c.id === id);
+    if (char) {
+      this.currentCharacterId.set(id);
+      this.character.set(char.data);
+      this.saveToStorage();
+    }
+  }
+
+  deleteCharacter(id: string) {
+    if (!confirm('Eliminare questo personaggio?')) return;
+    const updated = this.characters().filter(c => c.id !== id);
+    this.characters.set(updated);
+    if (this.currentCharacterId() === id) {
+      if (updated.length > 0) {
+        this.selectCharacter(updated[0].id);
+      } else {
+        this.addCharacter();
+      }
+    } else {
+      this.saveToStorage();
+    }
+  }
+
   initDefault() {
     this.character.set([
       { section: 'head', key: 'nome',         value: 'Nome', className: '', disabled: false },
@@ -137,7 +194,20 @@ export class MiniComponent {
     );
     this.character.set(updated);
 
+    // Aggiorna nome nella lista se è il campo nome
+    if (key === 'nome') {
+      this.updateCharacterName(processedValue as string);
+    }
+
     console.log('[updateValue] Campo aggiornato:', key, 'Nuovo valore nel signal:', processedValue);
+  }
+
+  private updateCharacterName(newName: string) {
+    const currentId = this.currentCharacterId();
+    const updated = this.characters().map(c => 
+      c.id === currentId ? { ...c, name: newName, data: this.character() } : c
+    );
+    this.characters.set(updated);
   }
 
   // imita il comportamento di una label che contiene un input
@@ -243,7 +313,7 @@ export class MiniComponent {
 
   // CONDIVISIONE
   shared_copyToClipboard() {
-    const data = JSON.stringify(this.character());
+    const data = JSON.stringify(this.characters());
     navigator.clipboard.writeText(data)
       .then(() => console.warn("Dati copiati negli appunti!"))
       .catch(err => console.error("Errore durante la copia:", err));
@@ -258,8 +328,15 @@ export class MiniComponent {
           return;
         }
         try {
-          const parsed = JSON.parse(text);
-          this.character.set(parsed);
+          const parsed = JSON.parse(text) as SavedCharacter[];
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            this.characters.set(parsed);
+            this.currentCharacterId.set(parsed[0].id);
+            this.character.set(parsed[0].data);
+            this.saveToStorage();
+          } else {
+            alert("Il JSON non contiene un array di personaggi valido.");
+          }
         } catch (e) {
           alert("Errore nel parsing del JSON incollato.");
         }

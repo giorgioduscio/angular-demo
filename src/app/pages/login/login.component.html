@@ -5,9 +5,9 @@
     <p>I campi contrassegnati dall'asterisco <b class="text-danger">*</b> sono obbligatori</p>
     
     <form (ngSubmit)="onSubmit()" [formGroup]="form" class="gy-3">
-      <fieldset class="d-flex flex-wrap gap-2">
+      <fieldset class="d-flex flex-wrap gap-2 justify-content-center">
         @for (item of template; track item; let i=$index){
-          <div class="form-group flex-auto" style="max-width: 250px;">
+          <div class="min-w-200px form-group flex-1">
             <label [for]="item.key" class="form-label m-2">
               <i>{{ item.label }}</i>
               <b class="text-danger mx-1">{{ item.asterisk ?'*' :'' }}</b>

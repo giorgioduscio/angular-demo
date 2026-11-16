@@ -38,3 +38,4 @@ mini.component.ts
 * implementare la pagina per più personaggi. la pagina deve gestire più personaggi in diverse schede
   * in basso deve comparire una bottombar (overflow horizontal) con, a sinistra, un pulsante per aggiungere un nuovo personaggio e, a destra, i personaggi salvati 
   
+fammi delle domande per capire come implementare questa feature
