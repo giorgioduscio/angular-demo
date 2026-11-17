@@ -7,12 +7,13 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NavChatComponent } from './navChat/nav-chat.component';
 import { EditModeService } from './edit-mode.service';
 import { randomCompiler } from '../../tools/randomCompiler';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { ChatModalsComponent } from './chatModals/chatModals.component';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [NavChatComponent, FormsModule, NgFor, RouterLink, ChatModalsComponent],
+  imports: [NavChatComponent, FormsModule, NgFor, RouterLink, ChatModalsComponent, NavbarComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })

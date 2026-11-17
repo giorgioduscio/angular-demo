@@ -3,12 +3,13 @@ import { AuthService } from '../../auth/auth.service';
 import { User } from '../../interfaces/user';
 import { siteActions } from './siteActions';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [RouterModule, NgIf, ],
+  imports: [RouterModule, NgIf, NavbarComponent ],
   templateUrl: './personalArea.component.html',
   styleUrl: './personalArea.component.css'
 })

@@ -6,12 +6,13 @@ import { local } from './localStorage';
 import {toast, agree, popovers_init} from '../../tools/feedbacksUI';
 import { Autocomplete } from '../../tools/autocomplete';
 import PersonaggioDND from '../../interfaces/personaggioDND';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import duckcase from '../../tools/duckcase';
 
 @Component({
   selector: 'app-dnd',
   standalone: true,
-  imports: [NgIf, CommonModule, FormsModule],
+  imports: [NgIf, CommonModule, FormsModule, NavbarComponent],
   templateUrl: './dnd.component.html',
   styleUrl: './dnd.component.css'
 })

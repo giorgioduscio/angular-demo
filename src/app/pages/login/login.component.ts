@@ -5,12 +5,13 @@ import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { initForm, getForm, FormField } from './validation';
 import { randomCompiler } from '../../tools/randomCompiler';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ ReactiveFormsModule, FormsModule, RouterModule, NgIf, NgFor, ],
+  imports: [ ReactiveFormsModule, FormsModule, RouterModule, NgIf, NgFor, NavbarComponent ],
   templateUrl: './login.component.html',
 })
 

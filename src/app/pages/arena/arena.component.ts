@@ -8,11 +8,12 @@ import { DiceService } from './dice.service';
 import { statisticheGradoSfida } from './gradiSfida';
 import { FormField } from '../login/validation';
 import { CellComponent } from './cell.component';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 
 @Component({
   selector: 'app-arena',
   standalone: true,
-  imports: [CommonModule, CellComponent],
+  imports: [CommonModule, CellComponent, NavbarComponent],
   templateUrl: './arena.component.html',
   styleUrl: './arena.component.css',
 })

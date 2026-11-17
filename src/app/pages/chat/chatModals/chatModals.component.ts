@@ -5,12 +5,13 @@ import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Chat } from '../../../interfaces/chat';
 import { UsersService } from '../../../services/users.service';
+import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 
 @Component({
   selector: 'modal-chatModals',
   standalone: true,
-  imports: [FormsModule, NgFor, NgIf, ModalComponent],
+  imports: [FormsModule, NgFor, NgIf, ModalComponent, NavbarComponent],
   styleUrl:'./chatModals.component.css',
   templateUrl:`./chatModals.component.html`,
 })

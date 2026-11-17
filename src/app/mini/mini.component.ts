@@ -1,5 +1,7 @@
+import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { CommonModule, NgIf } from '@angular/common';
 import { Component, signal, computed, effect } from '@angular/core';
+import { toast } from '../tools/feedbacksUI';
 
 interface CharacterField {
   section: 'head' | 'left' | 'right';
@@ -23,7 +25,7 @@ interface SavedCharacter {
 @Component({
   selector: 'app-mini',
   standalone: true,
-  imports: [CommonModule, NgIf],
+  imports: [CommonModule, NgIf, NavbarComponent],
   templateUrl: './mini.component.html',
   styleUrls: ['./mini.component.css']
 })
@@ -62,7 +64,7 @@ export class MiniComponent {
   private saveToStorage() {
     localStorage.setItem('mini-rpg-characters', JSON.stringify(this.characters()));
     localStorage.setItem('mini-rpg-current-id', this.currentCharacterId());
-    this.feed_showToast('success', 'Salvato');
+    toast.success('Salvato');
   }
 
 
@@ -103,8 +105,9 @@ export class MiniComponent {
     }
   }
 
-  deleteCharacter(id: string) {
-    if (!confirm('Eliminare questo personaggio?')) return;
+  async deleteCharacter(id: string) {
+    const { agree } = await import('../tools/feedbacksUI');
+    if (!await agree.danger('Eliminare questo personaggio?', 'Rimuovi')) return;
     const updated = this.characters().filter(c => c.id !== id);
     this.characters.set(updated);
     if (this.currentCharacterId() === id) {
@@ -237,12 +240,12 @@ export class MiniComponent {
     // VALIDAZIONE
     // amount deve essere un numero
     if (prop === 'amount' && isNaN(newValue as number)) {
-      this.feed_showToast('danger', `Numero non valido`);
+      toast.danger(`Numero non valido`);
       return;
 
     // se il valore è lo stesso
     } else if(newValue === oldValue()){
-      this.feed_showToast('info', 'Nessun cambiamento');
+      toast.info('Nessun cambiamento');
       return;
     }
    
@@ -279,39 +282,43 @@ export class MiniComponent {
     (e.target as HTMLFormElement).reset();
   }
 
-  removeArrayItem(section: string, key: string, index: number) {
-    if (!confirm('Eliminare il componente?')) return;
-    
+  async removeArrayItem(section: string, key: string, index: number) {
+    const { agree } = await import('../tools/feedbacksUI');
+    if (!await agree.danger('Eliminare il componente?', 'Rimuovi')) return;
+
     const current = this.character();
     const obj = current.find(c => c.section === section && c.key === key);
     if (!obj || !Array.isArray(obj.value)) return;
 
     const newValue = obj.value.filter((_: ArrayItem, i: number) => i !== index);
-    const updated = current.map(c => 
+    const updated = current.map(c =>
       c.section === section && c.key === key ? { ...c, value: newValue } : c
     );
     this.character.set(updated);
   }
 
 
-  // feed
-  feed_toastValue =signal({color:'', message:'', icon:''})
-  feed_toastIcons ={
-    success: 'check-circle',
-    danger: 'exclamation-triangle',
-    warning: 'exclamation-triangle',
-    info: 'info-circle'
-  }
-  feed_showToast(color:"success" | "danger" | "warning" | "info", message:string) {
-    this.feed_toastValue.set({color, message, icon: this.feed_toastIcons[color]});
-
-    setTimeout(() => {
-      this.feed_toastValue.set({color:'', message:'', icon:''});
-    }, 2000);
-  }
-
-
   // CONDIVISIONE
+  shareds_buttons = [
+    {
+      label: 'Copia',
+      icon: 'bi-copy',
+      className: 'btn btn-primary',
+      action: () => this.shared_copyToClipboard()
+    },
+    {
+      label: 'Incolla',
+      icon: 'bi-clipboard',
+      className: 'btn btn-success',
+      action: () => this.shared_pasteFromClipboard()
+    },
+    {
+      label: 'Reset',
+      icon: 'bi-x-lg',
+      className: 'btn btn-danger',
+      action: () => this.initDefault()
+    }
+  ]
   shared_copyToClipboard() {
     const data = JSON.stringify(this.characters());
     navigator.clipboard.writeText(data)

@@ -3,12 +3,13 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { ListItem } from '../../interfaces/list';
 import { ParagraphPipe } from './paragraph.pipe';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { agree, toast } from '../../tools/feedbacksUI';
 
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [NgIf, FormsModule, NgFor, ParagraphPipe],
+  imports: [NgIf, FormsModule, NgFor, ParagraphPipe, NavbarComponent],
   templateUrl: './list.component.html'
 })
 

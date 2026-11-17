@@ -7,11 +7,12 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService } from '../../../auth/auth.service';
 import { randomCompiler } from '../../../tools/randomCompiler';
 import { ChatModalsComponent } from "../chatModals/chatModals.component";
+import { NavbarComponent } from '../../../shared/navbar/navbar.component';
 
 @Component({
   selector: 'app-messages',
   standalone: true,
-  imports: [ FormsModule, NgFor, NgIf, RouterModule, ChatModalsComponent],
+  imports: [ FormsModule, NgFor, NgIf, RouterModule, ChatModalsComponent, NavbarComponent],
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css', '../chat.component.css', '../styles/navChat.css']
 })

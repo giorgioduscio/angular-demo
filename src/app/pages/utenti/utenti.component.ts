@@ -6,13 +6,14 @@ import { agree, toast } from '../../tools/feedbacksUI';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { RouterModule } from '@angular/router';
 
 // IA: decoratore @component per definire metadati, template e stili del componente
 @Component({
   selector: 'app-utenti',
   standalone: true,
-  imports: [FormsModule, NgFor, NgIf, RouterModule],
+  imports: [FormsModule, NgFor, NgIf, RouterModule, NavbarComponent],
   templateUrl: './utenti.component.html',
   styleUrl: './utenti.component.css'
 })

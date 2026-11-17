@@ -5,12 +5,13 @@ import { CommonModule, NgFor } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HomeDirective } from './home.directive';
 import { siteActions } from '../personalArea/siteActions';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { AutocompleteInline } from '../../tools/autocomplete';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, FormsModule,
+  imports: [RouterModule, FormsModule, NavbarComponent,
     NgFor,
     CommonModule, HomeDirective],
 
