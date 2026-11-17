@@ -1,7 +1,8 @@
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { CommonModule, NgIf } from '@angular/common';
 import { Component, signal, computed, effect } from '@angular/core';
-import { toast } from '../tools/feedbacksUI';
+import { toast, ui_addCopyFeedback } from '../tools/feedbacksUI';
+import { RouterLink } from '@angular/router';
 
 interface CharacterField {
   section: 'head' | 'left' | 'right';
@@ -25,7 +26,7 @@ interface SavedCharacter {
 @Component({
   selector: 'app-mini',
   standalone: true,
-  imports: [CommonModule, NgIf, NavbarComponent],
+  imports: [CommonModule, NgIf, NavbarComponent, RouterLink],
   templateUrl: './mini.component.html',
   styleUrls: ['./mini.component.css']
 })
@@ -304,7 +305,7 @@ export class MiniComponent {
       label: 'Copia',
       icon: 'bi-copy',
       className: 'btn btn-primary',
-      action: () => this.shared_copyToClipboard()
+      action: ()=> this.shared_copyToClipboard()
     },
     {
       label: 'Incolla',
