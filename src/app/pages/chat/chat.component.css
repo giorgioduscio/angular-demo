@@ -53,3 +53,40 @@
     display: flex;
     justify-content: flex-end;
   }
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .chats {
+    padding-top: 0.5rem;
+  }
+  
+  .chat > abbr > div {
+    padding: 15px;
+    gap: 0.75rem;
+  }
+  
+  .chat img {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .chat a, .chat b {
+    max-width: 150px !important;
+    font-size: 0.9rem;
+  }
+  
+  #addChat > div {
+    max-width: 100%;
+    padding: 0 1rem 1rem;
+  }
+}
+
+/* Touch-friendly buttons */
+.chat button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Safe area padding for fixed bottom element */
+#addChat {
+  padding-bottom: env(safe-area-inset-bottom);
+}

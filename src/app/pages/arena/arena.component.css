@@ -25,3 +25,10 @@
   background-color: #fff;
 }
 
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .overflow-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+}

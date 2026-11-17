@@ -19,3 +19,15 @@
   border-color: transparent;
   cursor: pointer;
 }
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .select-dark {
+    padding: 12px 8px;
+    font-size: 16px;
+  }
+}
+
+/* Touch-friendly select */
+.select-dark {
+  min-height: 44px;
+}

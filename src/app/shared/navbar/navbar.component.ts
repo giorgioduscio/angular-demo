@@ -9,8 +9,8 @@ import { AuthService } from '../../auth/auth.service';
   standalone: true,
   imports: [ RouterModule, ProfileComponent ],
   template: `
-  <div style="padding-top: 2.8rem;">
-    <nav class="p-0 navbar navbar-expand-sm fixed-top shadow bg-dark z-3" data-bs-theme="dark">
+  <div style="padding-top: 3.5rem;">
+    <nav class="p-0 navbar navbar-expand-sm fixed-top shadow bg-dark z-3" style="min-height: 50px;" data-bs-theme="dark">
       <div class="container">
         <!-- Pulsante per offcanvas (solo mobile) -->
         <button

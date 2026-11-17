@@ -29,3 +29,22 @@ main{
 footer{
   min-height: 100px;
 }
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  header {
+    padding: 15px 0;
+  }
+  
+  main {
+    padding: 15px 0;
+  }
+  
+  .card img {
+    width: 100%;
+    height: 180px;
+  }
+  
+  footer {
+    min-height: 50px;
+  }
+}

@@ -48,3 +48,38 @@ button{
   margin: 5px;
 }
 footer{ min-height: 50vh; }
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  header {
+    min-height: 300px;
+  }
+  
+  header > div {
+    width: 200px;
+  }
+  
+  header img {
+    width: 150px;
+  }
+  
+  .card {
+    width: 100%;
+    max-width: 350px;
+  }
+  
+  footer {
+    min-height: 30vh;
+  }
+}
+
+/* Responsive card layout */
+.card {
+  width: 250px;
+  max-width: 100%;
+}
+
+/* Touch-friendly buttons */
+button {
+  min-height: 44px;
+  min-width: 44px;
+}

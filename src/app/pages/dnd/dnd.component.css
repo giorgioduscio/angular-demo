@@ -108,3 +108,25 @@
 .accordion-button::after {
   filter: invert(1) grayscale(100%);
 }
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  label {
+    font-size: 11px;
+  }
+  
+  .form-control-dnd {
+    font-size: 14px;
+  }
+  
+  select.form-control-dnd {
+    padding: 10px;
+  }
+}
+
+/* Touch-friendly checkboxes */
+input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+}
